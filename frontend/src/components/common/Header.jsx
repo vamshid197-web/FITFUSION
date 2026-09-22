@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Logo from './Logo.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
     }
   };
 
@@ -118,13 +129,28 @@ export default function Header() {
               </svg>
             </Link>
 
-            {/* Login CTA */}
-            <Link
-              to="/login"
-              className="text-xs font-semibold px-3 py-1.5 rounded-md border border-neutral-300 text-neutral-800 hover:border-brand-dark hover:bg-neutral-900 hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
+            {/* User Greeting & Sign Out OR Sign In button */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-block text-xs font-semibold text-neutral-800">
+                  {user.displayName || user.email?.split('@')[0]}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-md border border-neutral-300 text-neutral-700 hover:border-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="text-xs font-semibold px-3 py-1.5 rounded-md border border-neutral-300 text-neutral-800 hover:border-brand-dark hover:bg-neutral-900 hover:text-white transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
 
             {/* Mobile menu toggle */}
             <button
@@ -147,6 +173,22 @@ export default function Header() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-neutral-200 bg-white px-4 pt-3 pb-5 space-y-3 animate-fadeIn">
+          {user && (
+            <div className="px-3 py-2 bg-neutral-50 rounded-lg text-xs font-medium text-neutral-700 flex justify-between items-center">
+              <span>Signed in as <strong>{user.displayName || user.email}</strong></span>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="text-red-600 font-bold hover:underline"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleSearchSubmit} className="relative mb-2">
             <input
               type="text"
@@ -196,6 +238,16 @@ export default function Header() {
             >
               Admin Portal
             </Link>
+
+            {!user && (
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-2 block text-center py-2 px-4 rounded-lg bg-brand-dark text-white text-xs font-bold"
+              >
+                Sign In to Account
+              </Link>
+            )}
           </div>
         </div>
       )}

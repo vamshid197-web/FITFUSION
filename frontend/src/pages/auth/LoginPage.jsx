@@ -1,38 +1,55 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getFriendlyAuthErrorMessage } from '../../utils/authErrors.js';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [infoNotice, setInfoNotice] = useState('');
 
-  const handleLoginSubmit = (e) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect destination after successful login
+  const from = location.state?.from?.pathname || '/home';
+
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setInfoNotice('');
 
-    // Basic client validation
+    // Client-side validations
     if (!email || !email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
     }
-    if (!password || password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (!password) {
+      setError('Please enter your password.');
       return;
     }
 
-    // Temporary UI simulation for Phase 1
-    setStatusMessage('Validation passed! Authentication will be connected via Firebase in Phase 2.');
-    setTimeout(() => {
-      navigate('/home');
-    }, 1500);
+    try {
+      setLoading(true);
+      await login(email, password);
+      // Navigate to destination
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(getFriendlyAuthErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleSignIn = () => {
-    setStatusMessage('Google OAuth authentication is queued for implementation in Phase 2.');
+    setInfoNotice(
+      'Google Sign-In can be enabled in Firebase Console (Authentication > Sign-in method > Google). Email/Password authentication is fully active.'
+    );
   };
 
   return (
@@ -44,14 +61,14 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {statusMessage && (
+      {infoNotice && (
         <div className="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed animate-fadeIn">
-          <strong>FITFUSION Phase 1 Notice:</strong> {statusMessage}
+          <strong>Notice:</strong> {infoNotice}
         </div>
       )}
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+        <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium animate-fadeIn">
           {error}
         </div>
       )}
@@ -65,6 +82,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={loading}
         />
 
         <div>
@@ -86,16 +104,23 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 bg-white text-sm text-brand-dark placeholder-neutral-400 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-colors"
+            disabled={loading}
+            className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 bg-white text-sm text-brand-dark placeholder-neutral-400 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-colors disabled:bg-neutral-100 disabled:cursor-not-allowed"
           />
         </div>
 
-        <Button type="submit" variant="primary" size="lg" className="w-full">
-          Sign In
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full font-bold"
+          disabled={loading}
+        >
+          {loading ? 'Signing In...' : 'Sign In'}
         </Button>
       </form>
 
-      {/* Google OAuth UI Button */}
+      {/* Google Sign-in Option */}
       <div className="space-y-4 pt-2">
         <div className="relative flex items-center justify-center">
           <div className="border-t border-neutral-200 w-full" />
@@ -107,6 +132,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
+          disabled={loading}
           className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 border border-neutral-200 rounded-lg bg-white text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors shadow-xs"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -127,7 +153,7 @@ export default function LoginPage() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          Continue with Google (UI Demo)
+          Continue with Google
         </button>
       </div>
 

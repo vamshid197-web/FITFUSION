@@ -2,22 +2,39 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getFriendlyAuthErrorMessage } from '../../utils/authErrors.js';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleResetSubmit = (e) => {
+  const { resetPassword } = useAuth();
+
+  const handleResetSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setStatusMessage('');
 
     if (!email || !email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
     }
 
-    setStatusMessage(`Password reset request validated for ${email}. Firebase Auth password recovery email will trigger in Phase 2.`);
+    try {
+      setLoading(true);
+      await resetPassword(email.trim());
+      setStatusMessage(
+        `A password recovery email has been dispatched to ${email}. Please check your inbox and spam folders.`
+      );
+      setEmail('');
+    } catch (err) {
+      setError(getFriendlyAuthErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,13 +47,13 @@ export default function ForgotPasswordPage() {
       </div>
 
       {statusMessage && (
-        <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed animate-fadeIn">
-          <strong>Notice:</strong> {statusMessage}
+        <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed font-medium animate-fadeIn">
+          &#10003; {statusMessage}
         </div>
       )}
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+        <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium animate-fadeIn">
           {error}
         </div>
       )}
@@ -50,10 +67,17 @@ export default function ForgotPasswordPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={loading}
         />
 
-        <Button type="submit" variant="primary" size="lg" className="w-full">
-          Send Recovery Link
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full font-bold"
+          disabled={loading}
+        >
+          {loading ? 'Sending Recovery Link...' : 'Send Recovery Link'}
         </Button>
       </form>
 

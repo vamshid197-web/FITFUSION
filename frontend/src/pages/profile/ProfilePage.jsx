@@ -1,9 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function ProfilePage() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Failed to sign out:', err);
+      setLoggingOut(false);
+    }
+  };
+
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'FITFUSION Customer';
+  const email = user?.email || 'N/A';
+
   return (
     <div className="py-8 sm:py-16">
       <PageContainer maxWidth="md">
@@ -21,34 +40,34 @@ export default function ProfilePage() {
 
           <div className="space-y-2">
             <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
-              FITFUSION
+              Authenticated Customer Account
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark">
-              Customer Profile & Measurements
+              {displayName}
             </h1>
-            <p className="text-sm text-neutral-600 max-w-md mx-auto">
-              Save bespoke measurement profiles (Formal, Casual, Relaxed), address book, fragrance favorites, and wallet cashback balances.
+            <p className="text-xs font-mono text-neutral-500 bg-neutral-100 inline-block px-3 py-1 rounded-full">
+              {email}
             </p>
           </div>
 
-          {/* Planned Profile Domains Visual Preview */}
+          {/* Authenticated Account Overview Card */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-md mx-auto text-left">
-            <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-              <div className="text-[11px] font-bold text-neutral-800">Saved Metrics</div>
-              <div className="text-[10px] text-neutral-500">Chest, Neck, Inseam</div>
+            <div className="p-3.5 bg-neutral-50 rounded-lg border border-neutral-200">
+              <div className="text-[11px] font-bold text-neutral-800">Saved Measurements</div>
+              <div className="text-[10px] text-neutral-500 mt-0.5">Profile: Slim / Standard</div>
             </div>
-            <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-              <div className="text-[11px] font-bold text-neutral-800">Address Book</div>
-              <div className="text-[10px] text-neutral-500">Home & Office delivery</div>
+            <div className="p-3.5 bg-neutral-50 rounded-lg border border-neutral-200">
+              <div className="text-[11px] font-bold text-neutral-800">Delivery Address</div>
+              <div className="text-[10px] text-neutral-500 mt-0.5">Primary address linked</div>
             </div>
-            <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+            <div className="p-3.5 bg-neutral-50 rounded-lg border border-neutral-200">
               <div className="text-[11px] font-bold text-neutral-800">Cashback Wallet</div>
-              <div className="text-[10px] text-neutral-500">5% bespoke rebates</div>
+              <div className="text-[10px] text-brand-accent font-semibold mt-0.5">5% bespoke balance</div>
             </div>
           </div>
 
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium max-w-md mx-auto">
-            Coming in the next development phase: Firebase Authentication synchronization, custom measurement profile editor, and saved address book.
+            Connected to Firebase Authentication. Additional profile customization, measurement archive, and address management will be activated in Phase 3.
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-neutral-100">
@@ -57,6 +76,15 @@ export default function ProfilePage() {
             </Button>
             <Button to="/orders" variant="outline" size="md">
               View Order History
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="md"
+              disabled={loggingOut}
+              className="border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400"
+            >
+              {loggingOut ? 'Signing Out...' : 'Sign Out'}
             </Button>
           </div>
         </div>

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getFriendlyAuthErrorMessage } from '../../utils/authErrors.js';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -12,7 +14,8 @@ export default function SignupPage() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,7 +25,7 @@ export default function SignupPage() {
     });
   };
 
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -44,15 +47,19 @@ export default function SignupPage() {
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
+      setError('Passwords do not match. Please re-enter.');
       return;
     }
 
-    // Temporary Phase 1 behavior
-    setStatusMessage('Account details validated! Firebase User Registration will be linked in Phase 2.');
-    setTimeout(() => {
-      navigate('/home');
-    }, 1500);
+    try {
+      setLoading(true);
+      await signup(formData.email.trim(), formData.password, formData.name.trim());
+      navigate('/home', { replace: true });
+    } catch (err) {
+      setError(getFriendlyAuthErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,14 +71,8 @@ export default function SignupPage() {
         </p>
       </div>
 
-      {statusMessage && (
-        <div className="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed animate-fadeIn">
-          <strong>FITFUSION Phase 1 Notice:</strong> {statusMessage}
-        </div>
-      )}
-
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+        <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium animate-fadeIn">
           {error}
         </div>
       )}
@@ -86,6 +87,7 @@ export default function SignupPage() {
           value={formData.name}
           onChange={handleChange}
           required
+          disabled={loading}
         />
 
         <Input
@@ -97,6 +99,7 @@ export default function SignupPage() {
           value={formData.email}
           onChange={handleChange}
           required
+          disabled={loading}
         />
 
         <Input
@@ -108,6 +111,8 @@ export default function SignupPage() {
           value={formData.phone}
           onChange={handleChange}
           required
+          disabled={loading}
+          helperText="Used strictly for tailoring dispatch updates"
         />
 
         <Input
@@ -119,6 +124,7 @@ export default function SignupPage() {
           value={formData.password}
           onChange={handleChange}
           required
+          disabled={loading}
         />
 
         <Input
@@ -130,11 +136,18 @@ export default function SignupPage() {
           value={formData.confirmPassword}
           onChange={handleChange}
           required
+          disabled={loading}
         />
 
         <div className="pt-2">
-          <Button type="submit" variant="primary" size="lg" className="w-full">
-            Create Account
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full font-bold"
+            disabled={loading}
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </div>
       </form>
