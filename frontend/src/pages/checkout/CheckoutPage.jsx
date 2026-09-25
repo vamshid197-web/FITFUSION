@@ -1,49 +1,734 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
+import Input from '../../components/common/Input.jsx';
+import { useCart } from '../../context/CartContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+
+const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi NCR'
+];
 
 export default function CheckoutPage() {
-  return (
-    <div className="py-8 sm:py-16">
-      <PageContainer maxWidth="md">
-        <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-12 shadow-sm text-center space-y-6">
-          <div className="w-16 h-16 mx-auto rounded-full bg-brand-accentLight border border-brand-accent/30 flex items-center justify-center">
-            <svg className="w-8 h-8 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-              />
-            </svg>
-          </div>
+  const { items, subtotal, delivery, appliedCoupon, discount, total, clearCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-          <div className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
-              FITFUSION
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark">
-              Checkout & Payment
-            </h1>
-            <p className="text-sm text-neutral-600 max-w-md mx-auto">
-              Secure payment gateway processing, delivery address selection, tailoring lead times, and order confirmation.
-            </p>
-          </div>
+  // Form Fields State
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: 'Delhi NCR',
+    pincode: ''
+  });
 
-          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium max-w-md mx-auto">
-            Coming in the next development phase: Payment gateway integration, shipping address management, and order summary review.
-          </div>
+  // Prefill email and name if authenticated
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.displayName || '',
+        email: prev.email || user.email || ''
+      }));
+    }
+  }, [user]);
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-neutral-100">
-            <Button to="/cart" variant="outline" size="md">
-              &larr; Return to Cart
-            </Button>
+  // Payment Method Selection (Frontend Demo Only)
+  const [paymentMethod, setPaymentMethod] = useState('cod');
+
+  // Form Validation Errors
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Placed Order State (Shows Order Confirmation view upon completion)
+  const [placedOrder, setPlacedOrder] = useState(null);
+
+  // Handle Form Change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Validate Fields
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email Address is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = '10-digit Phone Number is required';
+    } else if (!/^[0-9]{10}$/.test(formData.phone.replace(/\D/g, ''))) {
+      newErrors.phone = 'Please enter a valid 10-digit mobile number';
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = 'Street / House address is required';
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+
+    if (!formData.state.trim()) {
+      newErrors.state = 'State is required';
+    }
+
+    if (!formData.pincode.trim()) {
+      newErrors.pincode = '6-digit PIN Code is required';
+    } else if (!/^[0-9]{6}$/.test(formData.pincode.trim())) {
+      newErrors.pincode = 'Please enter a valid 6-digit PIN code';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle Order Placement
+  const handlePlaceOrder = (e) => {
+    e.preventDefault();
+
+    if (items.length === 0) {
+      alert('Your cart is empty. Please add items before placing an order.');
+      navigate('/shop');
+      return;
+    }
+
+    if (!validateForm()) {
+      window.scrollTo({ top: 100, behavior: 'smooth' });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      // Generate Order ID: FF-2026-XXXXXX
+      const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+      const orderId = `FF-2026-${randomSuffix}`;
+
+      const paymentLabels = {
+        cod: 'Cash on Delivery (COD)',
+        upi: 'UPI (GPay / PhonePe / Paytm Simulation)',
+        card: 'Credit / Debit Card (Simulation)'
+      };
+
+      const newOrder = {
+        id: orderId,
+        createdAt: new Date().toISOString(),
+        formattedDate: new Date().toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        customer: {
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim()
+        },
+        deliveryAddress: {
+          address: formData.address.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          pincode: formData.pincode.trim()
+        },
+        paymentMethod: paymentLabels[paymentMethod] || 'Cash on Delivery',
+        items: [...items],
+        subtotal,
+        delivery,
+        discount,
+        couponCode: appliedCoupon?.code || null,
+        total,
+        status: 'Order Confirmed',
+        tailoringStatus: 'Pattern Drafting & Fabric Allocation'
+      };
+
+      // Persist order in localStorage under 'fitfusion_orders'
+      const existingOrdersRaw = localStorage.getItem('fitfusion_orders');
+      const existingOrders = existingOrdersRaw ? JSON.parse(existingOrdersRaw) : [];
+      const updatedOrders = [newOrder, ...existingOrders];
+      localStorage.setItem('fitfusion_orders', JSON.stringify(updatedOrders));
+
+      // Clear the cart only after successful order registration
+      clearCart();
+
+      // Show Order Confirmation View
+      setPlacedOrder(newOrder);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Failed to create order:', err);
+      alert('An error occurred while creating your order. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // STEP 11 — ORDER CONFIRMATION VIEW
+  if (placedOrder) {
+    return (
+      <div className="py-10 sm:py-16 bg-brand-cream min-h-screen">
+        <PageContainer maxWidth="md">
+          <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-12 shadow-sm space-y-8 animate-fadeIn">
+            {/* Top Success Header */}
+            <div className="text-center space-y-3">
+              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-50 border-2 border-emerald-500/30 flex items-center justify-center text-3xl">
+                🎉
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                Order Placed Successfully!
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-black text-brand-dark">
+                Thank You for Your Bespoke Order
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-600 max-w-lg mx-auto leading-relaxed">
+                Your order has been recorded in the FITFUSION tailoring engine. Our master tailors have been scheduled to initiate material drafting.
+              </p>
+            </div>
+
+            {/* Order Reference Plaque */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-neutral-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300 block">
+                  Unique Order Reference
+                </span>
+                <span className="text-xl sm:text-2xl font-mono font-black text-white">
+                  {placedOrder.id}
+                </span>
+              </div>
+              <div className="sm:text-right">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 block">
+                  Status
+                </span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded-md border border-emerald-500/30 inline-block mt-0.5">
+                  &#10003; {placedOrder.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Order Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
+                <span className="font-bold text-neutral-400 uppercase tracking-wider text-[10px] block">
+                  Customer Information
+                </span>
+                <div className="font-bold text-brand-dark text-sm">{placedOrder.customer.fullName}</div>
+                <div className="text-neutral-600">{placedOrder.customer.email}</div>
+                <div className="text-neutral-600">+91 {placedOrder.customer.phone}</div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
+                <span className="font-bold text-neutral-400 uppercase tracking-wider text-[10px] block">
+                  Delivery Address & Payment
+                </span>
+                <div className="text-neutral-800 font-medium">
+                  {placedOrder.deliveryAddress.address}, {placedOrder.deliveryAddress.city}, {placedOrder.deliveryAddress.state} - {placedOrder.deliveryAddress.pincode}
+                </div>
+                <div className="pt-1 text-neutral-600">
+                  <strong>Payment:</strong> {placedOrder.paymentMethod}
+                </div>
+              </div>
+            </div>
+
+            {/* Ordered Items Summary */}
+            <div className="space-y-3">
+              <h3 className="font-bold text-sm uppercase tracking-wider text-brand-dark">
+                Tailored Garments in this Order ({placedOrder.items.length})
+              </h3>
+
+              <div className="space-y-3">
+                {placedOrder.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl border border-neutral-200 bg-white flex flex-col sm:flex-row items-start justify-between gap-3 text-xs"
+                  >
+                    <div className="space-y-1">
+                      <div className="font-bold text-sm text-brand-dark">
+                        {item.productName} &times; {item.quantity}
+                      </div>
+                      <div className="text-neutral-600">
+                        {item.selectedFabric?.name} &bull; {item.selectedColor?.name} &bull; Size {item.size} ({item.fit} Fit)
+                      </div>
+                      <div className="text-[11px] text-neutral-500">
+                        Architecture: {item.collar} Collar &bull; {item.cuff} Cuff &bull; {item.buttons}
+                        {item.monogram ? ` • Monogram: "${item.monogram}"` : ''}
+                      </div>
+                      <div className="text-[11px] text-brand-accent font-semibold">
+                        Fragrance: {item.selectedPerfume ? `${item.selectedPerfume.name} (+₹${item.selectedPerfume.price})` : 'No Perfume (₹0)'}
+                      </div>
+                    </div>
+
+                    <div className="sm:text-right font-black text-sm text-brand-dark shrink-0">
+                      ₹{item.totalItemPrice * item.quantity}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Total Breakdown */}
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs space-y-2">
+              <div className="flex justify-between text-neutral-600">
+                <span>Subtotal:</span>
+                <span className="font-semibold text-brand-dark">₹{placedOrder.subtotal}</span>
+              </div>
+              <div className="flex justify-between text-neutral-600">
+                <span>Delivery:</span>
+                <span className="font-semibold text-brand-dark">
+                  {placedOrder.delivery === 0 ? 'FREE' : `₹${placedOrder.delivery}`}
+                </span>
+              </div>
+              {placedOrder.discount > 0 && (
+                <div className="flex justify-between text-emerald-600 font-semibold">
+                  <span>Discount ({placedOrder.couponCode}):</span>
+                  <span>-₹{placedOrder.discount}</span>
+                </div>
+              )}
+              <div className="pt-2 border-t border-neutral-200 flex justify-between items-baseline font-black text-base text-brand-dark">
+                <span>Total Amount Paid:</span>
+                <span className="text-xl text-brand-accent">₹{placedOrder.total}</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 border-t border-neutral-100">
+              <Button to="/orders" variant="secondary" size="lg" className="w-full sm:w-auto shadow-sm">
+                View All Orders &rarr;
+              </Button>
+              <Button to="/shop" variant="outline" size="lg" className="w-full sm:w-auto">
+                Continue Shopping
+              </Button>
+            </div>
+          </div>
+        </PageContainer>
+      </div>
+    );
+  }
+
+  // If cart is empty and no order placed yet
+  if (items.length === 0) {
+    return (
+      <div className="py-12 sm:py-20 bg-brand-cream min-h-[75vh] flex items-center">
+        <PageContainer maxWidth="md">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-12 shadow-sm text-center space-y-6">
+            <div className="w-16 h-16 mx-auto rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl">
+              🛒
+            </div>
+            <div className="space-y-1.5">
+              <h2 className="text-2xl font-black text-brand-dark">Checkout is Empty</h2>
+              <p className="text-xs sm:text-sm text-neutral-600">
+                You do not have any customized apparel in your cart to checkout.
+              </p>
+            </div>
             <Button to="/shop" variant="secondary" size="md">
-              Continue Shopping
+              Browse Clothing Collection &rarr;
             </Button>
+          </div>
+        </PageContainer>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-8 sm:py-12 bg-brand-cream min-h-screen">
+      <PageContainer>
+        {/* Breadcrumb Navigation */}
+        <div className="flex items-center gap-2 text-xs text-neutral-500 mb-6">
+          <Link to="/home" className="hover:text-brand-dark transition-colors">Home</Link>
+          <span>/</span>
+          <Link to="/cart" className="hover:text-brand-dark transition-colors">Cart</Link>
+          <span>/</span>
+          <span className="text-brand-accent font-semibold">Checkout & Payment</span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-neutral-200 gap-2">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
+              Phase 5 &bull; Checkout Engine
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark mt-0.5">
+              Secure Delivery & Payment
+            </h1>
+          </div>
+          <div className="text-xs text-neutral-500">
+            Reviewing order total: <strong className="text-brand-dark font-extrabold text-base">₹{total}</strong>
           </div>
         </div>
+
+        {/* 2-Column Layout: Left (Form + Payment) & Right (Order Review Summary) */}
+        <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Contact, Address & Payment */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* 1. Customer Information */}
+            <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
+              <div className="border-b border-neutral-100 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
+                    Step 1 of 2
+                  </span>
+                  <h2 className="text-base font-bold text-brand-dark">
+                    Customer Information
+                  </h2>
+                </div>
+                {user && (
+                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Logged in as {user.email}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-3.5">
+                <Input
+                  label="Full Name"
+                  id="fullName"
+                  name="fullName"
+                  placeholder="e.g. Aarav Sharma"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  error={errors.fullName}
+                  required
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <Input
+                    label="Email Address"
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={errors.email}
+                    required
+                  />
+
+                  <Input
+                    label="10-Digit Phone Number"
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="9876543210"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    error={errors.phone}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Delivery Address */}
+            <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
+              <div className="border-b border-neutral-100 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
+                  Step 2 of 2
+                </span>
+                <h2 className="text-base font-bold text-brand-dark">
+                  Delivery Address (India)
+                </h2>
+              </div>
+
+              <div className="space-y-3.5">
+                <Input
+                  label="Street Address / Flat / Building"
+                  id="address"
+                  name="address"
+                  placeholder="House No, Apartment, Street Area"
+                  value={formData.address}
+                  onChange={handleChange}
+                  error={errors.address}
+                  required
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <Input
+                    label="City"
+                    id="city"
+                    name="city"
+                    placeholder="e.g. New Delhi"
+                    value={formData.city}
+                    onChange={handleChange}
+                    error={errors.city}
+                    required
+                  />
+
+                  <div>
+                    <label
+                      htmlFor="state"
+                      className="block text-xs font-semibold uppercase tracking-wider text-brand-dark mb-1.5"
+                    >
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="state"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-neutral-200 bg-white text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
+                    >
+                      {INDIAN_STATES.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <Input
+                    label="PIN Code (6 digits)"
+                    id="pincode"
+                    name="pincode"
+                    placeholder="110001"
+                    maxLength={6}
+                    value={formData.pincode}
+                    onChange={handleChange}
+                    error={errors.pincode}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Payment UI (Frontend Demo Only) */}
+            <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
+              <div className="border-b border-neutral-100 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
+                    Payment Gateway Selection
+                  </span>
+                  <h2 className="text-base font-bold text-brand-dark">
+                    Select Payment Method
+                  </h2>
+                </div>
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                  Demo Simulation
+                </span>
+              </div>
+
+              {/* Demo Notice Banner */}
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <span>🎓</span> College Project Academic Demo
+                </div>
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  No real financial gateway is integrated. Never enter real CVV numbers, bank passwords, or UPI PINs. Selecting any option below simulates order completion safely.
+                </p>
+              </div>
+
+              {/* Payment Radio Options */}
+              <div className="space-y-3">
+                {/* Option 1: COD */}
+                <label
+                  className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    paymentMethod === 'cod'
+                      ? 'border-brand-accent bg-brand-accentLight/40 ring-2 ring-brand-accent'
+                      : 'border-neutral-200 hover:bg-neutral-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={paymentMethod === 'cod'}
+                      onChange={() => setPaymentMethod('cod')}
+                      className="accent-brand-accent w-4 h-4"
+                    />
+                    <div>
+                      <div className="font-bold text-sm text-brand-dark">
+                        Cash on Delivery (COD)
+                      </div>
+                      <div className="text-xs text-neutral-500">
+                        Pay in cash or scan QR upon physical delivery to your doorstep.
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-lg">💵</span>
+                </label>
+
+                {/* Option 2: UPI Simulation */}
+                <label
+                  className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    paymentMethod === 'upi'
+                      ? 'border-brand-accent bg-brand-accentLight/40 ring-2 ring-brand-accent'
+                      : 'border-neutral-200 hover:bg-neutral-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="upi"
+                      checked={paymentMethod === 'upi'}
+                      onChange={() => setPaymentMethod('upi')}
+                      className="accent-brand-accent w-4 h-4"
+                    />
+                    <div>
+                      <div className="font-bold text-sm text-brand-dark flex items-center gap-2">
+                        <span>UPI (GPay / PhonePe / Paytm)</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600">Demo</span>
+                      </div>
+                      <div className="text-xs text-neutral-500">
+                        Simulated UPI transaction without credential request.
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-lg">📱</span>
+                </label>
+
+                {/* Option 3: Card Simulation */}
+                <label
+                  className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    paymentMethod === 'card'
+                      ? 'border-brand-accent bg-brand-accentLight/40 ring-2 ring-brand-accent'
+                      : 'border-neutral-200 hover:bg-neutral-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="card"
+                      checked={paymentMethod === 'card'}
+                      onChange={() => setPaymentMethod('card')}
+                      className="accent-brand-accent w-4 h-4"
+                    />
+                    <div>
+                      <div className="font-bold text-sm text-brand-dark flex items-center gap-2">
+                        <span>Credit / Debit Card</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600">Demo</span>
+                      </div>
+                      <div className="text-xs text-neutral-500">
+                        Simulated card swipe processing without CVV or OTP request.
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-lg">💳</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Order Summary & Place Order CTA */}
+          <div className="lg:col-span-5 space-y-6 sticky top-24">
+            <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-5">
+              <div className="border-b border-neutral-100 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">
+                  Order Review
+                </span>
+                <h3 className="text-lg font-black text-brand-dark">
+                  Items Summary ({items.reduce((s, i) => s + i.quantity, 0)})
+                </h3>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                {items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3 rounded-xl bg-neutral-50 border border-neutral-200/80 flex items-start gap-3 text-xs"
+                  >
+                    <div
+                      className={`w-12 h-14 rounded-lg bg-gradient-to-br ${
+                        item.silhouetteColor || 'from-stone-100 to-amber-50'
+                      } border border-neutral-200 flex items-center justify-center shrink-0`}
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        style={{ color: item.selectedColor?.hex || '#1F2937' }}
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M9 3v2m6-2v2M9 5H7a2 2 0 00-2 2v2l2 1v9a2 2 0 002 2h6a2 2 0 002-2v-9l2-1V7a2 2 0 00-2-2h-2m-6 0a2 2 0 002 2h2a2 2 0 002-2m-6 0h6" />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-brand-dark truncate">{item.productName}</div>
+                      <div className="text-[11px] text-neutral-500">
+                        Qty: {item.quantity} &bull; Size {item.size} ({item.fit})
+                      </div>
+                      <div className="text-[10px] text-neutral-500 truncate">
+                        {item.selectedFabric?.name} &bull; {item.collar} Collar
+                      </div>
+                      {item.selectedPerfume && (
+                        <div className="text-[10px] text-brand-accent font-medium">
+                          Scent: {item.selectedPerfume.name}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="font-bold text-brand-dark text-right shrink-0">
+                      ₹{item.totalItemPrice * item.quantity}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Price Calculations */}
+              <div className="pt-3 border-t border-neutral-100 space-y-2 text-xs">
+                <div className="flex justify-between text-neutral-600">
+                  <span>Subtotal:</span>
+                  <span className="font-semibold text-brand-dark">₹{subtotal}</span>
+                </div>
+                <div className="flex justify-between text-neutral-600">
+                  <span>Delivery Charge:</span>
+                  <span className="font-semibold text-brand-dark">
+                    {delivery === 0 ? 'FREE' : `₹${delivery}`}
+                  </span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-semibold">
+                    <span>Discount ({appliedCoupon?.code}):</span>
+                    <span>-₹{discount}</span>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-neutral-200 flex justify-between items-baseline text-sm">
+                  <div>
+                    <span className="font-black text-brand-dark text-base">Final Total:</span>
+                    <p className="text-[10px] text-neutral-400">All tailoring & GST included</p>
+                  </div>
+                  <span className="text-2xl font-black text-brand-dark">₹{total}</span>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={submitting}
+                className="w-full text-base font-bold shadow-md bg-brand-dark hover:bg-neutral-800 disabled:opacity-50"
+              >
+                {submitting ? 'Placing Order...' : `Place Order (₹${total}) →`}
+              </Button>
+
+              <div className="text-center">
+                <Link to="/cart" className="text-xs text-neutral-500 hover:text-brand-dark underline">
+                  &larr; Return to Cart to modify items
+                </Link>
+              </div>
+            </div>
+          </div>
+        </form>
       </PageContainer>
     </div>
   );

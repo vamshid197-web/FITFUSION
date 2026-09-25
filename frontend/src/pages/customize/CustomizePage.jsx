@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useCart } from '../../context/CartContext.jsx';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
 import { MOCK_PRODUCTS } from '../../data/mockProducts.js';
@@ -218,6 +219,20 @@ export default function CustomizePage() {
 
   // Synchronize defaults if product changes
   useEffect(() => {
+    if (location.state?.editConfig) {
+      const cfg = location.state.editConfig;
+      if (cfg.selectedFabric) setSelectedFabric(cfg.selectedFabric);
+      if (cfg.selectedColor) setSelectedColor(cfg.selectedColor);
+      if (cfg.size) setSelectedSize(cfg.size);
+      if (cfg.fit) setSelectedFit(cfg.fit);
+      if (cfg.designOptions) setDesignOptions(cfg.designOptions);
+      if (cfg.customMeasurements) setCustomMeasurements(cfg.customMeasurements);
+      if (cfg.measurementUnit) setMeasurementUnit(cfg.measurementUnit);
+      if (cfg.selectedPerfume !== undefined) setSelectedPerfume(cfg.selectedPerfume);
+      if (location.state.initialStep) setActiveStep(location.state.initialStep);
+      return;
+    }
+
     if (product) {
       setSelectedFabric(product.availableFabrics?.[0] || null);
       setSelectedColor(product.availableColors?.[0] || null);
@@ -225,15 +240,50 @@ export default function CustomizePage() {
       setSelectedFit('Regular');
       setSelectedPerfume(null);
     }
-  }, [product?.id]);
-
-  const currentStepInfo = CUSTOMIZATION_STEPS.find((s) => s.id === activeStep) || CUSTOMIZATION_STEPS[0];
-  const isCustomTailored = selectedSize === "Custom Tailored";
+  }, [product?.id, location.state]);
 
   // Dynamic pricing calculation
   const basePrice = product?.basePrice || 0;
   const perfumePrice = selectedPerfume ? selectedPerfume.price : 0;
   const totalPrice = basePrice + perfumePrice;
+
+  const currentStepInfo = CUSTOMIZATION_STEPS.find((s) => s.id === activeStep) || CUSTOMIZATION_STEPS[0];
+  const isCustomTailored = selectedSize === "Custom Tailored";
+
+  // Handle Proceed to Cart with complete preserved configuration
+  const handleProceedToCart = () => {
+    const cartItem = {
+      id: `cart-${product.id}-${Date.now()}`,
+      productId: product.id,
+      productName: product.name,
+      category: product.category,
+      productImage: product.images?.[0] || product.image || null,
+      silhouetteColor: product.silhouetteColor,
+      accentColor: product.accentColor,
+      basePrice: basePrice,
+      selectedFabric: selectedFabric,
+      selectedColor: selectedColor,
+      selectedDesign: { ...designOptions },
+      designOptions: { ...designOptions },
+      collar: designOptions.collar,
+      cuff: designOptions.cuff,
+      buttons: designOptions.buttons,
+      monogram: designOptions.monogram,
+      size: selectedSize,
+      customMeasurements: { ...customMeasurements },
+      measurementUnit: measurementUnit,
+      fit: selectedFit,
+      selectedPerfume: selectedPerfume,
+      perfumePrice: perfumePrice,
+      itemPrice: totalPrice,
+      totalItemPrice: totalPrice,
+      quantity: 1,
+      addedAt: new Date().toISOString()
+    };
+
+    addToCart(cartItem);
+    navigate('/cart');
+  };
 
   // Recommendations calculated dynamically from current clothing choices
   const recommendedPerfumes = useMemo(() => {
