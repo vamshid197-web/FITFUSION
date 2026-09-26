@@ -1,0 +1,339 @@
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  query,
+  where
+} from 'firebase/firestore';
+import { db } from './firebase.js';
+import { MOCK_PRODUCTS } from '../data/mockProducts.js';
+
+/**
+ * =====================================================================
+ * FITFUSION FIRESTORE PERSISTENCE SERVICE (PHASE 6)
+ * =====================================================================
+ * Handles users, orders, and products persistence with Cloud Firestore.
+ * Includes graceful offline/demo fallbacks to prevent screen crashes.
+ */
+
+// Helper to remove any undefined fields before Firestore serialization
+function sanitizePayload(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizePayload);
+  }
+  const clean = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      clean[key] = sanitizePayload(value);
+    }
+  }
+  return clean;
+}
+
+/**
+ * ---------------------------------------------------------------------
+ * 1. USER PROFILE MANAGEMENT (`users` Collection)
+ * ---------------------------------------------------------------------
+ */
+
+/**
+ * Create or initialize a Firestore profile document for a user upon signup
+ * @param {string} uid - Firebase Auth user UID
+ * @param {object} profileData - { name, email, phone, role }
+ */
+export async function createUserProfile(uid, profileData = {}) {
+  if (!uid) throw new Error('User UID is required to create Firestore profile');
+
+  try {
+    const userRef = doc(db, 'users', uid);
+    const nowIso = new Date().toISOString();
+
+    const payload = sanitizePayload({
+      uid,
+      name: profileData.name || profileData.displayName || '',
+      displayName: profileData.name || profileData.displayName || '',
+      email: profileData.email || '',
+      phone: profileData.phone || '',
+      role: profileData.role || 'customer',
+      createdAt: nowIso,
+      updatedAt: nowIso
+    });
+
+    await setDoc(userRef, payload, { merge: true });
+    return { success: true, profile: payload };
+  } catch (err) {
+    console.warn('[Firestore] Failed to create user profile in Firestore:', err?.message || err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * Retrieve user profile from Firestore `users/{uid}`
+ * @param {string} uid - Firebase Auth user UID
+ */
+export async function getUserProfile(uid) {
+  if (!uid) return null;
+
+  try {
+    const userRef = doc(db, 'users', uid);
+    const snap = await getDoc(userRef);
+
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() };
+    }
+    return null;
+  } catch (err) {
+    console.warn('[Firestore] Failed to fetch user profile:', err?.message || err);
+    return null;
+  }
+}
+
+/**
+ * Update an existing user's profile
+ * @param {string} uid - User UID
+ * @param {object} updates - Fields to update (e.g. phone, name)
+ */
+export async function updateUserProfile(uid, updates = {}) {
+  if (!uid) throw new Error('User UID is required to update profile');
+
+  try {
+    const userRef = doc(db, 'users', uid);
+    const cleanUpdates = sanitizePayload({
+      ...updates,
+      updatedAt: new Date().toISOString()
+    });
+
+    await updateDoc(userRef, cleanUpdates);
+    return { success: true };
+  } catch (err) {
+    console.warn('[Firestore] Failed to update user profile:', err?.message || err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * ---------------------------------------------------------------------
+ * 2. ORDER PERSISTENCE (`orders` Collection)
+ * ---------------------------------------------------------------------
+ */
+
+/**
+ * Save completed bespoke order to Firestore
+ * @param {object} order - Complete order object from checkout
+ * @param {string} userId - Authenticated user UID
+ */
+export async function createFirestoreOrder(order, userId) {
+  if (!order) throw new Error('Order data is required');
+
+  const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+  const orderId = order.id || order.orderId || `FF-2026-${randomSuffix}`;
+  const nowIso = new Date().toISOString();
+
+  // Normalize items to preserve all bespoke customization specifications
+  const normalizedItems = (order.items || []).map((item, index) => {
+    return sanitizePayload({
+      cartItemId: item.id || `item-${index}`,
+      productId: item.productId || 'custom',
+      productName: item.productName || 'Bespoke Garment',
+      category: item.category || 'Custom Apparel',
+      productImage: item.productImage || null,
+      silhouetteColor: item.silhouetteColor || 'from-stone-100 to-amber-50',
+      accentColor: item.accentColor || '#1F2937',
+      basePrice: item.basePrice || item.itemPrice || 0,
+      
+      // Fabric specifications
+      selectedFabric: item.selectedFabric || null,
+      fabric: item.selectedFabric || item.fabric || null,
+
+      // Color specifications
+      selectedColor: item.selectedColor || null,
+      color: item.selectedColor || item.color || null,
+
+      // Design specifications
+      designOptions: item.designOptions || item.selectedDesign || {},
+      design: item.selectedDesign || item.designOptions || {
+        collar: item.collar || 'Standard',
+        cuff: item.cuff || 'Standard',
+        buttons: item.buttons || 'Standard',
+        monogram: item.monogram || null
+      },
+      collar: item.collar || item.designOptions?.collar || 'Standard',
+      cuff: item.cuff || item.designOptions?.cuff || 'Standard',
+      buttons: item.buttons || item.designOptions?.buttons || 'Standard',
+      monogram: item.monogram || item.designOptions?.monogram || null,
+
+      // Size & tailoring metrics
+      size: item.size || 'Custom Tailored',
+      customMeasurements: item.customMeasurements || {},
+      measurementUnit: item.measurementUnit || 'inches',
+      fit: item.fit || 'Regular',
+
+      // Fragrance pairing
+      selectedPerfume: item.selectedPerfume || null,
+      perfume: item.selectedPerfume || item.perfume || null,
+      perfumePrice: item.perfumePrice || 0,
+
+      // Quantity & pricing
+      quantity: Number(item.quantity) || 1,
+      itemPrice: Number(item.itemPrice) || Number(item.basePrice) || 0,
+      totalItemPrice: Number(item.totalItemPrice) || Number(item.price) || 0
+    });
+  });
+
+  const completeOrder = sanitizePayload({
+    id: orderId,
+    orderId: orderId,
+    orderNumber: orderId,
+    userId: userId || order.userId || 'guest',
+    createdAt: order.createdAt || nowIso,
+    date: order.date || order.createdAt || nowIso,
+    formattedDate: order.formattedDate || new Date().toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    customer: {
+      fullName: order.customer?.fullName || '',
+      email: order.customer?.email || '',
+      phone: order.customer?.phone || ''
+    },
+    deliveryAddress: {
+      address: order.deliveryAddress?.address || order.shippingAddress?.address || '',
+      city: order.deliveryAddress?.city || order.shippingAddress?.city || '',
+      state: order.deliveryAddress?.state || order.shippingAddress?.state || '',
+      pincode: order.deliveryAddress?.pincode || order.shippingAddress?.pincode || ''
+    },
+    shippingAddress: {
+      address: order.deliveryAddress?.address || order.shippingAddress?.address || '',
+      city: order.deliveryAddress?.city || order.shippingAddress?.city || '',
+      state: order.deliveryAddress?.state || order.shippingAddress?.state || '',
+      pincode: order.deliveryAddress?.pincode || order.shippingAddress?.pincode || ''
+    },
+    paymentMethod: order.paymentMethod || 'Cash on Delivery',
+    paymentStatus: order.paymentStatus || 'Confirmed (Demo)',
+    orderStatus: order.status || order.orderStatus || 'Order Confirmed',
+    status: order.status || order.orderStatus || 'Order Confirmed',
+    tailoringStatus: order.tailoringStatus || 'Pattern Drafting & Fabric Allocation',
+    items: normalizedItems,
+    subtotal: Number(order.subtotal) || 0,
+    delivery: Number(order.delivery) || 0,
+    discount: Number(order.discount) || 0,
+    coupon: order.couponCode || order.coupon || null,
+    couponCode: order.couponCode || order.coupon || null,
+    total: Number(order.total) || 0,
+    pricing: {
+      subtotal: Number(order.subtotal) || 0,
+      delivery: Number(order.delivery) || 0,
+      discount: Number(order.discount) || 0,
+      total: Number(order.total) || 0
+    },
+    updatedAt: nowIso
+  });
+
+  try {
+    const orderDocRef = doc(db, 'orders', orderId);
+    await setDoc(orderDocRef, completeOrder);
+    return { success: true, order: completeOrder, id: orderId };
+  } catch (err) {
+    console.warn('[Firestore] Failed to save order to Firestore:', err?.message || err);
+    // Return order object even if Firestore fails so caller can perform graceful fallback
+    return { success: false, order: completeOrder, error: err };
+  }
+}
+
+/**
+ * Fetch orders for the currently authenticated user
+ * @param {string} userId - Current user UID
+ */
+export async function getUserOrders(userId) {
+  if (!userId) {
+    return { success: true, orders: [], source: 'empty' };
+  }
+
+  try {
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, where('userId', '==', userId));
+    const snap = await getDocs(q);
+
+    const orders = [];
+    snap.forEach((docSnap) => {
+      orders.push({ id: docSnap.id, ...docSnap.data() });
+    });
+
+    // In-memory newest first sorting (resilient against missing composite indexes)
+    orders.sort((a, b) => {
+      const timeA = new Date(a.createdAt || a.date || 0).getTime();
+      const timeB = new Date(b.createdAt || b.date || 0).getTime();
+      return timeB - timeA;
+    });
+
+    return { success: true, orders, source: 'firestore' };
+  } catch (err) {
+    console.warn('[Firestore] Failed to fetch orders from Firestore:', err?.message || err);
+    return { success: false, orders: [], error: err, source: 'error' };
+  }
+}
+
+/**
+ * ---------------------------------------------------------------------
+ * 3. PRODUCT CATALOG PERSISTENCE (`products` Collection)
+ * ---------------------------------------------------------------------
+ */
+
+/**
+ * Fetch apparel catalog from Firestore with fallback to MOCK_PRODUCTS
+ */
+export async function getProductsFromFirestore() {
+  try {
+    const productsRef = collection(db, 'products');
+    const snap = await getDocs(productsRef);
+
+    if (!snap.empty) {
+      const products = [];
+      snap.forEach((docSnap) => {
+        products.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      return { success: true, products, source: 'firestore' };
+    }
+  } catch (err) {
+    console.warn('[Firestore] Could not load products from Firestore, using mock fallback:', err?.message || err);
+  }
+
+  // Safe fallback to mock dataset
+  return { success: true, products: MOCK_PRODUCTS, source: 'fallback' };
+}
+
+/**
+ * Seed initial mock products into Firestore (used for setup/admin)
+ */
+export async function seedProductsToFirestore() {
+  const results = { successful: 0, failed: 0 };
+  const nowIso = new Date().toISOString();
+
+  for (const product of MOCK_PRODUCTS) {
+    try {
+      const prodRef = doc(db, 'products', String(product.id));
+      const payload = sanitizePayload({
+        ...product,
+        available: true,
+        createdAt: nowIso,
+        updatedAt: nowIso
+      });
+      await setDoc(prodRef, payload, { merge: true });
+      results.successful += 1;
+    } catch (err) {
+      console.warn(`[Firestore] Failed seeding product ${product.id}:`, err?.message || err);
+      results.failed += 1;
+    }
+  }
+
+  return results;
+}

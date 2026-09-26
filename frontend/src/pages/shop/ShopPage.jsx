@@ -1,21 +1,42 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
 import { MOCK_PRODUCTS, CLOTHING_CATEGORIES } from '../../data/mockProducts.js';
+import { getProductsFromFirestore } from '../../services/firestoreService.js';
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All';
   const initialSearch = searchParams.get('search') || '';
 
+  const [products, setProducts] = useState(MOCK_PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('featured');
 
+  // Load from Firestore with graceful fallback to MOCK_PRODUCTS
+  useEffect(() => {
+    let isMounted = true;
+    async function loadCatalog() {
+      try {
+        const res = await getProductsFromFirestore();
+        if (isMounted && res.success && res.products?.length > 0) {
+          setProducts(res.products);
+        }
+      } catch (err) {
+        console.warn('[ShopPage] Failed to fetch products from Firestore:', err);
+      }
+    }
+    loadCatalog();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       const matchesCategory =
         selectedCategory === 'All' || product.category.toLowerCase() === selectedCategory.toLowerCase();
       const matchesSearch =
@@ -29,7 +50,7 @@ export default function ShopPage() {
       if (sortBy === 'rating') return b.rating - a.rating;
       return 0; // default featured
     });
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -49,16 +70,18 @@ export default function ShopPage() {
           <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
             Custom Apparel Catalog
           </span>
-          <h1 className="text-3xl font-extrabold text-brand-dark">Shop Custom Clothing</h1>
-          <p className="text-sm text-neutral-600 max-w-2xl">
-            Select a silhouette to tailor with your choice of premium certified fabrics, collar & cuff styling, precision body measurements, and artisanal fragrances.
+          <h1 className="text-3xl sm:text-4xl font-black text-brand-dark">
+            Bespoke Garments & Silhouettes
+          </h1>
+          <p className="text-xs sm:text-sm text-neutral-600 max-w-2xl">
+            Choose your foundational garment style, then personalize certified fabric weaves, colorways, collar architecture, and luxury fragrance pairings.
           </p>
         </div>
 
-        {/* Filter Bar: Search + Category Pills + Sort */}
-        <div className="space-y-4 bg-white p-5 rounded-xl border border-neutral-200/90 shadow-sm mb-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* Search Input */}
+        {/* Filter Toolbar: Search, Sort, and Categories */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* Live Search */}
             <div className="relative flex-1 max-w-md">
               <input
                 type="text"
@@ -179,7 +202,7 @@ export default function ShopPage() {
                   {/* Rating & Base Price */}
                   <div className="flex justify-between items-center text-xs font-semibold text-neutral-800">
                     <span className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded shadow-xs">
-                      Base: ${product.basePrice}
+                      Base: ₹{product.basePrice}
                     </span>
                     <span className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
                       <span className="text-amber-500">&#9733;</span> {product.rating} ({product.reviewsCount})

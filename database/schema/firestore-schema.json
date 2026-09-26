@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FITFUSION Firestore Database Schema",
+  "description": "Entity specifications and schema definitions for FITFUSION Cloud Firestore collections in Phase 6.",
+  "version": "1.0.0",
+  "collections": {
+    "users": {
+      "path": "users/{uid}",
+      "description": "Application-level user profile accounts connected to Firebase Authentication UIDs.",
+      "type": "object",
+      "required": ["uid", "name", "email", "role", "createdAt", "updatedAt"],
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Authentication UID" },
+        "name": { "type": "string", "description": "Customer full name" },
+        "displayName": { "type": "string", "description": "Display name alias" },
+        "email": { "type": "string", "format": "email", "description": "Primary email" },
+        "phone": { "type": "string", "description": "10-digit contact mobile number for dispatch" },
+        "role": { "type": "string", "enum": ["customer", "admin", "tailor"], "default": "customer" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "ISO timestamp of creation" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "ISO timestamp of last update" }
+      }
+    },
+    "orders": {
+      "path": "orders/{orderId}",
+      "description": "Bespoke tailoring orders placed by customers.",
+      "type": "object",
+      "required": [
+        "id",
+        "orderId",
+        "userId",
+        "customer",
+        "items",
+        "subtotal",
+        "delivery",
+        "discount",
+        "total",
+        "pricing",
+        "paymentMethod",
+        "paymentStatus",
+        "orderStatus",
+        "tailoringStatus",
+        "deliveryAddress",
+        "createdAt"
+      ],
+      "properties": {
+        "id": { "type": "string", "example": "FF-2026-123456" },
+        "orderId": { "type": "string", "example": "FF-2026-123456" },
+        "orderNumber": { "type": "string", "example": "FF-2026-123456" },
+        "userId": { "type": "string", "description": "Firebase Auth UID or 'guest'" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "date": { "type": "string", "format": "date-time" },
+        "formattedDate": { "type": "string", "example": "26 Sep 2026, 03:30 pm" },
+        "customer": {
+          "type": "object",
+          "required": ["fullName", "email", "phone"],
+          "properties": {
+            "fullName": { "type": "string" },
+            "email": { "type": "string" },
+            "phone": { "type": "string" }
+          }
+        },
+        "deliveryAddress": {
+          "type": "object",
+          "required": ["address", "city", "state", "pincode"],
+          "properties": {
+            "address": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "pincode": { "type": "string" }
+          }
+        },
+        "shippingAddress": {
+          "type": "object",
+          "properties": {
+            "address": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "pincode": { "type": "string" }
+          }
+        },
+        "paymentMethod": { "type": "string", "example": "Cash on Delivery (COD)" },
+        "paymentStatus": { "type": "string", "example": "Confirmed (Demo)" },
+        "orderStatus": { "type": "string", "example": "Order Confirmed" },
+        "status": { "type": "string", "example": "Order Confirmed" },
+        "tailoringStatus": {
+          "type": "string",
+          "example": "Pattern Drafting & Fabric Allocation"
+        },
+        "subtotal": { "type": "number", "minimum": 0 },
+        "delivery": { "type": "number", "minimum": 0 },
+        "discount": { "type": "number", "minimum": 0 },
+        "couponCode": { "type": ["string", "null"] },
+        "total": { "type": "number", "minimum": 0 },
+        "pricing": {
+          "type": "object",
+          "properties": {
+            "subtotal": { "type": "number" },
+            "delivery": { "type": "number" },
+            "discount": { "type": "number" },
+            "total": { "type": "number" }
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "productName",
+              "category",
+              "selectedFabric",
+              "selectedColor",
+              "collar",
+              "cuff",
+              "buttons",
+              "size",
+              "fit",
+              "quantity",
+              "totalItemPrice"
+            ],
+            "properties": {
+              "cartItemId": { "type": "string" },
+              "productId": { "type": "string" },
+              "productName": { "type": "string" },
+              "category": { "type": "string" },
+              "productImage": { "type": ["string", "null"] },
+              "silhouetteColor": { "type": "string" },
+              "accentColor": { "type": "string" },
+              "basePrice": { "type": "number" },
+              "selectedFabric": { "type": "object" },
+              "fabric": { "type": "object" },
+              "selectedColor": { "type": "object" },
+              "color": { "type": "object" },
+              "designOptions": { "type": "object" },
+              "collar": { "type": "string" },
+              "cuff": { "type": "string" },
+              "buttons": { "type": "string" },
+              "monogram": { "type": ["object", "string", "null"] },
+              "size": { "type": "string" },
+              "customMeasurements": { "type": "object" },
+              "measurementUnit": { "type": "string", "enum": ["inches", "cm"] },
+              "fit": { "type": "string" },
+              "selectedPerfume": { "type": ["object", "null"] },
+              "perfume": { "type": ["object", "null"] },
+              "perfumePrice": { "type": "number" },
+              "quantity": { "type": "integer", "minimum": 1 },
+              "itemPrice": { "type": "number" },
+              "totalItemPrice": { "type": "number" }
+            }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "products": {
+      "path": "products/{productId}",
+      "description": "Base apparel catalog silhouettes available for bespoke customization.",
+      "type": "object",
+      "required": ["id", "name", "category", "basePrice", "available"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "basePrice": { "type": "number" },
+        "rating": { "type": "number" },
+        "reviewsCount": { "type": "integer" },
+        "badge": { "type": "string" },
+        "description": { "type": "string" },
+        "availableFabrics": { "type": "array" },
+        "availableColors": { "type": "array" },
+        "availableSizes": { "type": "array" },
+        "silhouetteColor": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "available": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "indexes": [
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ]
+}

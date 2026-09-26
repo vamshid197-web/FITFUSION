@@ -5,6 +5,7 @@ import Button from '../../components/common/Button.jsx';
 import Input from '../../components/common/Input.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { createFirestoreOrder } from '../../services/firestoreService.js';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -16,7 +17,7 @@ const INDIAN_STATES = [
 
 export default function CheckoutPage() {
   const { items, subtotal, delivery, appliedCoupon, discount, total, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const navigate = useNavigate();
 
   // Form Fields State
@@ -30,22 +31,24 @@ export default function CheckoutPage() {
     pincode: ''
   });
 
-  // Prefill email and name if authenticated
+  // Prefill email, name, and phone if authenticated
   useEffect(() => {
-    if (user) {
+    if (user || userProfile) {
       setFormData((prev) => ({
         ...prev,
-        fullName: prev.fullName || user.displayName || '',
-        email: prev.email || user.email || ''
+        fullName: prev.fullName || userProfile?.name || user?.displayName || '',
+        email: prev.email || userProfile?.email || user?.email || '',
+        phone: prev.phone || userProfile?.phone || ''
       }));
     }
-  }, [user]);
+  }, [user, userProfile]);
 
   // Payment Method Selection (Frontend Demo Only)
   const [paymentMethod, setPaymentMethod] = useState('cod');
 
-  // Form Validation Errors
+  // Form Validation Errors & Submission State
   const [errors, setErrors] = useState({});
+  const [orderError, setOrderError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // Placed Order State (Shows Order Confirmation view upon completion)
@@ -103,7 +106,7 @@ export default function CheckoutPage() {
   };
 
   // Handle Order Placement
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
     if (items.length === 0) {
@@ -118,6 +121,7 @@ export default function CheckoutPage() {
     }
 
     setSubmitting(true);
+    setOrderError('');
 
     try {
       // Generate Order ID: FF-2026-XXXXXX
@@ -130,9 +134,15 @@ export default function CheckoutPage() {
         card: 'Credit / Debit Card (Simulation)'
       };
 
+      const nowIso = new Date().toISOString();
+
       const newOrder = {
         id: orderId,
-        createdAt: new Date().toISOString(),
+        orderId: orderId,
+        orderNumber: orderId,
+        userId: user ? user.uid : 'guest',
+        createdAt: nowIso,
+        date: nowIso,
         formattedDate: new Date().toLocaleDateString('en-IN', {
           day: 'numeric',
           month: 'short',
@@ -151,38 +161,66 @@ export default function CheckoutPage() {
           state: formData.state.trim(),
           pincode: formData.pincode.trim()
         },
+        shippingAddress: {
+          address: formData.address.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          pincode: formData.pincode.trim()
+        },
         paymentMethod: paymentLabels[paymentMethod] || 'Cash on Delivery',
+        paymentStatus: 'Confirmed (Demo)',
         items: [...items],
         subtotal,
         delivery,
         discount,
         couponCode: appliedCoupon?.code || null,
+        coupon: appliedCoupon?.code || null,
         total,
+        pricing: {
+          subtotal,
+          delivery,
+          discount,
+          total
+        },
         status: 'Order Confirmed',
+        orderStatus: 'Order Confirmed',
         tailoringStatus: 'Pattern Drafting & Fabric Allocation'
       };
 
-      // Persist order in localStorage under 'fitfusion_orders'
-      const existingOrdersRaw = localStorage.getItem('fitfusion_orders');
-      const existingOrders = existingOrdersRaw ? JSON.parse(existingOrdersRaw) : [];
-      const updatedOrders = [newOrder, ...existingOrders];
-      localStorage.setItem('fitfusion_orders', JSON.stringify(updatedOrders));
+      // 1. If user is authenticated, persist order to Cloud Firestore
+      if (user?.uid) {
+        try {
+          await createFirestoreOrder(newOrder, user.uid);
+        } catch (firestoreErr) {
+          console.warn('[CheckoutPage] Firestore order creation warning:', firestoreErr);
+        }
+      }
 
-      // Clear the cart only after successful order registration
+      // 2. Persist order in localStorage under 'fitfusion_orders' (local cache & fallback)
+      try {
+        const existingOrdersRaw = localStorage.getItem('fitfusion_orders');
+        const existingOrders = existingOrdersRaw ? JSON.parse(existingOrdersRaw) : [];
+        const updatedOrders = [newOrder, ...existingOrders];
+        localStorage.setItem('fitfusion_orders', JSON.stringify(updatedOrders));
+      } catch (storageErr) {
+        console.warn('[CheckoutPage] LocalStorage save warning:', storageErr);
+      }
+
+      // 3. Clear cart after successful order registration
       clearCart();
 
-      // Show Order Confirmation View
+      // 4. Show Order Confirmation View
       setPlacedOrder(newOrder);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Failed to create order:', err);
-      alert('An error occurred while creating your order. Please try again.');
+      setOrderError('Unable to process your bespoke order right now. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  // STEP 11 — ORDER CONFIRMATION VIEW
+  // STEP 11 – ORDER CONFIRMATION VIEW
   if (placedOrder) {
     return (
       <div className="py-10 sm:py-16 bg-brand-cream min-h-screen">
@@ -190,8 +228,8 @@ export default function CheckoutPage() {
           <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-12 shadow-sm space-y-8 animate-fadeIn">
             {/* Top Success Header */}
             <div className="text-center space-y-3">
-              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-50 border-2 border-emerald-500/30 flex items-center justify-center text-3xl">
-                🎉
+              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-50 border-2 border-emerald-500/30 flex items-center justify-center text-3xl text-emerald-600">
+                ✓
               </div>
               <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                 Order Placed Successfully!
@@ -200,7 +238,7 @@ export default function CheckoutPage() {
                 Thank You for Your Bespoke Order
               </h1>
               <p className="text-xs sm:text-sm text-neutral-600 max-w-lg mx-auto leading-relaxed">
-                Your order has been recorded in the FITFUSION tailoring engine. Our master tailors have been scheduled to initiate material drafting.
+                Your order has been recorded in the FITFUSION tailoring engine and persisted to Cloud Firestore. Our master tailors have been scheduled to initiate material drafting.
               </p>
             </div>
 
@@ -265,11 +303,11 @@ export default function CheckoutPage() {
                         {item.productName} &times; {item.quantity}
                       </div>
                       <div className="text-neutral-600">
-                        {item.selectedFabric?.name} &bull; {item.selectedColor?.name} &bull; Size {item.size} ({item.fit} Fit)
+                        {item.selectedFabric?.name || item.fabric?.name} &bull; {item.selectedColor?.name || item.color?.name} &bull; Size {item.size} ({item.fit} Fit)
                       </div>
                       <div className="text-[11px] text-neutral-500">
-                        Architecture: {item.collar} Collar &bull; {item.cuff} Cuff &bull; {item.buttons}
-                        {item.monogram ? ` • Monogram: "${item.monogram}"` : ''}
+                        Architecture: {item.collar} Collar &bull; {item.cuff} Cuff &bull; {item.buttons} Buttons
+                        {item.monogram ? ` • Monogram: "${item.monogram.text || item.monogram}"` : ''}
                       </div>
                       <div className="text-[11px] text-brand-accent font-semibold">
                         Fragrance: {item.selectedPerfume ? `${item.selectedPerfume.name} (+₹${item.selectedPerfume.price})` : 'No Perfume (₹0)'}
@@ -329,8 +367,8 @@ export default function CheckoutPage() {
       <div className="py-12 sm:py-20 bg-brand-cream min-h-[75vh] flex items-center">
         <PageContainer maxWidth="md">
           <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-12 shadow-sm text-center space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl">
-              🛒
+            <div className="w-16 h-16 mx-auto rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl text-amber-700">
+              🛍️
             </div>
             <div className="space-y-1.5">
               <h2 className="text-2xl font-black text-brand-dark">Checkout is Empty</h2>
@@ -356,58 +394,59 @@ export default function CheckoutPage() {
           <span>/</span>
           <Link to="/cart" className="hover:text-brand-dark transition-colors">Cart</Link>
           <span>/</span>
-          <span className="text-brand-accent font-semibold">Checkout & Payment</span>
+          <span className="text-neutral-800 font-semibold">Checkout</span>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-neutral-200 gap-2">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
-              Phase 5 &bull; Checkout Engine
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark mt-0.5">
-              Secure Delivery & Payment
-            </h1>
-          </div>
-          <div className="text-xs text-neutral-500">
-            Reviewing order total: <strong className="text-brand-dark font-extrabold text-base">₹{total}</strong>
-          </div>
+        {/* Page Header */}
+        <div className="space-y-1 mb-8">
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
+            Secure Bespoke Checkout
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-brand-dark">
+            Complete Tailoring Commission
+          </h1>
+          <p className="text-xs sm:text-sm text-neutral-600">
+            Provide delivery particulars and confirm your customized apparel specifications.
+          </p>
         </div>
 
-        {/* 2-Column Layout: Left (Form + Payment) & Right (Order Review Summary) */}
+        {/* Error notification banner if checkout fails */}
+        {orderError && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
+            {orderError}
+          </div>
+        )}
+
+        {/* Checkout Main Grid */}
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Contact, Address & Payment */}
+          {/* Left Column: Delivery Form & Payment Selection */}
           <div className="lg:col-span-7 space-y-6">
-            {/* 1. Customer Information */}
+            {/* 1. Customer Information Card */}
             <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
               <div className="border-b border-neutral-100 pb-3 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">
                     Step 1 of 2
                   </span>
-                  <h2 className="text-base font-bold text-brand-dark">
-                    Customer Information
-                  </h2>
+                  <h2 className="text-base font-bold text-brand-dark">Customer Information</h2>
                 </div>
-                {user && (
-                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    Logged in as {user.email}
-                  </span>
-                )}
+                <span className="text-xs text-neutral-400">Tailoring Dispatch</span>
               </div>
 
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 <Input
                   label="Full Name"
                   id="fullName"
                   name="fullName"
-                  placeholder="e.g. Aarav Sharma"
+                  type="text"
+                  placeholder="e.g. Alexander Wright"
                   value={formData.fullName}
                   onChange={handleChange}
                   error={errors.fullName}
                   required
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Email Address"
                     id="email"
@@ -421,7 +460,7 @@ export default function CheckoutPage() {
                   />
 
                   <Input
-                    label="10-Digit Phone Number"
+                    label="10-Digit Mobile Number"
                     id="phone"
                     name="phone"
                     type="tel"
@@ -429,75 +468,75 @@ export default function CheckoutPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     error={errors.phone}
+                    helperText="Required for delivery tracking"
                     required
                   />
                 </div>
               </div>
             </div>
 
-            {/* 2. Delivery Address */}
+            {/* 2. Shipping Address Card */}
             <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
-              <div className="border-b border-neutral-100 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
-                  Step 2 of 2
-                </span>
-                <h2 className="text-base font-bold text-brand-dark">
-                  Delivery Address (India)
-                </h2>
+              <div className="border-b border-neutral-100 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">
+                    Step 2 of 2
+                  </span>
+                  <h2 className="text-base font-bold text-brand-dark">Delivery Address</h2>
+                </div>
+                <span className="text-xs text-neutral-400">All India Courier</span>
               </div>
 
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 <Input
-                  label="Street Address / Flat / Building"
+                  label="Street / House / Apartment Address"
                   id="address"
                   name="address"
-                  placeholder="House No, Apartment, Street Area"
+                  type="text"
+                  placeholder="Flat 402, Royal Palms, MG Road"
                   value={formData.address}
                   onChange={handleChange}
                   error={errors.address}
                   required
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Input
                     label="City"
                     id="city"
                     name="city"
-                    placeholder="e.g. New Delhi"
+                    type="text"
+                    placeholder="New Delhi"
                     value={formData.city}
                     onChange={handleChange}
                     error={errors.city}
                     required
                   />
 
-                  <div>
-                    <label
-                      htmlFor="state"
-                      className="block text-xs font-semibold uppercase tracking-wider text-brand-dark mb-1.5"
-                    >
-                      State <span className="text-red-500">*</span>
+                  <div className="space-y-1">
+                    <label htmlFor="state" className="block text-xs font-semibold text-neutral-700">
+                      State / UT
                     </label>
                     <select
                       id="state"
                       name="state"
                       value={formData.state}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-neutral-200 bg-white text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
+                      className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-lg focus:outline-none focus:border-brand-accent bg-white text-neutral-800"
                     >
                       {INDIAN_STATES.map((st) => (
-                        <option key={st} value={st}>
-                          {st}
-                        </option>
+                        <option key={st} value={st}>{st}</option>
                       ))}
                     </select>
                   </div>
 
                   <Input
-                    label="PIN Code (6 digits)"
+                    label="6-Digit PIN Code"
                     id="pincode"
                     name="pincode"
-                    placeholder="110001"
+                    type="text"
                     maxLength={6}
+                    placeholder="110001"
                     value={formData.pincode}
                     onChange={handleChange}
                     error={errors.pincode}
@@ -507,35 +546,22 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* 3. Payment UI (Frontend Demo Only) */}
+            {/* 3. Payment Method Simulation Card (College Project Demo) */}
             <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
-              <div className="border-b border-neutral-100 pb-3 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
-                    Payment Gateway Selection
+              <div className="border-b border-neutral-100 pb-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-bold text-brand-dark">Payment Method Simulation</h2>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                    Safe Educational Mode
                   </span>
-                  <h2 className="text-base font-bold text-brand-dark">
-                    Select Payment Method
-                  </h2>
                 </div>
-                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
-                  Demo Simulation
-                </span>
-              </div>
-
-              {/* Demo Notice Banner */}
-              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                <div className="font-bold flex items-center gap-1.5">
-                  <span>🎓</span> College Project Academic Demo
-                </div>
-                <p className="text-[11px] text-amber-800 leading-relaxed">
-                  No real financial gateway is integrated. Never enter real CVV numbers, bank passwords, or UPI PINs. Selecting any option below simulates order completion safely.
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Select payment mode. No real monetary transactions or financial credentials required.
                 </p>
               </div>
 
-              {/* Payment Radio Options */}
               <div className="space-y-3">
-                {/* Option 1: COD */}
+                {/* Option 1: Cash on Delivery */}
                 <label
                   className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                     paymentMethod === 'cod'
@@ -553,11 +579,12 @@ export default function CheckoutPage() {
                       className="accent-brand-accent w-4 h-4"
                     />
                     <div>
-                      <div className="font-bold text-sm text-brand-dark">
-                        Cash on Delivery (COD)
+                      <div className="font-bold text-sm text-brand-dark flex items-center gap-2">
+                        <span>Cash on Delivery (COD)</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800">Recommended</span>
                       </div>
                       <div className="text-xs text-neutral-500">
-                        Pay in cash or scan QR upon physical delivery to your doorstep.
+                        Pay upon doorstep arrival after inspecting tailored fit.
                       </div>
                     </div>
                   </div>
@@ -653,7 +680,7 @@ export default function CheckoutPage() {
                     >
                       <svg
                         className="w-6 h-6"
-                        style={{ color: item.selectedColor?.hex || '#1F2937' }}
+                        style={{ color: item.selectedColor?.hex || item.color?.hex || '#1F2937' }}
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -667,7 +694,7 @@ export default function CheckoutPage() {
                         Qty: {item.quantity} &bull; Size {item.size} ({item.fit})
                       </div>
                       <div className="text-[10px] text-neutral-500 truncate">
-                        {item.selectedFabric?.name} &bull; {item.collar} Collar
+                        {item.selectedFabric?.name || item.fabric?.name} &bull; {item.collar} Collar
                       </div>
                       {item.selectedPerfume && (
                         <div className="text-[10px] text-brand-accent font-medium">
@@ -718,7 +745,7 @@ export default function CheckoutPage() {
                 disabled={submitting}
                 className="w-full text-base font-bold shadow-md bg-brand-dark hover:bg-neutral-800 disabled:opacity-50"
               >
-                {submitting ? 'Placing Order...' : `Place Order (₹${total}) →`}
+                {submitting ? 'Placing Bespoke Order...' : `Place Order (₹${total}) →`}
               </Button>
 
               <div className="text-center">

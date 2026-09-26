@@ -2,24 +2,102 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getUserOrders } from '../../services/firestoreService.js';
 
 export default function OrdersPage() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorNotice, setErrorNotice] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   useEffect(() => {
-    try {
-      const savedOrders = JSON.parse(localStorage.getItem('fitfusion_orders') || '[]');
-      if (Array.isArray(savedOrders)) {
-        setOrders(savedOrders);
-        if (savedOrders.length > 0) {
-          setExpandedOrderId(savedOrders[0].orderId);
+    let isMounted = true;
+
+    async function loadOrders() {
+      setLoading(true);
+      setErrorNotice('');
+
+      let firestoreOrders = [];
+      let firestoreFailed = false;
+
+      // 1. If authenticated, attempt to fetch from Cloud Firestore
+      if (user?.uid) {
+        try {
+          const res = await getUserOrders(user.uid);
+          if (res.success && Array.isArray(res.orders)) {
+            firestoreOrders = res.orders;
+          } else {
+            firestoreFailed = true;
+          }
+        } catch (err) {
+          console.warn('[OrdersPage] Error querying Firestore:', err);
+          firestoreFailed = true;
         }
       }
-    } catch (err) {
-      console.error('Failed to parse fitfusion_orders from localStorage:', err);
+
+      // 2. Load cached / local orders from localStorage
+      let localOrders = [];
+      try {
+        const saved = localStorage.getItem('fitfusion_orders');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            // Filter to user orders if tagged, or include if guest
+            localOrders = parsed.filter(o => user?.uid ? o.userId === user.uid : (!o.userId || o.userId === 'guest'));
+          }
+        }
+      } catch (err) {
+        console.warn('[OrdersPage] Failed to parse localStorage orders:', err);
+      }
+
+      if (!isMounted) return;
+
+      if (firestoreFailed) {
+        setErrorNotice('Unable to reach cloud database right now. Displaying locally cached orders.');
+      }
+
+      // 3. Merge orders (Firestore prioritized, local fallback appended without duplicates)
+      const seenIds = new Set();
+      const combined = [];
+
+      firestoreOrders.forEach(o => {
+        const id = o.orderId || o.id || o.orderNumber;
+        if (id && !seenIds.has(id)) {
+          seenIds.add(id);
+          combined.push(o);
+        }
+      });
+
+      localOrders.forEach(o => {
+        const id = o.orderId || o.id || o.orderNumber;
+        if (id && !seenIds.has(id)) {
+          seenIds.add(id);
+          combined.push(o);
+        }
+      });
+
+      // Sort newest first
+      combined.sort((a, b) => {
+        const timeA = new Date(a.createdAt || a.date || 0).getTime();
+        const timeB = new Date(b.createdAt || b.date || 0).getTime();
+        return timeB - timeA;
+      });
+
+      setOrders(combined);
+      if (combined.length > 0) {
+        setExpandedOrderId(combined[0].orderId || combined[0].id || combined[0].orderNumber);
+      }
+      setLoading(false);
     }
-  }, []);
+
+    loadOrders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const toggleExpand = (orderId) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
@@ -54,7 +132,7 @@ export default function OrdersPage() {
               My Bespoke Orders
             </h1>
             <p className="text-sm text-neutral-500 mt-1">
-              Review your customized garments, bespoke tailoring specifications, and order statuses.
+              Review your customized garments, bespoke tailoring specifications, and live Firestore orders.
             </p>
           </div>
           <Button to="/shop" variant="secondary" size="sm">
@@ -62,8 +140,30 @@ export default function OrdersPage() {
           </Button>
         </div>
 
-        {/* Orders List or Empty State */}
-        {orders.length === 0 ? (
+        {/* Temporary warning/notice if Firestore fails gracefully */}
+        {errorNotice && (
+          <div className="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-base">⚠️</span>
+              <span>{errorNotice}</span>
+            </div>
+            <span className="text-[10px] font-bold uppercase bg-amber-200/70 px-2 py-0.5 rounded">
+              Local Cache
+            </span>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="mt-12 p-12 bg-white rounded-2xl border border-neutral-200 text-center space-y-4 max-w-md mx-auto shadow-sm">
+            <div className="w-8 h-8 mx-auto border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-brand-dark">Loading your bespoke orders...</h3>
+              <p className="text-xs text-neutral-500">Querying Cloud Firestore for your tailoring profile</p>
+            </div>
+          </div>
+        ) : orders.length === 0 ? (
+          /* Empty State */
           <div className="mt-8 bg-white rounded-2xl border border-neutral-200 p-10 sm:p-16 text-center shadow-sm space-y-5 max-w-md mx-auto">
             <div className="w-16 h-16 mx-auto rounded-full bg-brand-accentLight border border-brand-accent/20 flex items-center justify-center text-brand-accent">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,19 +183,28 @@ export default function OrdersPage() {
             </div>
           </div>
         ) : (
+          /* Orders List */
           <div className="mt-8 space-y-6">
             {orders.map((order) => {
-              const isExpanded = expandedOrderId === order.orderId;
+              const currentOrderId = order.orderId || order.id || order.orderNumber;
+              const isExpanded = expandedOrderId === currentOrderId;
               const itemCount = order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
+              const orderTotal = order.pricing?.total ?? order.total ?? 0;
+              const orderSubtotal = order.pricing?.subtotal ?? order.subtotal ?? 0;
+              const orderDiscount = order.pricing?.discount ?? order.discount ?? 0;
+              const orderDelivery = order.pricing?.delivery ?? order.delivery ?? 0;
+              const orderDate = order.createdAt || order.date;
+              const address = order.deliveryAddress || order.shippingAddress;
+              const customer = order.customer || {};
 
               return (
                 <div
-                  key={order.orderId}
+                  key={currentOrderId}
                   className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden transition-all duration-200 hover:border-neutral-300"
                 >
                   {/* Order Card Header Summary */}
                   <div
-                    onClick={() => toggleExpand(order.orderId)}
+                    onClick={() => toggleExpand(currentOrderId)}
                     className="p-5 sm:p-6 cursor-pointer select-none bg-white hover:bg-neutral-50/70 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-100"
                   >
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -104,7 +213,7 @@ export default function OrdersPage() {
                           Order ID
                         </span>
                         <span className="text-base font-extrabold text-brand-dark font-mono">
-                          {order.orderId}
+                          {currentOrderId}
                         </span>
                       </div>
                       <div className="hidden sm:block h-7 w-px bg-neutral-200" />
@@ -113,7 +222,7 @@ export default function OrdersPage() {
                           Placed On
                         </span>
                         <span className="text-xs font-semibold text-neutral-700">
-                          {formatDate(order.date)}
+                          {formatDate(orderDate)}
                         </span>
                       </div>
                       <div className="hidden sm:block h-7 w-px bg-neutral-200" />
@@ -133,14 +242,14 @@ export default function OrdersPage() {
                           Total
                         </span>
                         <span className="text-lg font-extrabold text-brand-dark">
-                          ₹{order.pricing?.total?.toLocaleString('en-IN') || 0}
+                          ₹{orderTotal.toLocaleString('en-IN')}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-3">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          {order.status || 'Order Confirmed'}
+                          {order.status || order.orderStatus || 'Order Confirmed'}
                         </span>
 
                         <button
@@ -170,10 +279,10 @@ export default function OrdersPage() {
                           <span className="font-bold uppercase tracking-wider text-neutral-400 block mb-1 text-[10px]">
                             Delivery Address
                           </span>
-                          <p className="font-semibold text-brand-dark">{order.customer?.fullName}</p>
-                          <p className="text-neutral-600 mt-0.5">{order.shippingAddress?.address}</p>
+                          <p className="font-semibold text-brand-dark">{customer.fullName || 'Valued Customer'}</p>
+                          <p className="text-neutral-600 mt-0.5">{address?.address || 'Street address on file'}</p>
                           <p className="text-neutral-600">
-                            {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
+                            {address?.city || ''}{address?.state ? `, ${address.state}` : ''}{address?.pincode ? ` - ${address.pincode}` : ''}
                           </p>
                         </div>
 
@@ -181,21 +290,19 @@ export default function OrdersPage() {
                           <span className="font-bold uppercase tracking-wider text-neutral-400 block mb-1 text-[10px]">
                             Contact & Updates
                           </span>
-                          <p className="text-neutral-700 font-medium">{order.customer?.email}</p>
-                          <p className="text-neutral-700 font-medium mt-0.5">+91 {order.customer?.phone}</p>
+                          <p className="text-neutral-700 font-medium">{customer.email || 'N/A'}</p>
+                          <p className="text-neutral-700 font-medium mt-0.5">+91 {customer.phone || 'N/A'}</p>
                         </div>
 
                         <div>
                           <span className="font-bold uppercase tracking-wider text-neutral-400 block mb-1 text-[10px]">
                             Payment Method
                           </span>
-                          <span className="inline-flex items-center gap-1.5 font-bold text-brand-dark capitalize">
-                            {order.paymentMethod === 'cod' && 'Cash on Delivery (Verified Demo)'}
-                            {order.paymentMethod === 'upi' && 'Instant UPI / QR (Frontend Demo)'}
-                            {order.paymentMethod === 'card' && 'Credit / Debit Card (Frontend Demo)'}
+                          <span className="inline-flex items-center gap-1.5 font-bold text-brand-dark">
+                            {order.paymentMethod || 'Cash on Delivery'}
                           </span>
                           <span className="block text-[11px] text-neutral-500 mt-1">
-                            Status: <strong className="text-emerald-600">Confirmed</strong> (College Demo)
+                            Status: <strong className="text-emerald-600">Confirmed</strong> (Cloud Recorded)
                           </span>
                         </div>
                       </div>
@@ -206,9 +313,11 @@ export default function OrdersPage() {
                           <span className="uppercase tracking-wider text-[10px] text-neutral-400">
                             Tailoring Lifecycle
                           </span>
-                          <span className="text-brand-accent">Bespoke Crafting Active</span>
+                          <span className="text-brand-accent">
+                            {order.tailoringStatus || 'Bespoke Crafting Active'}
+                          </span>
                         </div>
-                        <div className="grid grid-cols-5 gap-2 text-center text-[11px] pt-1">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-[11px] pt-1">
                           <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 font-bold text-emerald-800">
                             1. Order Confirmed
                           </div>
@@ -221,7 +330,7 @@ export default function OrdersPage() {
                           <div className="p-2 rounded-lg bg-neutral-100 border border-neutral-200 text-neutral-600 font-medium">
                             4. Master QA Check
                           </div>
-                          <div className="p-2 rounded-lg bg-neutral-100 border border-neutral-200 text-neutral-600 font-medium">
+                          <div className="p-2 rounded-lg bg-neutral-100 border border-neutral-200 text-neutral-600 font-medium col-span-2 sm:col-span-1">
                             5. Dispatched
                           </div>
                         </div>
@@ -233,85 +342,107 @@ export default function OrdersPage() {
                           Ordered Bespoke Garments ({order.items?.length || 0})
                         </h3>
 
-                        {order.items?.map((item, idx) => (
-                          <div
-                            key={item.cartItemId || idx}
-                            className="bg-white rounded-xl border border-neutral-200 p-4 sm:p-5 flex flex-col md:flex-row gap-4 justify-between"
-                          >
-                            <div className="flex items-start gap-4">
-                              <div className="w-20 h-24 rounded-lg bg-neutral-100 border border-neutral-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                {item.productImage ? (
-                                  <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
-                                ) : (
-                                  <span className="text-xl">👔</span>
-                                )}
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-[11px] font-bold text-brand-accent uppercase tracking-wider">
-                                  {item.category || 'Custom Apparel'}
-                                </span>
-                                <h4 className="text-base font-bold text-brand-dark">
-                                  {item.productName}
-                                </h4>
-                                <div className="text-xs text-neutral-600 space-y-0.5 pt-1">
-                                  <p>
-                                    <strong>Fabric:</strong> {item.fabric?.name || 'Standard'} &bull;{' '}
-                                    <strong>Color:</strong> {item.color?.name || 'Custom'}
-                                  </p>
-                                  <p>
-                                    <strong>Style:</strong> {item.design?.collar || 'Standard'} Collar,{' '}
-                                    {item.design?.cuff || 'Standard'} Cuff,{' '}
-                                    {item.design?.buttons || 'Standard'} Buttons
-                                  </p>
-                                  <p>
-                                    <strong>Fit:</strong> {item.fit || 'Regular'} &bull;{' '}
-                                    <strong>Size:</strong> {item.size || 'Custom'}
-                                    {item.monogram?.text && (
-                                      <span> &bull; <strong>Monogram:</strong> "{item.monogram.text}" ({item.monogram.placement})</span>
-                                    )}
-                                  </p>
-                                  {item.perfume && (
-                                    <p className="text-brand-accent font-semibold flex items-center gap-1 mt-1">
-                                      <span>🌸</span> Recommended Pairing: {item.perfume.name} (+₹{item.perfume.price || 0})
-                                    </p>
+                        {order.items?.map((item, idx) => {
+                          const fabricName = item.selectedFabric?.name || item.fabric?.name || (typeof item.fabric === 'string' ? item.fabric : 'Selected Fabric');
+                          const colorName = item.selectedColor?.name || item.color?.name || (typeof item.color === 'string' ? item.color : 'Custom');
+                          const collarStyle = item.collar || item.design?.collar || item.designOptions?.collar || 'Standard';
+                          const cuffStyle = item.cuff || item.design?.cuff || item.designOptions?.cuff || 'Standard';
+                          const buttonsStyle = item.buttons || item.design?.buttons || item.designOptions?.buttons || 'Standard';
+                          const monogramText = item.monogram?.text || (typeof item.monogram === 'string' ? item.monogram : null);
+                          const perfumeItem = item.selectedPerfume || item.perfume;
+                          const unitPrice = item.totalItemPrice || item.itemPrice || item.price || 0;
+                          const itemQty = item.quantity || 1;
+
+                          return (
+                            <div
+                              key={item.cartItemId || idx}
+                              className="bg-white rounded-xl border border-neutral-200 p-4 sm:p-5 flex flex-col md:flex-row gap-4 justify-between"
+                            >
+                              <div className="flex items-start gap-4">
+                                <div className="w-20 h-24 rounded-lg bg-neutral-100 border border-neutral-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                  {item.productImage ? (
+                                    <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <span className="text-2xl">👔</span>
                                   )}
                                 </div>
+                                <div className="space-y-1">
+                                  <span className="text-[11px] font-bold text-brand-accent uppercase tracking-wider">
+                                    {item.category || 'Custom Apparel'}
+                                  </span>
+                                  <h4 className="text-base font-bold text-brand-dark">
+                                    {item.productName}
+                                  </h4>
+                                  <div className="text-xs text-neutral-600 space-y-0.5 pt-1">
+                                    <p>
+                                      <strong>Fabric:</strong> {fabricName} &bull;{' '}
+                                      <strong>Color:</strong> {colorName}
+                                    </p>
+                                    <p>
+                                      <strong>Style:</strong> {collarStyle} Collar, {cuffStyle} Cuff, {buttonsStyle} Buttons
+                                    </p>
+                                    <p>
+                                      <strong>Fit:</strong> {item.fit || 'Regular'} &bull;{' '}
+                                      <strong>Size:</strong> {item.size || 'Custom Tailored'}
+                                      {monogramText && (
+                                        <span> &bull; <strong>Monogram:</strong> "{monogramText}"</span>
+                                      )}
+                                    </p>
+
+                                    {/* Bespoke measurements details if provided */}
+                                    {item.customMeasurements && Object.keys(item.customMeasurements).length > 0 && (
+                                      <p className="text-[11px] text-neutral-500">
+                                        <strong>Tailoring Metrics:</strong>{' '}
+                                        {Object.entries(item.customMeasurements)
+                                          .filter(([_, v]) => v)
+                                          .map(([k, v]) => `${k}: ${v}${item.measurementUnit || 'in'}`)
+                                          .join(', ')}
+                                      </p>
+                                    )}
+
+                                    {perfumeItem && (
+                                      <p className="text-brand-accent font-semibold flex items-center gap-1 mt-1">
+                                        <span>✨</span> Perfume Pairing: {perfumeItem.name} (+₹{perfumeItem.price || 0})
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex md:flex-col items-end justify-between md:justify-center border-t md:border-t-0 pt-3 md:pt-0 border-neutral-100">
+                                <span className="text-xs text-neutral-500">
+                                  Qty: <strong className="text-neutral-800">{itemQty}</strong> &times; ₹{unitPrice.toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-base font-extrabold text-brand-dark mt-1">
+                                  ₹{(unitPrice * itemQty).toLocaleString('en-IN')}
+                                </span>
                               </div>
                             </div>
-
-                            <div className="flex md:flex-col items-end justify-between md:justify-center border-t md:border-t-0 pt-3 md:pt-0 border-neutral-100">
-                              <span className="text-xs text-neutral-500">
-                                Qty: <strong className="text-neutral-800">{item.quantity}</strong> &times; ₹{item.totalItemPrice?.toLocaleString('en-IN')}
-                              </span>
-                              <span className="text-base font-extrabold text-brand-dark mt-1">
-                                ₹{((item.totalItemPrice || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {/* Pricing Breakdown */}
                       <div className="bg-white rounded-xl border border-neutral-200 p-4 max-w-xs ml-auto text-xs space-y-2">
                         <div className="flex justify-between text-neutral-600">
                           <span>Subtotal:</span>
-                          <span className="font-semibold">₹{order.pricing?.subtotal?.toLocaleString('en-IN') || 0}</span>
+                          <span className="font-semibold">₹{orderSubtotal.toLocaleString('en-IN')}</span>
                         </div>
-                        {order.pricing?.discount > 0 && (
+                        {orderDiscount > 0 && (
                           <div className="flex justify-between text-emerald-600 font-semibold">
                             <span>Coupon Discount:</span>
-                            <span>-₹{order.pricing.discount.toLocaleString('en-IN')}</span>
+                            <span>-₹{orderDiscount.toLocaleString('en-IN')}</span>
                           </div>
                         )}
                         <div className="flex justify-between text-neutral-600">
                           <span>Tailored Delivery:</span>
                           <span className="font-semibold">
-                            {order.pricing?.delivery === 0 ? 'FREE' : `₹${order.pricing?.delivery}`}
+                            {orderDelivery === 0 ? 'FREE' : `₹${orderDelivery}`}
                           </span>
                         </div>
                         <div className="border-t border-neutral-200 pt-2 flex justify-between text-sm font-extrabold text-brand-dark">
                           <span>Total Paid:</span>
-                          <span className="text-brand-accent">₹{order.pricing?.total?.toLocaleString('en-IN') || 0}</span>
+                          <span className="text-brand-accent">₹{orderTotal.toLocaleString('en-IN')}</span>
                         </div>
                       </div>
                     </div>

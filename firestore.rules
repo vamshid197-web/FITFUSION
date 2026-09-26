@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =====================================================================
+    // FITFUSION BESPOKE TAILORING PLATFORM - FIRESTORE SECURITY RULES
+    // =====================================================================
+
+    /**
+     * 1. Users Collection (/users/{userId})
+     * - Authenticated users may read, create, or update only their own profile.
+     * - Passwords are never stored in Firestore (handled by Firebase Auth).
+     * - Document deletion from client side is disallowed for security.
+     */
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    /**
+     * 2. Orders Collection (/orders/{orderId})
+     * - Authenticated users can create orders only if request.resource.data.userId matches their UID.
+     * - Authenticated users can only read orders where resource.data.userId matches their UID.
+     * - Users cannot modify or delete confirmed bespoke orders once created.
+     */
+    match /orders/{orderId} {
+      allow create: if request.auth != null 
+                    && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null 
+                  && resource.data.userId == request.auth.uid;
+      allow update: if false; // Order modification requires admin/tailor workflow
+      allow delete: if false; // Order records cannot be deleted from client
+    }
+
+    /**
+     * 3. Products Catalog (/products/{productId})
+     * - Publicly readable by all visitors and customers.
+     * - Writes are restricted until admin role authentication is configured in future phase.
+     */
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Admin write access reserved for admin role
+    }
+
+    /**
+     * 4. Fabrics Catalog (/fabrics/{fabricId})
+     * - Textile swatches are publicly viewable.
+     * - Modification restricted.
+     */
+    match /fabrics/{fabricId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    /**
+     * 5. Fragrance Pairings (/perfumes/{perfumeId})
+     * - Fragrance recommendations are publicly viewable.
+     * - Modification restricted.
+     */
+    match /perfumes/{perfumeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    /**
+     * Default Fallback Rule
+     * - Deny all unauthorized access to undefined paths.
+     */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

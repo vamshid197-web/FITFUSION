@@ -53,7 +53,12 @@ export default function SignupPage() {
 
     try {
       setLoading(true);
-      await signup(formData.email.trim(), formData.password, formData.name.trim());
+      await signup(
+        formData.email.trim(),
+        formData.password,
+        formData.name.trim(),
+        formData.phone.trim()
+      );
       navigate('/home', { replace: true });
     } catch (err) {
       setError(getFriendlyAuthErrorMessage(err));
@@ -107,7 +112,7 @@ export default function SignupPage() {
           id="phone"
           name="phone"
           type="tel"
-          placeholder="+1 (555) 000-0000"
+          placeholder="+91 98765 43210"
           value={formData.phone}
           onChange={handleChange}
           required
