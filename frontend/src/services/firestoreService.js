@@ -5,6 +5,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   query,
   where
 } from 'firebase/firestore';
@@ -336,4 +337,207 @@ export async function seedProductsToFirestore() {
   }
 
   return results;
+}
+
+
+
+/**
+* ---------------------------------------------------------------------
+ * 4. PHASE 7 ADMIN OPERATIONS (Orders, Users & Catalog Management)
+ * ---------------------------------------------------------------------
+*/
+
+/**
+ * Fetch all bespoke tailoring orders for admin oversight
+ * Orders are sorted newest-first in memory.
+ */
+export async function getAllOrdersForAdmin() {
+  try {
+    const ordersRef = collection(db, 'orders');
+    const snap = await getDocs(ordersRef);
+
+    const orders = [];
+    snap.forEach((docSnap) => {
+      orders.push({ id: docSnap.id, ...docSnap.data() });
+    });
+
+    // In-memory newest first sorting
+    orders.sort((a, b) => {
+      const timeA = new Date(a.createdAt || a.date || 0).getTime();
+      const timeB = new Date(b.createdAt || b.date || 0).getTime();
+      return timeB - timeA;
+    });
+
+    return { success: true, orders, count: orders.length, source: 'firestore' };
+  } catch (err) {
+    console.warn('[Firestore Admin] Failed fetching all orders:', err?.message || err);
+    return { success: false, orders: [], count: 0, error: err, source: 'error' };
+  }
+}
+
+/**
+ * Update tailoring & lifecycle status of an order
+ * @param {string} orderId
+ * @param {object} updates - { orderStatus, tailoringStatus, notes, trackingNumber }
+ */
+export async function updateOrderStatus(orderId, updates = {}) {
+  if (!orderId) {
+    throw new Error('Order ID is required to update order status');
+  }
+
+  const nowIso = new Date().toISOString();
+  const payload = sanitizePayload({
+    ...updates,
+    status: updates.orderStatus || updates.status,
+    orderStatus: updates.orderStatus || updates.status,
+    tailoringStatus: updates.tailoringStatus,
+    updatedAt: nowIso
+  });
+
+  try {
+    const orderDocRef = doc(db, 'orders', String(orderId));
+    await updateDoc(orderDocRef, payload);
+    return { success: true, id: orderId, updates: payload };
+  } catch (err) {
+    console.warn(`[
+Firestore Admin] Failed updating order ${orderId}:`, err?.message || err);
+    return { success: false, id: orderId, error: err };
+  }
+}
+
+/**
+ * Fetch all registered users for customer oversight
+ * Never returns sensitive password fields (passwords reside in Firebase Auth only).
+ */
+export async function getAllUsersForAdmin() {
+  try {
+    const usersRef = collection(db, 'users');
+    const snap = await getDocs(usersRef);
+
+    const users = [];
+    snap.forEach((docSnap) => {
+      const data = docSnap.data();
+      users.push({
+        id: docSnap.id,
+        uid: data.uid || docSnap.id,
+        name: data.name || data.displayName || 'Customer',
+        displayName: data.displayName || data.name || '',
+        email: data.email || 'N/A',
+        phone: data.phone || '',
+        role: data.role || 'customer',
+        createdAt: data.createdAt || null,
+        updatedAt: data.updatedAt || null
+      });
+    });
+
+    // In-memory newest first
+    users.sort((a, b) => {
+      const timeA = new Date(a.createdAt || 0).getTime();
+      const timeB = new Date(b.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+
+    return { success: true, users, count: users.length, source: 'firestore' };
+  } catch (err) {
+    console.warn('[Firestore Admin] Failed fetching users:', err?.message || err);
+    return { success: false, users: [], count: 0, error: err, source: 'error' };
+  }
+}
+
+/**
+ * Fetch product catalog for admin management
+ * Automatically falls back to MOCK_PRODUCTS if Firestore catalog is empty.
+ */
+export async function getAdminProducts() {
+  try {
+    const productsRef = collection(db, 'products');
+    const snap = await getDocs(productsRef);
+
+    if (!snap.empty) {
+      const products = [];
+      snap.forEach((docSnap) => {
+        products.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      return { success: true, products, count: products.length, source: 'firestore' };
+    }
+  } catch (err) {
+    console.warn('[Firestore Admin] Could not load products from Firestore, using mock fallback:', err?.message || err);
+  }
+
+  // Fallback to MOCK_PRODUCTS with default available: true
+  const fallback = MOCK_PRODUCTS.map((p) => ({
+    ...p,
+    available: p.available !== false
+  }));
+  return { success: true, products: fallback, count: fallback.length, source: 'fallback' };
+}
+
+/**
+ * Create a new product in the catalog
+ * @param {object} productData
+ */
+export async function createAdminProduct(productData) {
+  const nowIso = new Date().toISOString();
+  const id = productData.id ? String(productData.id) : 'prod-' + Date.now();
+
+  const payload = sanitizePayload({
+    ...productData,
+    id,
+    basePrice: Number(productData.basePrice || productData.price) || 0,
+    available: productData.available !== false,
+    rating: Number(productData.rating) || 5.0,
+    reviewsCount: Number(productData.reviewsCount) || 0,
+    createdAt: nowIso,
+    updatedAt: nowIso
+  });
+
+  try {
+    const prodRef = doc(db, 'products', id);
+    await setDoc(prodRef, payload);
+    return { success: true, id, product: payload };
+  } catch (err) {
+    console.warn('[Firestore Admin] Failed creating product:', err?.message || err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * Update an existing product document
+ * @param {string} productId
+ * @param {object} updates
+ */
+export async function updateAdminProduct(productId, updates = {}) {
+  if (!productId) {
+    throw new Error('Product ID is required to update');
+  }
+
+  const nowIso = new Date().toISOString();
+  const payload = sanitizePayload({
+    ...updates,
+    id: String(productId),
+    updatedAt: nowIso
+  });
+
+  if (updates.basePrice !== undefined || updates.price !== undefined) {
+    payload.basePrice = Number(updates.basePrice || updates.price) || 0;
+  }
+
+  try {
+    const prodRef = doc(db, 'products', String(productId));
+    await setDoc(prodRef, payload, { merge: true });
+    return { success: true, id: productId, updates: payload };
+  } catch (err) {
+    console.warn(`[
+Firestore Admin] Failed updating product ${productId}:`, err?.message || err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * Toggle product active/disabled status
+ * @param {string} productId
+ * @param {boolean} available
+ */
+export async function toggleProductAvailability(productId, available) {
+  return updateAdminProduct(productId, { available: Boolean(available) });
 }

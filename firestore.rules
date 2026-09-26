@@ -3,65 +3,82 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // =====================================================================
-    // FITFUSION BESPOKE TAILORING PLATFORM - FIRESTORE SECURITY RULES
+    // FITFUSION BESPOKE TAILORING PLATFORM - FIRESTORE SECURITY RULES (PHASE 7)
     // =====================================================================
 
     /**
+     * Helper: Check if the currently authenticated user possesses 'admin' role
+     * Evaluates the role field from the user's profile document in /users/{uid}
+     */
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    /**
      * 1. Users Collection (/users/{userId})
-     * - Authenticated users may read, create, or update only their own profile.
+     * - Authenticated users can read and update their own profile.
+     * - Admins can read all profiles for customer management.
+     * - Normal customers cannot escalate their own role to 'admin'.
      * - Passwords are never stored in Firestore (handled by Firebase Auth).
-     * - Document deletion from client side is disallowed for security.
+     * - Admins can perform necessary user profile maintenance.
      */
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if false;
+      allow update: if request.auth != null && (
+        isAdmin() || 
+        (request.auth.uid == userId && (!('role' in request.resource.data) || request.resource.data.role == resource.data.role))
+      );
+      allow delete: if isAdmin();
     }
 
     /**
      * 2. Orders Collection (/orders/{orderId})
-     * - Authenticated users can create orders only if request.resource.data.userId matches their UID.
-     * - Authenticated users can only read orders where resource.data.userId matches their UID.
-     * - Users cannot modify or delete confirmed bespoke orders once created.
+     * - Customers can create orders where request.resource.data.userId == their UID.
+     * - Customers can read only their own orders.
+     * - Admins can read all orders across all customers.
+     * - Admins can update order status and tailoring status.
+     * - Admins can perform necessary order management / archival.
+     * - Customers cannot update or delete orders.
      */
     match /orders/{orderId} {
       allow create: if request.auth != null 
                     && request.resource.data.userId == request.auth.uid;
       allow read: if request.auth != null 
-                  && resource.data.userId == request.auth.uid;
-      allow update: if false; // Order modification requires admin/tailor workflow
-      allow delete: if false; // Order records cannot be deleted from client
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     /**
      * 3. Products Catalog (/products/{productId})
      * - Publicly readable by all visitors and customers.
-     * - Writes are restricted until admin role authentication is configured in future phase.
+     * - Admins can create, update, and manage products.
      */
     match /products/{productId} {
       allow read: if true;
-      allow write: if false; // Admin write access reserved for admin role
+      allow write: if isAdmin();
     }
 
     /**
      * 4. Fabrics Catalog (/fabrics/{fabricId})
      * - Textile swatches are publicly viewable.
-     * - Modification restricted.
+     * - Admin manageable.
      */
     match /fabrics/{fabricId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isAdmin();
     }
 
     /**
      * 5. Fragrance Pairings (/perfumes/{perfumeId})
      * - Fragrance recommendations are publicly viewable.
-     * - Modification restricted.
+     * - Admin manageable.
      */
     match /perfumes/{perfumeId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isAdmin();
     }
 
     /**

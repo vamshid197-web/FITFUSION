@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Logo from './Logo.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext.jsx';
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, logout } = useAuth();
+  const { user, userProfile, logout } = useAuth();
   const { totalItemsCount } = useCart();
   const navigate = useNavigate();
 
@@ -43,19 +43,19 @@ export default function Header() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
-          {/* Brand Logo */}
+          {/* Logo brand */}
           <div className="flex-shrink-0">
-            <Logo to="/home" showTagline={false} />
+            <Logo to="/home" />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center space-x-6 text-xs uppercase tracking-wider font-medium">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `text-sm font-medium transition-colors hover:text-brand-accent ${
+                  `transition-colors hover:text-brand-accent ${
                     isActive ? 'text-brand-accent font-semibold' : 'text-neutral-700'
                   }`
                 }
@@ -92,8 +92,20 @@ export default function Header() {
             </svg>
           </form>
 
-          {/* Action icons (Cart, Profile, Auth) */}
+          {/* Action icons (Cart, Profile, Auth, Admin Link) */}
           <div className="flex items-center gap-3">
+            {/* Admin Console Shortcut (Only visible for admin role) */}
+            {userProfile?.role === 'admin' && (
+              <Link
+                to="/admin"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-500/10 text-amber-700 border border-amber-300 hover:bg-amber-500 hover:text-white transition-colors"
+                title="Admin Console"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span>Admin Console</span>
+              </Link>
+            )}
+
             {/* Cart link */}
             <Link
               to="/cart"
@@ -109,9 +121,11 @@ export default function Header() {
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
-              <span className="absolute top-1 right-1 w-4 h-4 bg-brand-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                0
-              </span>
+              {totalItemsCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-brand-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {totalItemsCount}
+                </span>
+              )}
             </Link>
 
             {/* Profile link */}
@@ -135,7 +149,7 @@ export default function Header() {
             {user ? (
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-block text-xs font-semibold text-neutral-800">
-                  {user.displayName || user.email?.split('@')[0]}
+                  {userProfile?.name || user.displayName || user.email?.split('@')[0]}
                 </span>
                 <button
                   type="button"
@@ -177,7 +191,7 @@ export default function Header() {
         <div className="md:hidden border-t border-neutral-200 bg-white px-4 pt-3 pb-5 space-y-3 animate-fadeIn">
           {user && (
             <div className="px-3 py-2 bg-neutral-50 rounded-lg text-xs font-medium text-neutral-700 flex justify-between items-center">
-              <span>Signed in as <strong>{user.displayName || user.email}</strong></span>
+              <span>Signed in as <strong>{userProfile?.name || user.displayName || user.email}</strong></span>
               <button
                 type="button"
                 onClick={() => {
@@ -233,13 +247,17 @@ export default function Header() {
             >
               Profile & Measurements
             </Link>
-            <Link
-              to="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-md text-xs font-medium text-neutral-400 hover:text-neutral-600"
-            >
-              Admin Portal
-            </Link>
+
+            {/* Admin link only for authorized admin role */}
+            {userProfile?.role === 'admin' && (
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-md text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors"
+              >
+                ⚙ Admin Console
+              </Link>
+            )}
 
             {!user && (
               <Link

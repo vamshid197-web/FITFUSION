@@ -9,6 +9,7 @@ import AdminLayout from './layouts/AdminLayout.jsx';
 
 // Common & Security
 import ProtectedRoute from './components/common/ProtectedRoute.jsx';
+import AdminRoute from './components/common/AdminRoute.jsx';
 import NotFoundPage from './pages/common/NotFoundPage.jsx';
 
 // Public Pages
@@ -29,8 +30,11 @@ import CheckoutPage from './pages/checkout/CheckoutPage.jsx';
 import OrdersPage from './pages/orders/OrdersPage.jsx';
 import ProfilePage from './pages/profile/ProfilePage.jsx';
 
-// Admin Page
-import AdminPage from './pages/admin/AdminPage.jsx';
+// Phase 7 Admin Pages
+import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage.jsx';
+import AdminProductsPage from './pages/admin/AdminProductsPage.jsx';
+import AdminUsersPage from './pages/admin/AdminUsersPage.jsx';
 
 export default function App() {
   return (
@@ -61,9 +65,14 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* 4. Admin Management (Authorization scheduled for later phase) */}
-      <Route element={<AdminLayout />}>
-        <Route path="/admin" element={<AdminPage />} />
+      {/* 4. Phase 7 Admin Management (Protected by Role-Based AdminRoute) */}
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+          <Route path="/admin/products" element={<AdminProductsPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+        </Route>
       </Route>
 
       {/* 5. Fallback 404 Route */}
