@@ -1,39 +1,35 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
-import { MOCK_PRODUCTS } from '../../data/mockProducts.js';
+import CustomizationSummary from '../../components/customization/CustomizationSummary.jsx';
+import { MOCK_PRODUCTS, getProductImage } from '../../data/mockProducts.js';
+import { getProductById } from '../../services/firestoreService.js';
+import { saveCustomization } from '../../services/savedCustomizationService.js';
+import {
+  getProductDesignOptions,
+  getFabricSurcharge,
+  MONOGRAM_THREAD_COLORS,
+  MEASUREMENT_GUIDE_DATA,
+  MASTER_FABRICS,
+  getFabricsForCategory,
+  MASTER_COLORS,
+  getAvailableColors,
+  MASTER_PERFUMES,
+  getMeasurementFieldsForCategory
+} from '../../data/customizationOptions.js';
 
 const CUSTOMIZATION_STEPS = [
   { id: 1, title: "Fabric", description: "Select certified textile swatches and material weave." },
   { id: 2, title: "Color", description: "Choose rich colorways, pinstripes, and check patterns." },
-  { id: 3, title: "Design", description: "Customize collar, cuff styles, buttons, and monograms." },
+  { id: 3, title: "Design", description: "Customize architecture, cuffs/sleeves, hardware, and monogram." },
   { id: 4, title: "Size", description: "Pick standard sizes or opt for bespoke custom measurements." },
-  { id: 5, title: "Custom Measurements", description: "Input neck, chest, waist, and sleeve tailoring metrics." },
+  { id: 5, title: "Custom Measurements", description: "Input chest, waist, shoulder, and sleeve tailoring metrics." },
   { id: 6, title: "Fit", description: "Specify silhouette drape: Slim, Regular, or Relaxed fit." },
   { id: 7, title: "Perfume", description: "Discover luxury fragrance pairings suited to this garment." },
   { id: 8, title: "Preview", description: "Inspect interactive composite preview before adding to cart." }
-];
-
-const COLLAR_OPTIONS = [
-  { id: "Classic", title: "Classic", desc: "Timeless medium-spread collar suitable for any tie or open-neck look." },
-  { id: "Spread", title: "Spread", desc: "Wider flared points offering a modern European cutaway aesthetic." },
-  { id: "Mandarin", title: "Mandarin", desc: "Minimalist band collar for clean, contemporary architectural style." },
-  { id: "Button Down", title: "Button Down", desc: "Structured roll-point collar with anchor buttons for smart casual." }
-];
-
-const CUFF_OPTIONS = [
-  { id: "Standard", title: "Standard", desc: "Single-button barrel cuff designed for versatile daily sophistication." },
-  { id: "French", title: "French", desc: "Double fold-back cuff designed for heirloom cufflinks on formal occasions." },
-  { id: "Rounded", title: "Rounded", desc: "Subtly contoured barrel cuff providing sleek comfort at the wrists." }
-];
-
-const BUTTON_OPTIONS = [
-  { id: "Standard", title: "Standard Horn", desc: "Classic polished resin horn buttons with natural tonal finish.", color: "#4B5563" },
-  { id: "Matte Black", title: "Matte Black", desc: "Contemporary satin dark finish with subtle muted luster.", color: "#18181B" },
-  { id: "Pearl", title: "Mother of Pearl", desc: "Iridescent natural shell sheen for refined luxury tailoring.", color: "#F3F4F6", border: true },
-  { id: "Brass", title: "Antique Brass", desc: "Vintage burnished metallic buttons with artisanal patina.", color: "#B45309" }
 ];
 
 const FIT_OPTIONS = [
@@ -41,7 +37,7 @@ const FIT_OPTIONS = [
     id: "Slim",
     title: "Slim Fit",
     badge: "Modern Contour",
-    desc: "Tapered cut close through chest, waist, and sleeves for a sharp, streamlined modern silhouette."
+    desc: "Tapered cut closer through chest, waist, and sleeves for a sharp, streamlined modern silhouette."
   },
   {
     id: "Regular",
@@ -53,244 +49,292 @@ const FIT_OPTIONS = [
     id: "Relaxed",
     title: "Relaxed Fit",
     badge: "Casual Ease",
-    desc: "Generously cut silhouette with extra ease through the chest and torso for casual elegance."
+    desc: "Generously cut silhouette with extra ease through chest and torso for casual elegance and comfort."
   }
 ];
 
-const MEASUREMENT_FIELDS = [
-  { key: "neck", label: "Neck Circumference", guide: "Measure around base of neck where collar sits", placeholder: "15.5" },
-  { key: "chest", label: "Chest Width", guide: "Measure around fullest part of chest under armpits", placeholder: "40.0" },
-  { key: "waist", label: "Waist Line", guide: "Measure around natural waistline above hip bone", placeholder: "34.0" },
-  { key: "shoulder", label: "Shoulder Span", guide: "Measure from shoulder point across back to opposite point", placeholder: "18.0" },
-  { key: "sleeve", label: "Sleeve Length", guide: "Measure from shoulder seam along arm to wrist bone", placeholder: "25.5" },
-  { key: "length", label: "Garment Length", guide: "Measure from base of collar down to desired hemline", placeholder: "30.0" }
-];
+export const MOCK_PERFUMES = MASTER_PERFUMES;
 
-export const MOCK_PERFUMES = [
-  {
-    id: "p1",
-    name: "Bergamot & Sea Salt",
-    brand: "Atelier Riviera",
-    fragranceFamily: "Citrus",
-    description: "Crisp Italian bergamot infused with coastal sea breeze and sun-drenched neroli for a vibrant, uplifting trail.",
-    price: 38,
-    suitableOccasion: "Daytime Casual & Summer Resort",
-    accentColor: "#F59E0B",
-    icon: "🍋",
-    tags: ["Citrus", "Daytime", "Cotton", "Linen", "Shirts", "T-Shirts"]
-  },
-  {
-    id: "p2",
-    name: "Smoked Cedar & Vetiver",
-    brand: "Maison d'Artisan",
-    fragranceFamily: "Woody",
-    description: "Deep Virginian cedarwood anchored by earthy bourbon vetiver and subtle cracked black pepper notes.",
-    price: 45,
-    suitableOccasion: "Boardroom Formal & Evening Soirée",
-    accentColor: "#78350F",
-    icon: "🌲",
-    tags: ["Woody", "Formal", "Evening", "Wool", "Denim", "Jackets", "Shirts"]
-  },
-  {
-    id: "p3",
-    name: "Velvet Amber & Cardamom",
-    brand: "Sultana Botanicals",
-    fragranceFamily: "Oriental",
-    description: "Warm golden resinous amber layered with spiced Guatemalan cardamom and creamy bourbon vanilla undertones.",
-    price: 52,
-    suitableOccasion: "Evening Black-Tie & Autumn Occasions",
-    accentColor: "#9A3412",
-    icon: "✨",
-    tags: ["Oriental", "Evening", "Silk", "Traditional Wear", "Jackets", "Dresses"]
-  },
-  {
-    id: "p4",
-    name: "White Iris & Cashmere",
-    brand: "L'Ombre Blanche",
-    fragranceFamily: "Floral",
-    description: "Powdery Florentine orris blended with soft white musk and delicate morning dew petals for quiet sophistication.",
-    price: 42,
-    suitableOccasion: "Smart Casual & Spring Afternoons",
-    accentColor: "#8B5CF6",
-    icon: "🌸",
-    tags: ["Floral", "Soft", "Silk", "Cotton", "Dresses", "Relaxed"]
-  },
-  {
-    id: "p5",
-    name: "Alpine Mist & Juniper",
-    brand: "Nordic Atelier",
-    fragranceFamily: "Fresh",
-    description: "Invigorating glacial water accord with crushed wild juniper berries, mint leaf, and sheer white birch.",
-    price: 36,
-    suitableOccasion: "Athletic Minimal & Weekend Leisure",
-    accentColor: "#0284C7",
-    icon: "🌿",
-    tags: ["Fresh", "Casual", "Daytime", "T-Shirts", "Hoodies", "Jeans/Pants"]
-  },
-  {
-    id: "p6",
-    name: "Royal Oud & Dark Leather",
-    brand: "Heritage Parfums",
-    fragranceFamily: "Woody",
-    description: "Opulent aged Cambodian agarwood softened by hand-buffed saddle leather notes and dark tonka bean.",
-    price: 60,
-    suitableOccasion: "Gala & Bespoke Evenings",
-    accentColor: "#171717",
-    icon: "👑",
-    tags: ["Woody", "Oriental", "Evening", "Jackets", "Traditional Wear", "Luxury"]
-  }
-];
-
-// Recommendation logic based on clothing selections
+// Fragrance recommendation affinity calculation
 function getRecommendedPerfumes(product, selectedFabric, selectedColor) {
-  const scores = MOCK_PERFUMES.map((perfume) => {
+  const candidatePerfumes = MASTER_PERFUMES.filter(p => p.id !== 'no-perfume');
+  const scores = candidatePerfumes.map((perfume) => {
     let score = 0;
     const cat = product?.category || '';
     const fab = selectedFabric?.name?.toLowerCase() || '';
     const col = selectedColor?.name?.toLowerCase() || '';
 
-    // Category affinity
-    if (perfume.tags.includes(cat)) score += 3;
+    if (perfume.tags && perfume.tags.includes(cat)) score += 3;
 
-    // Fabric affinity
-    if (fab.includes('linen') || fab.includes('cotton') || fab.includes('jersey')) {
-      if (perfume.fragranceFamily === 'Citrus' || perfume.fragranceFamily === 'Fresh') score += 2;
+    if (fab.includes('linen') || fab.includes('cotton') || fab.includes('rayon')) {
+      if (perfume.fragranceFamily === 'Citrus' || perfume.fragranceFamily === 'Fresh' || perfume.fragranceFamily === 'Aquatic') score += 2;
     }
-    if (fab.includes('wool') || fab.includes('denim')) {
-      if (perfume.fragranceFamily === 'Woody') score += 3;
+    if (fab.includes('wool') || fab.includes('denim') || fab.includes('corduroy')) {
+      if (perfume.fragranceFamily === 'Woody' || perfume.fragranceFamily === 'Spicy') score += 3;
     }
-    if (fab.includes('silk') || fab.includes('khadi')) {
-      if (perfume.fragranceFamily === 'Floral' || perfume.fragranceFamily === 'Oriental') score += 3;
+    if (fab.includes('silk') || fab.includes('satin') || fab.includes('velvet')) {
+      if (perfume.fragranceFamily === 'Floral' || perfume.fragranceFamily === 'Oriental' || perfume.fragranceFamily === 'Amber') score += 3;
     }
 
-    // Color affinity
-    if (col.includes('black') || col.includes('navy') || col.includes('charcoal') || col.includes('dark') || col.includes('crimson')) {
-      if (perfume.fragranceFamily === 'Woody' || perfume.fragranceFamily === 'Oriental') score += 2;
+    if (col.includes('black') || col.includes('navy') || col.includes('charcoal') || col.includes('maroon') || col.includes('burgundy')) {
+      if (perfume.fragranceFamily === 'Woody' || perfume.fragranceFamily === 'Oriental' || perfume.fragranceFamily === 'Amber') score += 2;
     }
-    if (col.includes('white') || col.includes('blue') || col.includes('sand') || col.includes('mist') || col.includes('gold')) {
-      if (perfume.fragranceFamily === 'Citrus' || perfume.fragranceFamily === 'Fresh' || perfume.fragranceFamily === 'Floral') score += 2;
+    if (col.includes('white') || col.includes('blue') || col.includes('mint') || col.includes('pink') || col.includes('cream')) {
+      if (perfume.fragranceFamily === 'Citrus' || perfume.fragranceFamily === 'Fresh' || perfume.fragranceFamily === 'Floral' || perfume.fragranceFamily === 'Aquatic') score += 2;
     }
 
     return { perfume, score };
   });
 
   scores.sort((a, b) => b.score - a.score);
-  return scores.slice(0, 3).map((s) => s.perfume);
+  return scores.slice(0, 4).map((s) => s.perfume);
 }
 
 export default function CustomizePage() {
   const { id } = useParams();
-  const product = MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0];
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { addToCart, updateCartItem } = useCart();
 
-  const availableFabrics = product?.availableFabrics || [];
-  const availableColors = product?.availableColors || [];
-  const availableSizes = product?.availableSizes || ["S", "M", "L", "XL", "Custom Tailored"];
+  // Check if we are editing an existing item from the cart
+  const editingCartItemId = location.state?.cartItemId || null;
+
+  // Active product state
+  const [product, setProduct] = useState(
+    () => MOCK_PRODUCTS.find((p) => String(p.id) === String(id)) || MOCK_PRODUCTS[0]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    getProductById(id).then((res) => {
+      if (isMounted && res.success && res.product) {
+        setProduct(res.product);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  // Product category design configuration
+  const productDesignConfig = useMemo(() => {
+    return getProductDesignOptions(product?.category);
+  }, [product?.category]);
+
+  // Expanded Fabrics (20 realistic options with category compatibility)
+  const availableFabrics = useMemo(() => {
+    return getFabricsForCategory(product?.category);
+  }, [product?.category]);
+
+  // Expanded Colors (30 professional colors)
+  const availableColors = useMemo(() => {
+    return getAvailableColors();
+  }, []);
+
+  // Category specific tailoring measurements
+  const categoryMeasurementFields = useMemo(() => {
+    return getMeasurementFieldsForCategory(product?.category);
+  }, [product?.category]);
 
   // Navigation step state
   const [activeStep, setActiveStep] = useState(1);
 
-  // Customization selections (Phase 3)
-  const [selectedFabric, setSelectedFabric] = useState(availableFabrics[0] || null);
-  const [selectedColor, setSelectedColor] = useState(availableColors[0] || null);
-  const [selectedSize, setSelectedSize] = useState(availableSizes[0] || 'M');
+  // Sizing Mode State: 'standard' (Default) vs 'custom'
+  const [sizeMode, setSizeMode] = useState('standard');
+  const [selectedSize, setSelectedSize] = useState('M');
   const [selectedFit, setSelectedFit] = useState('Regular');
 
-  // Garment design options (Phase 3)
+  // Customization selections
+  const [selectedFabric, setSelectedFabric] = useState(() => availableFabrics[0] || null);
+  const [selectedColor, setSelectedColor] = useState(() => availableColors[0] || null);
+
+  // Dynamic garment design options based on product category
   const [designOptions, setDesignOptions] = useState({
     collar: 'Classic',
     cuff: 'Standard',
-    buttons: 'Standard',
-    monogram: ''
+    buttons: 'Standard Horn'
   });
 
-  // Custom measurements (Phase 3)
+  // Monogram State
+  const [monogram, setMonogram] = useState({
+    enabled: false,
+    text: '',
+    position: 'Left Chest',
+    threadColor: 'Royal Gold Silk'
+  });
+
+  // Custom measurements & unit conversion
   const [measurementUnit, setMeasurementUnit] = useState('in');
-  const [customMeasurements, setCustomMeasurements] = useState({
-    neck: '',
-    chest: '',
-    waist: '',
-    shoulder: '',
-    sleeve: '',
-    length: ''
-  });
+  const [customMeasurements, setCustomMeasurements] = useState({});
+  const [validationError, setValidationError] = useState(null);
 
-  // Perfume selection state (Phase 4: null means "No Perfume" / ₹0 additional cost)
+  // Color & Perfume Filter Tabs
+  const [colorFilterGroup, setColorFilterGroup] = useState('All');
+  const [perfumeFilterGroup, setPerfumeFilterGroup] = useState('All');
+
+  // Measurement Guide Drawer/Modal state
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
+  const [activeGuideKey, setActiveGuideKey] = useState('chest');
+
+  // Perfume selection
   const [selectedPerfume, setSelectedPerfume] = useState(null);
 
-  // Synchronize defaults if product changes
+  // UI Toast state
+  const [feedbackToast, setFeedbackToast] = useState(null);
+  const [savingDesign, setSavingDesign] = useState(false);
+
+  // Synchronize state when editing existing configuration from Cart or Saved Designs
   useEffect(() => {
     if (location.state?.editConfig) {
       const cfg = location.state.editConfig;
       if (cfg.selectedFabric) setSelectedFabric(cfg.selectedFabric);
+      else if (cfg.fabric) setSelectedFabric(cfg.fabric);
+
       if (cfg.selectedColor) setSelectedColor(cfg.selectedColor);
-      if (cfg.size) setSelectedSize(cfg.size);
+      else if (cfg.color) setSelectedColor(cfg.color);
+
+      if (cfg.size) {
+        if (cfg.size === 'Custom Tailored' || cfg.customMeasurements) {
+          setSizeMode('custom');
+          setSelectedSize('Custom Tailored');
+        } else {
+          setSizeMode('standard');
+          setSelectedSize(cfg.size);
+        }
+      }
+
       if (cfg.fit) setSelectedFit(cfg.fit);
-      if (cfg.designOptions) setDesignOptions(cfg.designOptions);
-      if (cfg.customMeasurements) setCustomMeasurements(cfg.customMeasurements);
+
+      if (cfg.designOptions) {
+        setDesignOptions({
+          collar: cfg.designOptions.collar || 'Classic',
+          cuff: cfg.designOptions.cuff || 'Standard',
+          buttons: cfg.designOptions.buttons || 'Standard Horn'
+        });
+      } else if (cfg.design) {
+        setDesignOptions({
+          collar: cfg.design.collar || 'Classic',
+          cuff: cfg.design.cuff || 'Standard',
+          buttons: cfg.design.buttons || 'Standard Horn'
+        });
+      }
+
+      if (cfg.monogram) {
+        if (typeof cfg.monogram === 'string') {
+          setMonogram({
+            enabled: !!cfg.monogram.trim(),
+            text: cfg.monogram,
+            position: 'Left Chest',
+            threadColor: 'Royal Gold Silk'
+          });
+        } else if (typeof cfg.monogram === 'object') {
+          setMonogram({
+            enabled: cfg.monogram.enabled ?? !!cfg.monogram.text,
+            text: cfg.monogram.text || '',
+            position: cfg.monogram.position || 'Left Chest',
+            threadColor: cfg.monogram.threadColor || 'Royal Gold Silk'
+          });
+        }
+      }
+
+      if (cfg.customMeasurements) {
+        setCustomMeasurements(cfg.customMeasurements);
+        setSizeMode('custom');
+        setSelectedSize('Custom Tailored');
+      } else if (cfg.measurements) {
+        setCustomMeasurements(cfg.measurements);
+        setSizeMode('custom');
+        setSelectedSize('Custom Tailored');
+      }
+
       if (cfg.measurementUnit) setMeasurementUnit(cfg.measurementUnit);
+
       if (cfg.selectedPerfume !== undefined) setSelectedPerfume(cfg.selectedPerfume);
+      else if (cfg.perfume !== undefined) setSelectedPerfume(cfg.perfume);
+
       if (location.state.initialStep) setActiveStep(location.state.initialStep);
       return;
     }
 
     if (product) {
-      setSelectedFabric(product.availableFabrics?.[0] || null);
-      setSelectedColor(product.availableColors?.[0] || null);
-      setSelectedSize(product.availableSizes?.[0] || 'M');
-      setSelectedFit('Regular');
-      setSelectedPerfume(null);
+      if (availableFabrics.length > 0 && !selectedFabric) {
+        setSelectedFabric(availableFabrics[0]);
+      }
+      if (availableColors.length > 0 && !selectedColor) {
+        setSelectedColor(availableColors[0]);
+      }
+      if (productDesignConfig) {
+        setDesignOptions({
+          collar: productDesignConfig.section1Options?.[0]?.id || 'Classic',
+          cuff: productDesignConfig.section2Options?.[0]?.id || 'Standard',
+          buttons: productDesignConfig.section3Options?.[0]?.id || 'Standard Horn'
+        });
+        setMonogram((prev) => ({
+          ...prev,
+          position: productDesignConfig.monogramPositions?.[0] || 'Left Chest'
+        }));
+      }
     }
-  }, [product?.id, location.state]);
+  }, [product?.id, productDesignConfig, location.state]);
 
-  // Dynamic pricing calculation
-  const basePrice = product?.basePrice || 0;
-  const perfumePrice = selectedPerfume ? selectedPerfume.price : 0;
-  const totalPrice = basePrice + perfumePrice;
+  // Keep fabric valid if product category changed
+  useEffect(() => {
+    if (availableFabrics.length > 0) {
+      const isCurrentFabricValid = availableFabrics.some(f => f.name === selectedFabric?.name);
+      if (!isCurrentFabricValid) {
+        setSelectedFabric(availableFabrics[0]);
+      }
+    }
+  }, [availableFabrics]);
 
-  const currentStepInfo = CUSTOMIZATION_STEPS.find((s) => s.id === activeStep) || CUSTOMIZATION_STEPS[0];
-  const isCustomTailored = selectedSize === "Custom Tailored";
+  // Pricing calculations
+  const basePrice = Number(product?.basePrice || 1499);
+  const fabricSurcharge = Number(selectedFabric?.priceAdjustment ?? getFabricSurcharge(selectedFabric?.name));
 
-  // Handle Proceed to Cart with complete preserved configuration
-  const handleProceedToCart = () => {
-    const cartItem = {
-      id: `cart-${product.id}-${Date.now()}`,
-      productId: product.id,
-      productName: product.name,
-      category: product.category,
-      productImage: product.images?.[0] || product.image || null,
-      silhouetteColor: product.silhouetteColor,
-      accentColor: product.accentColor,
-      basePrice: basePrice,
-      selectedFabric: selectedFabric,
-      selectedColor: selectedColor,
-      selectedDesign: { ...designOptions },
-      designOptions: { ...designOptions },
-      collar: designOptions.collar,
-      cuff: designOptions.cuff,
-      buttons: designOptions.buttons,
-      monogram: designOptions.monogram,
-      size: selectedSize,
-      customMeasurements: { ...customMeasurements },
-      measurementUnit: measurementUnit,
-      fit: selectedFit,
-      selectedPerfume: selectedPerfume,
-      perfumePrice: perfumePrice,
-      itemPrice: totalPrice,
-      totalItemPrice: totalPrice,
-      quantity: 1,
-      addedAt: new Date().toISOString()
-    };
+  // Find buttons/hardware surcharge
+  const selectedHardwareObj = productDesignConfig?.section3Options?.find(
+    (o) => o.id === designOptions.buttons
+  );
+  const hardwareSurcharge = selectedHardwareObj?.surcharge || 0;
 
-    addToCart(cartItem);
-    navigate('/cart');
+  // Monogram surcharge: ₹150 if enabled and valid text entered
+  const monogramSurcharge = monogram.enabled && monogram.text.trim().length > 0 ? 150 : 0;
+
+  // Perfume surcharge
+  const perfumePrice = selectedPerfume ? Number(selectedPerfume.price || 0) : 0;
+
+  // Total Live Price
+  const totalPrice = Math.max(0, basePrice + fabricSurcharge + hardwareSurcharge + monogramSurcharge + perfumePrice);
+
+  const isCustomTailored = sizeMode === 'custom' || selectedSize === "Custom Tailored";
+
+  // Unit conversion handler: in <-> cm preserving data
+  const handleUnitToggle = (newUnit) => {
+    if (newUnit === measurementUnit) return;
+
+    setCustomMeasurements((prev) => {
+      const converted = {};
+      Object.keys(prev).forEach((key) => {
+        const val = prev[key];
+        if (val !== '' && !isNaN(parseFloat(val))) {
+          const num = parseFloat(val);
+          if (newUnit === 'cm') {
+            converted[key] = (num * 2.54).toFixed(1);
+          } else {
+            converted[key] = (num / 2.54).toFixed(1);
+          }
+        } else {
+          converted[key] = val;
+        }
+      });
+      return converted;
+    });
+
+    setMeasurementUnit(newUnit);
   };
 
-  // Recommendations calculated dynamically from current clothing choices
-  const recommendedPerfumes = useMemo(() => {
-    return getRecommendedPerfumes(product, selectedFabric, selectedColor);
-  }, [product, selectedFabric, selectedColor]);
-
-  // Handle measurement input changes with positive number validation
+  // Safe measurement input handler
   const handleMeasurementChange = (field, value) => {
     if (value === '') {
       setCustomMeasurements((prev) => ({ ...prev, [field]: '' }));
@@ -302,7 +346,219 @@ export default function CustomizePage() {
     }
   };
 
-  const hasMeasurements = Object.values(customMeasurements).some((v) => v !== '');
+  const hasMeasurements = Object.values(customMeasurements).some((v) => v !== '' && v !== null && v !== undefined);
+
+  // Recommendations calculated dynamically from current clothing choices
+  const recommendedPerfumes = useMemo(() => {
+    return getRecommendedPerfumes(product, selectedFabric, selectedColor);
+  }, [product, selectedFabric, selectedColor]);
+
+  // Filtered Perfumes List
+  const displayedPerfumes = useMemo(() => {
+    if (perfumeFilterGroup === 'All') return MASTER_PERFUMES;
+    if (perfumeFilterGroup === 'Recommended') return recommendedPerfumes;
+    return MASTER_PERFUMES.filter(p => p.fragranceFamily === perfumeFilterGroup);
+  }, [perfumeFilterGroup, recommendedPerfumes]);
+
+  // Filtered Colors List
+  const displayedColors = useMemo(() => {
+    if (colorFilterGroup === 'All') return availableColors;
+    return availableColors.filter(c => c.group === colorFilterGroup);
+  }, [colorFilterGroup, availableColors]);
+
+  const resolvedProductImage = product?.image || product?.images?.[0] || getProductImage(product);
+
+  // Master Tailoring Dossier Object for Preview & Summary
+  const currentCustomizationPayload = {
+    category: product?.category || 'Shirts',
+    productImage: resolvedProductImage,
+    silhouetteColor: product?.silhouetteColor || 'from-stone-800 to-neutral-900',
+    fabric: {
+      name: selectedFabric?.name || 'Cotton',
+      composition: selectedFabric?.composition || '100% Cotton',
+      priceAdjustment: fabricSurcharge
+    },
+    color: {
+      name: selectedColor?.name || 'Classic Navy',
+      hex: selectedColor?.hex || selectedColor?.value || '#1F2937',
+      value: selectedColor?.hex || selectedColor?.value || '#1F2937'
+    },
+    design: {
+      collar: designOptions.collar,
+      cuff: designOptions.cuff,
+      buttons: designOptions.buttons,
+      monogram: monogram.enabled && monogram.text.trim() ? monogram.text.trim() : ''
+    },
+    buttons: {
+      name: designOptions.buttons,
+      priceAdjustment: hardwareSurcharge
+    },
+    fit: selectedFit,
+    size: isCustomTailored ? 'Custom Tailored' : (selectedSize || 'M'),
+    measurements: isCustomTailored && hasMeasurements ? { ...customMeasurements } : null,
+    measurementUnit: isCustomTailored ? measurementUnit : null,
+    monogram: {
+      enabled: monogram.enabled,
+      text: monogram.text.trim(),
+      position: monogram.position,
+      threadColor: monogram.threadColor,
+      priceAdjustment: monogramSurcharge
+    },
+    perfume: selectedPerfume
+      ? {
+          id: selectedPerfume.id,
+          name: selectedPerfume.name,
+          brand: selectedPerfume.brand || 'FitFusion Atelier',
+          fragranceFamily: selectedPerfume.fragranceFamily || 'Fresh',
+          price: Number(selectedPerfume.price || 0)
+        }
+      : null
+  };
+
+  // Step Navigation Controls
+  const handleNextStep = () => {
+    setValidationError(null);
+
+    // If leaving Step 4 in Standard mode, skip Step 5 (Custom Measurements) and proceed to Step 6 (Fit)
+    if (activeStep === 4 && sizeMode === 'standard') {
+      setActiveStep(6);
+      return;
+    }
+
+    // If leaving Step 5 in Custom mode, validate required measurement fields
+    if (activeStep === 5 && sizeMode === 'custom') {
+      const missing = categoryMeasurementFields.filter(
+        f => f.required && (!customMeasurements[f.key] || parseFloat(customMeasurements[f.key]) <= 0)
+      );
+      if (missing.length > 0) {
+        setValidationError(`Please enter valid body measurements for: ${missing.map(m => m.label).join(', ')}`);
+        return;
+      }
+    }
+
+    setActiveStep((prev) => Math.min(8, prev + 1));
+  };
+
+  const handlePrevStep = () => {
+    setValidationError(null);
+    // If going back from Step 6 in Standard mode, jump back to Step 4
+    if (activeStep === 6 && sizeMode === 'standard') {
+      setActiveStep(4);
+      return;
+    }
+    setActiveStep((prev) => Math.max(1, prev - 1));
+  };
+
+  // Add to Bag / Update Cart Item Handler
+  const handleProceedToCart = () => {
+    setValidationError(null);
+
+    // Validate required custom measurements if bespoke custom measurement mode is selected
+    if (sizeMode === 'custom') {
+      const missing = categoryMeasurementFields.filter(
+        f => f.required && (!customMeasurements[f.key] || parseFloat(customMeasurements[f.key]) <= 0)
+      );
+      if (missing.length > 0) {
+        setActiveStep(5);
+        setValidationError(`Please complete all required measurements (${missing.map(m => m.label).join(', ')}) before adding to bag.`);
+        return;
+      }
+    }
+
+    const finalSize = sizeMode === 'custom' ? 'Custom Tailored' : (selectedSize || 'M');
+    const finalMeasurements = sizeMode === 'custom' ? { ...customMeasurements } : null;
+
+    const cartItem = {
+      id: editingCartItemId || `cart-${product.id}-${Date.now()}`,
+      productId: String(product.id),
+      productName: product.name || 'Custom Garment',
+      category: product.category || 'Shirts',
+      productImage: resolvedProductImage,
+      image: resolvedProductImage,
+      silhouetteColor: product.silhouetteColor || 'from-stone-800 to-neutral-900',
+      accentColor: product.accentColor || '#1E3A8A',
+      basePrice: basePrice,
+      fabricSurcharge: fabricSurcharge,
+      hardwareSurcharge: hardwareSurcharge,
+      monogramSurcharge: monogramSurcharge,
+      selectedFabric: selectedFabric ? {
+        id: selectedFabric.id || 'fab-custom',
+        name: selectedFabric.name || 'Standard Fabric',
+        composition: selectedFabric.composition || '100% Textile',
+        priceAdjustment: fabricSurcharge
+      } : { name: 'Standard Fabric', composition: '100% Textile', priceAdjustment: 0 },
+      selectedColor: selectedColor ? {
+        id: selectedColor.id || 'col-custom',
+        name: selectedColor.name || 'Default',
+        hex: selectedColor.hex || selectedColor.value || '#1F2937',
+        value: selectedColor.value || selectedColor.hex || '#1F2937'
+      } : { name: 'Default', hex: '#1F2937' },
+      selectedDesign: { ...designOptions },
+      designOptions: { ...designOptions },
+      collar: designOptions.collar || 'Classic',
+      cuff: designOptions.cuff || 'Standard',
+      buttons: designOptions.buttons || 'Standard Horn',
+      monogram: monogram.enabled && monogram.text ? monogram.text : '',
+      size: finalSize,
+      customMeasurements: finalMeasurements,
+      measurementUnit: sizeMode === 'custom' ? measurementUnit : null,
+      fit: selectedFit || 'Regular',
+      selectedPerfume: selectedPerfume && selectedPerfume.id !== 'no-perfume' ? {
+        id: selectedPerfume.id,
+        name: selectedPerfume.name,
+        brand: selectedPerfume.brand || 'FitFusion Atelier',
+        fragranceFamily: selectedPerfume.fragranceFamily || 'Fresh',
+        description: selectedPerfume.description || '',
+        price: Number(selectedPerfume.price || 0),
+        icon: selectedPerfume.icon || '✨'
+      } : null,
+      perfumePrice: perfumePrice,
+      itemPrice: totalPrice,
+      totalItemPrice: totalPrice,
+      customization: currentCustomizationPayload,
+      addedAt: new Date().toISOString()
+    };
+
+    if (editingCartItemId) {
+      updateCartItem(editingCartItemId, cartItem);
+      navigate('/cart');
+    } else {
+      cartItem.quantity = 1;
+      addToCart(cartItem);
+      navigate('/cart');
+    }
+  };
+
+  // Save Customization Handler
+  const handleSaveToVault = async () => {
+    setSavingDesign(true);
+    setFeedbackToast(null);
+    try {
+      await saveCustomization({
+        userId: user?.uid || 'anonymous',
+        productId: product.id,
+        productName: product.name,
+        customization: currentCustomizationPayload,
+        price: totalPrice,
+        designName: `${product.name} (${selectedFabric?.name || 'Tailored'}, ${selectedColor?.name || 'Classic'})`
+      });
+
+      setFeedbackToast({
+        type: 'success',
+        message: 'Bespoke design saved to your Atelier Vault!'
+      });
+      setTimeout(() => setFeedbackToast(null), 4000);
+    } catch (err) {
+      setFeedbackToast({
+        type: 'error',
+        message: 'Could not save design right now. Please try again.'
+      });
+    } finally {
+      setSavingDesign(false);
+    }
+  };
+
+  const activeColorHex = selectedColor?.hex || selectedColor?.value || '#1F2937';
 
   return (
     <div className="py-8 sm:py-12 bg-brand-cream min-h-screen">
@@ -324,6 +580,11 @@ export default function CustomizePage() {
               <span className="hidden sm:inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-accentLight text-brand-accent border border-brand-accent/20">
                 {product.category}
               </span>
+              {editingCartItemId && (
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500 text-white shadow-xs">
+                  ✏️ Editing Cart Item
+                </span>
+              )}
             </div>
           </div>
 
@@ -336,19 +597,21 @@ export default function CustomizePage() {
                 ₹{basePrice}
               </div>
             </div>
-            {selectedPerfume && (
+
+            {(fabricSurcharge > 0 || hardwareSurcharge > 0 || monogramSurcharge > 0 || perfumePrice > 0) && (
               <div className="border-l border-neutral-200 pl-4">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                  Perfume
+                  Custom Craft
                 </div>
-                <div className="text-base font-bold text-brand-accent">
-                  +₹{perfumePrice}
+                <div className="text-base font-bold text-neutral-800">
+                  +₹{fabricSurcharge + hardwareSurcharge + monogramSurcharge + perfumePrice}
                 </div>
               </div>
             )}
+
             <div className="border-l border-neutral-200 pl-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                Estimated Total
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-brand-accent">
+                Total Tailored Price
               </div>
               <div className="text-xl font-extrabold text-brand-dark">
                 ₹{totalPrice}
@@ -357,54 +620,85 @@ export default function CustomizePage() {
           </div>
         </div>
 
-        {/* 8-Step Stepper Progress Bar */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-neutral-200 shadow-sm mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
-              Bespoke Customization Studio
-            </span>
-            <span className="text-xs font-semibold text-neutral-600">
-              Step {activeStep} of {CUSTOMIZATION_STEPS.length}: <strong className="text-brand-dark">{currentStepInfo.title}</strong>
-            </span>
+        {/* Global Feedback Toast */}
+        {feedbackToast && (
+          <div
+            className={`mb-6 p-4 rounded-xl text-sm font-semibold flex items-center justify-between shadow-sm transition-all ${
+              feedbackToast.type === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'bg-red-50 text-red-800 border border-red-200'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span>{feedbackToast.type === 'success' ? '✓' : '⚠️'}</span>
+              <span>{feedbackToast.message}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFeedbackToast(null)}
+              className="text-xs opacity-60 hover:opacity-100"
+            >
+              ✕
+            </button>
           </div>
+        )}
 
-          {/* Stepper Navigation Indicators */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        {/* Validation Error Banner */}
+        {validationError && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-sm font-bold flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚠️</span>
+              <span>{validationError}</span>
+            </div>
+            <button type="button" onClick={() => setValidationError(null)} className="text-amber-800 text-xs">✕</button>
+          </div>
+        )}
+
+        {/* Step Progress Stepper Bar */}
+        <div className="bg-white rounded-2xl border border-neutral-200 p-4 mb-8 shadow-sm overflow-x-auto">
+          <div className="flex items-center justify-between min-w-[720px] gap-2">
             {CUSTOMIZATION_STEPS.map((step) => {
               const isActive = activeStep === step.id;
-              const isPast = step.id < activeStep;
+              const isPast = activeStep > step.id;
+              // If standard size is selected, indicate step 5 is skipped
+              const isSkipped = step.id === 5 && sizeMode === 'standard';
 
               return (
                 <button
                   key={step.id}
                   type="button"
-                  onClick={() => setActiveStep(step.id)}
-                  className={`p-2.5 rounded-lg border text-left transition-all duration-150 ${
+                  onClick={() => {
+                    setValidationError(null);
+                    setActiveStep(step.id);
+                  }}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left ${
                     isActive
-                      ? 'border-brand-accent bg-brand-accentLight/60 ring-2 ring-brand-accent shadow-sm'
+                      ? 'bg-brand-accentLight border border-brand-accent/30 text-brand-dark'
                       : isPast
-                      ? 'border-neutral-300 bg-neutral-100/80 text-neutral-700 hover:bg-neutral-100'
-                      : 'border-neutral-200 bg-neutral-50 text-neutral-400 hover:bg-white hover:border-neutral-300'
+                      ? 'text-neutral-700 hover:bg-neutral-50'
+                      : isSkipped
+                      ? 'text-neutral-400 opacity-60'
+                      : 'text-neutral-400 hover:text-neutral-600'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                        isActive
-                          ? 'bg-brand-accent text-white'
-                          : isPast
-                          ? 'bg-neutral-700 text-white'
-                          : 'bg-neutral-200 text-neutral-600'
-                      }`}
-                    >
-                      {step.id}
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition ${
+                      isActive
+                        ? 'bg-brand-accent text-white'
+                        : isPast
+                        ? 'bg-emerald-600 text-white'
+                        : isSkipped
+                        ? 'bg-neutral-200 text-neutral-400'
+                        : 'bg-neutral-200 text-neutral-600'
+                    }`}
+                  >
+                    {isPast ? '✓' : step.id}
+                  </span>
+                  <div className="text-xs">
+                    <span className="font-bold block truncate">{step.title}</span>
+                    <span className="text-[10px] text-neutral-400 block truncate">
+                      {isSkipped ? 'Standard Sizing' : isPast ? 'Completed' : isActive ? 'Active' : 'Pending'}
                     </span>
-                    {isPast && (
-                      <span className="text-brand-accent text-xs font-bold">&#10003;</span>
-                    )}
-                  </div>
-                  <div className="text-xs font-semibold text-brand-dark mt-1.5 truncate">
-                    {step.title}
                   </div>
                 </button>
               );
@@ -412,33 +706,40 @@ export default function CustomizePage() {
           </div>
         </div>
 
-        {/* Main Content Layout: Configurator (Left 8 cols) + Real-Time Summary (Right 4 cols) */}
+        {/* 2-Column Workstation Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Interactive Step Configurator Panel */}
+          {/* Left Column: Interactive Step Configuration Panel */}
           <div className="lg:col-span-8 bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm space-y-6">
-            {/* Step Header */}
-            <div className="border-b border-neutral-100 pb-5">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-accent bg-brand-accentLight px-2 py-0.5 rounded">
-                  Section {activeStep}
+            <div className="border-b border-neutral-100 pb-4 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-accent">
+                  Step {activeStep} of 8 &bull; {CUSTOMIZATION_STEPS[activeStep - 1]?.title}
                 </span>
-                <span className="text-xs text-neutral-400">&bull;</span>
-                <span className="text-xs text-neutral-500 font-medium">Bespoke Options</span>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-brand-dark mt-1">
+                  {CUSTOMIZATION_STEPS[activeStep - 1]?.title}
+                </h2>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  {CUSTOMIZATION_STEPS[activeStep - 1]?.description}
+                </p>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-brand-dark">
-                {currentStepInfo.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-neutral-600 mt-1">
-                {currentStepInfo.description}
-              </p>
+
+              <button
+                type="button"
+                onClick={handleSaveToVault}
+                disabled={savingDesign}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-300 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 transition shadow-2xs disabled:opacity-50"
+              >
+                <span>💾</span>
+                <span>{savingDesign ? 'Saving...' : 'Save Design'}</span>
+              </button>
             </div>
 
-            {/* STEP 1: FABRIC SELECTION */}
+            {/* STEP 1: FABRIC SELECTION (20 Realistic Fabrics with Category Compatibility) */}
             {activeStep === 1 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                    Select Material Weave ({availableFabrics.length} Available)
+                    Select Material Weave ({availableFabrics.length} Available for {product?.category || 'Garment'})
                   </label>
                   <span className="text-xs text-neutral-500 font-medium">
                     Current: <strong className="text-brand-dark">{selectedFabric?.name || 'None selected'}</strong>
@@ -448,9 +749,11 @@ export default function CustomizePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {availableFabrics.map((fabric) => {
                     const isSelected = selectedFabric?.name === fabric.name;
+                    const surcharge = fabric.priceAdjustment || getFabricSurcharge(fabric.name);
+
                     return (
                       <button
-                        key={fabric.name}
+                        key={fabric.id || fabric.name}
                         type="button"
                         onClick={() => setSelectedFabric(fabric)}
                         className={`p-4 rounded-xl border text-left transition-all relative flex flex-col justify-between h-full ${
@@ -461,8 +764,8 @@ export default function CustomizePage() {
                       >
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="w-8 h-8 rounded-lg bg-neutral-200/80 flex items-center justify-center text-xs font-bold text-neutral-700">
-                              🧵
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-200 text-neutral-700">
+                              {fabric.badge || 'Atelier'}
                             </span>
                             {isSelected && (
                               <span className="text-xs font-bold px-2 py-0.5 rounded bg-brand-accent text-white">
@@ -473,14 +776,21 @@ export default function CustomizePage() {
                           <div className="font-bold text-sm text-brand-dark">
                             {fabric.name}
                           </div>
-                          <div className="text-xs text-neutral-500 mt-1">
+                          <div className="text-xs text-neutral-500 mt-1 font-medium">
                             {fabric.composition}
                           </div>
+                          {fabric.description && (
+                            <p className="text-[11px] text-neutral-600 mt-1.5 leading-relaxed">
+                              {fabric.description}
+                            </p>
+                          )}
                         </div>
 
-                        <div className="mt-4 pt-2.5 border-t border-neutral-200/60 flex items-center justify-between text-[11px] text-neutral-600">
-                          <span className="font-medium text-brand-accent">Certified Textile</span>
-                          <span>Grade A</span>
+                        <div className="mt-4 pt-2.5 border-t border-neutral-200/60 flex items-center justify-between text-[11px]">
+                          <span className="font-bold text-brand-accent">
+                            {surcharge > 0 ? `+₹${surcharge} Premium` : 'Included Standard'}
+                          </span>
+                          <span className="text-neutral-400">Grade A Certified</span>
                         </div>
                       </button>
                     );
@@ -489,28 +799,49 @@ export default function CustomizePage() {
               </div>
             )}
 
-            {/* STEP 2: COLOR SELECTION */}
+            {/* STEP 2: COLOR SELECTION (30 Professional Colorways) */}
             {activeStep === 2 && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                    Available Palette Swatches
+                    Available Atelier Palette ({availableColors.length} Colors)
                   </label>
                   <span className="text-xs text-neutral-500 font-medium">
                     Selected: <strong className="text-brand-dark">{selectedColor?.name || 'None selected'}</strong>
                   </span>
                 </div>
 
+                {/* Color Group Filter Pills */}
+                <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-neutral-100">
+                  {['All', 'Neutrals', 'Blues', 'Greens', 'Reds', 'Warm', 'Earth'].map((grp) => (
+                    <button
+                      key={grp}
+                      type="button"
+                      onClick={() => setColorFilterGroup(grp)}
+                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                        colorFilterGroup === grp
+                          ? 'bg-brand-dark text-white'
+                          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {grp}
+                    </button>
+                  ))}
+                </div>
+
                 {/* Visual Swatches Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {availableColors.map((color) => {
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                  {displayedColors.map((color) => {
                     const isSelected = selectedColor?.name === color.name;
+                    const hexVal = color.hex || color.value || '#1F2937';
+
                     return (
                       <button
-                        key={color.name}
+                        key={color.id || color.name}
                         type="button"
                         onClick={() => setSelectedColor(color)}
-                        className={`p-4 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-3 ${
+                        aria-label={`Select color ${color.name}`}
+                        className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-2.5 ${
                           isSelected
                             ? 'border-brand-accent bg-brand-accentLight/40 ring-2 ring-brand-accent shadow-sm'
                             : 'border-neutral-200 bg-neutral-50 hover:bg-white hover:border-neutral-300'
@@ -518,21 +849,21 @@ export default function CustomizePage() {
                       >
                         <div className="relative">
                           <span
-                            style={{ backgroundColor: color.hex }}
-                            className="block w-12 h-12 rounded-full border-2 border-neutral-300 shadow-inner"
+                            style={{ backgroundColor: hexVal }}
+                            className="block w-10 h-10 rounded-full border-2 border-neutral-300 shadow-inner"
                           />
                           {isSelected && (
-                            <span className="absolute inset-0 flex items-center justify-center text-white drop-shadow font-bold text-base">
+                            <span className="absolute inset-0 flex items-center justify-center text-white drop-shadow font-bold text-sm">
                               &#10003;
                             </span>
                           )}
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-brand-dark">
+                          <div className="text-xs font-bold text-brand-dark truncate max-w-[90px]">
                             {color.name}
                           </div>
-                          <div className="text-[11px] font-mono text-neutral-400 mt-0.5">
-                            {color.hex}
+                          <div className="text-[10px] text-neutral-400 uppercase">
+                            {color.group || 'Swatch'}
                           </div>
                         </div>
                       </button>
@@ -544,15 +875,15 @@ export default function CustomizePage() {
                 {selectedColor && (
                   <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex items-center gap-4">
                     <span
-                      style={{ backgroundColor: selectedColor.hex }}
+                      style={{ backgroundColor: activeColorHex }}
                       className="w-10 h-10 rounded-lg border border-neutral-300 shadow-sm shrink-0"
                     />
                     <div>
                       <div className="text-xs font-bold text-brand-dark">
-                        Active Dye: {selectedColor.name}
+                        Active Hue: {selectedColor.name} ({activeColorHex})
                       </div>
                       <div className="text-xs text-neutral-500">
-                        Color-fast dye with premium hue vibrancy and wash resistance.
+                        Color-fast reactive dye with premium hue vibrancy and multi-wash longevity.
                       </div>
                     </div>
                   </div>
@@ -560,27 +891,27 @@ export default function CustomizePage() {
               </div>
             )}
 
-            {/* STEP 3: DESIGN SELECTION */}
+            {/* STEP 3: PRODUCT-SPECIFIC DESIGN SELECTION */}
             {activeStep === 3 && (
               <div className="space-y-6">
-                {/* 1. Collar Style */}
+                {/* 1. Dynamic Section 1 */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                      1. Collar Architecture
+                      1. {productDesignConfig.section1Title}
                     </label>
                     <span className="text-xs font-semibold text-brand-accent">
                       {designOptions.collar}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {COLLAR_OPTIONS.map((col) => {
-                      const isSelected = designOptions.collar === col.id;
+                    {productDesignConfig.section1Options.map((opt) => {
+                      const isSelected = designOptions.collar === opt.id;
                       return (
                         <button
-                          key={col.id}
+                          key={opt.id}
                           type="button"
-                          onClick={() => setDesignOptions((prev) => ({ ...prev, collar: col.id }))}
+                          onClick={() => setDesignOptions((prev) => ({ ...prev, collar: opt.id }))}
                           className={`p-3.5 rounded-xl border text-left transition-all ${
                             isSelected
                               ? 'border-brand-accent bg-brand-accentLight/60 ring-2 ring-brand-accent'
@@ -588,34 +919,39 @@ export default function CustomizePage() {
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-sm text-brand-dark">{col.title}</span>
+                            <span className="font-bold text-sm text-brand-dark">{opt.title}</span>
                             {isSelected && <span className="text-brand-accent text-xs font-bold">&#10003;</span>}
                           </div>
-                          <p className="text-xs text-neutral-600 leading-relaxed">{col.desc}</p>
+                          <p className="text-xs text-neutral-600 leading-relaxed">{opt.desc}</p>
+                          {opt.surcharge > 0 && (
+                            <span className="inline-block mt-2 text-[10px] font-bold text-amber-600">
+                              +₹{opt.surcharge} Special Architecture
+                            </span>
+                          )}
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* 2. Cuff Style */}
+                {/* 2. Dynamic Section 2 */}
                 <div className="space-y-3 pt-4 border-t border-neutral-100">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                      2. Cuff Architecture
+                      2. {productDesignConfig.section2Title}
                     </label>
                     <span className="text-xs font-semibold text-brand-accent">
                       {designOptions.cuff}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {CUFF_OPTIONS.map((cuff) => {
-                      const isSelected = designOptions.cuff === cuff.id;
+                    {productDesignConfig.section2Options.map((opt) => {
+                      const isSelected = designOptions.cuff === opt.id;
                       return (
                         <button
-                          key={cuff.id}
+                          key={opt.id}
                           type="button"
-                          onClick={() => setDesignOptions((prev) => ({ ...prev, cuff: cuff.id }))}
+                          onClick={() => setDesignOptions((prev) => ({ ...prev, cuff: opt.id }))}
                           className={`p-3.5 rounded-xl border text-left transition-all ${
                             isSelected
                               ? 'border-brand-accent bg-brand-accentLight/60 ring-2 ring-brand-accent'
@@ -623,28 +959,33 @@ export default function CustomizePage() {
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-sm text-brand-dark">{cuff.title}</span>
+                            <span className="font-bold text-sm text-brand-dark">{opt.title}</span>
                             {isSelected && <span className="text-brand-accent text-xs font-bold">&#10003;</span>}
                           </div>
-                          <p className="text-xs text-neutral-600 leading-relaxed">{cuff.desc}</p>
+                          <p className="text-xs text-neutral-600 leading-relaxed">{opt.desc}</p>
+                          {opt.surcharge > 0 && (
+                            <span className="inline-block mt-2 text-[10px] font-bold text-amber-600">
+                              +₹{opt.surcharge} Tailoring
+                            </span>
+                          )}
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* 3. Button Finishes */}
+                {/* 3. Dynamic Section 3 */}
                 <div className="space-y-3 pt-4 border-t border-neutral-100">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                      3. Buttons & Hardware
+                      3. {productDesignConfig.section3Title}
                     </label>
                     <span className="text-xs font-semibold text-brand-accent">
                       {designOptions.buttons}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {BUTTON_OPTIONS.map((btn) => {
+                    {productDesignConfig.section3Options.map((btn) => {
                       const isSelected = designOptions.buttons === btn.id;
                       return (
                         <button
@@ -658,10 +999,8 @@ export default function CustomizePage() {
                           }`}
                         >
                           <span
-                            style={{ backgroundColor: btn.color }}
-                            className={`w-6 h-6 rounded-full shrink-0 mt-0.5 shadow-sm ${
-                              btn.border ? 'border border-neutral-300' : ''
-                            }`}
+                            style={{ backgroundColor: btn.color || '#4B5563' }}
+                            className="w-6 h-6 rounded-full shrink-0 mt-0.5 shadow-sm border border-neutral-400/50"
                           />
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
@@ -669,6 +1008,11 @@ export default function CustomizePage() {
                               {isSelected && <span className="text-brand-accent text-xs font-bold">&#10003;</span>}
                             </div>
                             <p className="text-xs text-neutral-600 mt-0.5 leading-relaxed">{btn.desc}</p>
+                            {btn.surcharge > 0 && (
+                              <span className="inline-block mt-1 text-[10px] font-bold text-amber-600">
+                                +₹{btn.surcharge} Material Surcharge
+                              </span>
+                            )}
                           </div>
                         </button>
                       );
@@ -676,246 +1020,414 @@ export default function CustomizePage() {
                   </div>
                 </div>
 
-                {/* 4. Monogram Personalization */}
-                <div className="space-y-3 pt-4 border-t border-neutral-100">
+                {/* 4. Monogram Studio */}
+                <div className="p-5 rounded-xl border border-neutral-200 bg-neutral-50/50 space-y-4 pt-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                      4. Bespoke Monogram (Optional)
-                    </label>
-                    <span className="text-xs text-neutral-500">
-                      {designOptions.monogram.length}/12 characters
-                    </span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    <div className="relative flex-1 w-full">
+                    <div className="flex items-center gap-2">
                       <input
-                        type="text"
-                        maxLength={12}
-                        value={designOptions.monogram}
-                        onChange={(e) => setDesignOptions((prev) => ({ ...prev, monogram: e.target.value }))}
-                        placeholder="e.g. J.D. or FIT"
-                        className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 bg-white text-sm text-brand-dark uppercase tracking-widest placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
+                        type="checkbox"
+                        id="monogram-toggle"
+                        checked={monogram.enabled}
+                        onChange={(e) => setMonogram((prev) => ({ ...prev, enabled: e.target.checked }))}
+                        className="w-4 h-4 text-brand-accent rounded border-neutral-300 focus:ring-brand-accent"
                       />
-                      {designOptions.monogram && (
-                        <button
-                          type="button"
-                          onClick={() => setDesignOptions((prev) => ({ ...prev, monogram: '' }))}
-                          className="absolute right-3 top-2.5 text-xs text-neutral-400 hover:text-neutral-600"
-                        >
-                          Clear
-                        </button>
-                      )}
+                      <label htmlFor="monogram-toggle" className="text-sm font-bold text-brand-dark cursor-pointer">
+                        Personalized Silk Monogramming (+₹150)
+                      </label>
                     </div>
-
-                    {/* Monogram Live Preview Plaque */}
-                    <div className="px-4 py-2 rounded-lg bg-neutral-900 text-amber-200 text-xs font-serif tracking-widest border border-amber-300/30 flex items-center gap-2 shrink-0">
-                      <span>🧵 Plaque:</span>
-                      <strong className="tracking-widest">
-                        {designOptions.monogram ? designOptions.monogram : "NO MONOGRAM"}
-                      </strong>
-                    </div>
+                    {monogram.enabled && (
+                      <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
+                        Atelier Embroidery
+                      </span>
+                    )}
                   </div>
-                  <p className="text-[11px] text-neutral-500">
-                    Hand-stitched onto cuff or chest placket in tone-on-tone embroidery thread.
-                  </p>
+
+                  {monogram.enabled && (
+                    <div className="space-y-4 pt-2 border-t border-neutral-200/80">
+                      <div>
+                        <label className="text-xs font-semibold text-neutral-600 block mb-1">
+                          Monogram Characters (Initials or Name, max 6 characters)
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          placeholder="e.g. VMD"
+                          value={monogram.text}
+                          onChange={(e) => setMonogram((prev) => ({ ...prev, text: e.target.value.toUpperCase() }))}
+                          className="w-full sm:w-64 px-3.5 py-2 rounded-lg border border-neutral-300 font-mono tracking-widest text-base font-bold text-brand-dark uppercase focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold text-neutral-600 block mb-1">
+                            Embroidery Position
+                          </label>
+                          <select
+                            value={monogram.position}
+                            onChange={(e) => setMonogram((prev) => ({ ...prev, position: e.target.value }))}
+                            className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-xs font-semibold text-brand-dark bg-white"
+                          >
+                            {(productDesignConfig.monogramPositions || ['Left Chest', 'Cuff', 'Hem']).map((pos) => (
+                              <option key={pos} value={pos}>{pos}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-semibold text-neutral-600 block mb-1">
+                            Thread Color
+                          </label>
+                          <select
+                            value={monogram.threadColor}
+                            onChange={(e) => setMonogram((prev) => ({ ...prev, threadColor: e.target.value }))}
+                            className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-xs font-semibold text-brand-dark bg-white"
+                          >
+                            {MONOGRAM_THREAD_COLORS.map((col) => (
+                              <option key={col.id} value={col.name}>{col.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* STEP 4: SIZE SELECTION */}
+            {/* STEP 4: SIZE SELECTION (PART 5: Standard Size vs Custom Measurement Toggle) */}
             {activeStep === 4 && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                    Available Sizing Dimensions
-                  </label>
-                  <span className="text-xs text-neutral-500 font-medium">
-                    Selected: <strong className="text-brand-dark">{selectedSize}</strong>
-                  </span>
-                </div>
-
-                {/* Sizing Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {availableSizes.map((size) => {
-                    const isSelected = selectedSize === size;
-                    const isBespoke = size === "Custom Tailored";
-
-                    return (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => setSelectedSize(size)}
-                        className={`p-4 rounded-xl border text-center transition-all ${
-                          isBespoke ? 'col-span-2 sm:col-span-2' : ''
-                        } ${
-                          isSelected
-                            ? 'border-brand-dark bg-brand-dark text-white shadow-md ring-2 ring-brand-dark/20'
-                            : 'border-neutral-200 bg-neutral-50 text-neutral-800 hover:bg-white hover:border-neutral-300'
-                        }`}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="font-extrabold text-sm sm:text-base">
-                            {size}
-                          </span>
-                          {isBespoke && (
-                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                              isSelected ? 'bg-amber-400 text-neutral-900' : 'bg-brand-accentLight text-brand-accent'
-                            }`}>
-                              Bespoke
-                            </span>
-                          )}
-                        </div>
-                        <div className={`text-[11px] mt-1 ${isSelected ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                          {isBespoke ? 'Personalized body metrics in Step 5' : 'Standard off-the-rack sizing'}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Notice based on chosen size */}
-                {isCustomTailored ? (
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                    <div className="font-bold flex items-center gap-1.5">
-                      <span>✨</span> Bespoke Custom Tailored Active
-                    </div>
-                    <p className="text-amber-800">
-                      Step 5 (Custom Measurements) will prompt you for your precise neck, chest, waist, and sleeve specifications.
-                    </p>
+                {/* Mode Selector Toggle: Standard Size (Default) vs Custom Measurement */}
+                <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
+                      Choose Sizing Method
+                    </label>
+                    <span className="text-xs font-bold text-brand-accent">
+                      {sizeMode === 'standard' ? `Standard Size: ${selectedSize}` : 'Bespoke Custom Measurements'}
+                    </span>
                   </div>
-                ) : (
-                  <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-600">
-                    Standard size <strong>{selectedSize}</strong> selected. If you have unique body proportions, you may also specify custom measurements in Step 5.
-                  </div>
-                )}
-              </div>
-            )}
 
-            {/* STEP 5: CUSTOM MEASUREMENTS */}
-            {activeStep === 5 && (
-              <div className="space-y-6">
-                {/* Status Callout */}
-                {isCustomTailored ? (
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
-                    <span className="text-base">📐</span>
-                    <div>
-                      <strong className="block font-bold">Bespoke Custom Tailored is Active</strong>
-                      <span>Please enter your body measurements below. Measurements are tailored to precision within 1/8th inch.</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-600 flex items-start justify-between gap-4">
-                    <div>
-                      <strong className="block text-brand-dark mb-0.5">Standard Size ({selectedSize}) Selected</strong>
-                      <span>Entering measurements below is optional for minor adjustments, or you can switch to "Custom Tailored" in Step 4.</span>
-                    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => {
-                        setSelectedSize("Custom Tailored");
+                        setSizeMode('standard');
+                        setSelectedSize(prev => (prev === 'Custom Tailored' ? 'M' : prev || 'M'));
+                        setCustomMeasurements({});
+                        setValidationError(null);
                       }}
-                      className="text-brand-accent hover:underline font-bold text-xs shrink-0"
+                      className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                        sizeMode === 'standard'
+                          ? 'border-brand-accent bg-white ring-2 ring-brand-accent shadow-sm'
+                          : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/60'
+                      }`}
                     >
-                      Switch to Bespoke &rarr;
+                      <span className={`w-4 h-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${
+                        sizeMode === 'standard' ? 'border-brand-accent bg-brand-accent text-white text-[10px]' : 'border-neutral-400 bg-white'
+                      }`}>
+                        {sizeMode === 'standard' && '●'}
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-sm text-brand-dark">Standard Size</span>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-accentLight text-brand-accent">
+                            Default
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Standard atelier sizing calibrated to Indian and international standards (S, M, L, XL, XXL).
+                        </p>
+                      </div>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSizeMode('custom');
+                        setSelectedSize('Custom Tailored');
+                        setValidationError(null);
+                      }}
+                      className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                        sizeMode === 'custom'
+                          ? 'border-amber-600 bg-white ring-2 ring-amber-500 shadow-sm'
+                          : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/60'
+                      }`}
+                    >
+                      <span className={`w-4 h-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${
+                        sizeMode === 'custom' ? 'border-amber-600 bg-amber-600 text-white text-[10px]' : 'border-neutral-400 bg-white'
+                      }`}>
+                        {sizeMode === 'custom' && '●'}
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-sm text-brand-dark">Custom Measurement</span>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                            Bespoke
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Provide exact body metrics in Step 5 tailored specifically for {product?.category || 'this garment'}.
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* When Standard Size is selected: show S, M, L, XL, XXL and hide custom measurement form */}
+                {sizeMode === 'standard' && (
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
+                        Select Standard Size (S, M, L, XL, XXL)
+                      </label>
+                      <span className="text-xs font-semibold text-neutral-500">
+                        Selected: <strong className="text-brand-dark">{selectedSize}</strong>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                      {['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((s) => {
+                        const isSelected = selectedSize === s;
+                        return (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setSelectedSize(s)}
+                            className={`py-4 px-3 rounded-xl border text-center transition-all ${
+                              isSelected
+                                ? 'border-brand-accent bg-brand-accentLight/60 ring-2 ring-brand-accent text-brand-dark font-black shadow-sm'
+                                : 'border-neutral-200 bg-neutral-50 hover:bg-white text-neutral-700 font-bold'
+                            }`}
+                          >
+                            <div className="text-lg">{s}</div>
+                            <div className="text-[10px] text-neutral-400 font-normal mt-0.5">Atelier Fit</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-600 flex items-center justify-between">
+                      <span>Standard size <strong>{selectedSize}</strong> active. Detailed custom measurement form is hidden.</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSizeMode('custom');
+                          setSelectedSize('Custom Tailored');
+                          setValidationError(null);
+                        }}
+                        className="text-xs text-amber-600 hover:underline font-bold"
+                      >
+                        Switch to Custom Measurement &rarr;
+                      </button>
+                    </div>
                   </div>
                 )}
 
-                {/* Unit Switcher */}
-                <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                  <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                    Measurement Units
-                  </span>
-                  <div className="flex items-center p-1 rounded-lg bg-neutral-100 border border-neutral-200">
-                    <button
-                      type="button"
-                      onClick={() => setMeasurementUnit('in')}
-                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                        measurementUnit === 'in'
-                          ? 'bg-white text-brand-dark shadow-sm'
-                          : 'text-neutral-500 hover:text-neutral-800'
-                      }`}
-                    >
-                      Inches (in)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMeasurementUnit('cm')}
-                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                        measurementUnit === 'cm'
-                          ? 'bg-white text-brand-dark shadow-sm'
-                          : 'text-neutral-500 hover:text-neutral-800'
-                      }`}
-                    >
-                      Centimeters (cm)
-                    </button>
+                {/* When Custom Measurement is selected */}
+                {sizeMode === 'custom' && (
+                  <div className="p-5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-3 animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold flex items-center gap-2 text-sm text-amber-950">
+                        <span>✨</span> Bespoke Custom Tailored Active
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveStep(5)}
+                        className="px-3.5 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs transition shadow-xs"
+                      >
+                        Proceed to Measurements (Step 5) &rarr;
+                      </button>
+                    </div>
+                    <p className="text-amber-800 leading-relaxed">
+                      Custom tailored mode enabled. You will input your exact measurements in Step 5 tailored specifically for {product?.category || 'garments'}.
+                    </p>
                   </div>
-                </div>
+                )}
+              </div>
+            )}
 
-                {/* 6 Metric Fields Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {MEASUREMENT_FIELDS.map((field) => (
-                    <div key={field.key} className="p-3.5 rounded-xl border border-neutral-200 bg-neutral-50/50 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <label
-                          htmlFor={`metric-${field.key}`}
-                          className="text-xs font-bold uppercase tracking-wider text-brand-dark"
-                        >
-                          {field.label} {isCustomTailored && <span className="text-amber-600">*</span>}
-                        </label>
-                        <span className="text-[11px] font-semibold text-neutral-400 uppercase">
-                          {measurementUnit}
-                        </span>
-                      </div>
-                      <div className="relative">
-                        <input
-                          id={`metric-${field.key}`}
-                          type="number"
-                          min="0"
-                          step="0.25"
-                          placeholder={field.placeholder}
-                          value={customMeasurements[field.key]}
-                          onChange={(e) => handleMeasurementChange(field.key, e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-lg border border-neutral-300 bg-white text-sm font-semibold text-brand-dark placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
-                        />
-                        <span className="absolute right-3 top-2 text-xs font-semibold text-neutral-400">
-                          {measurementUnit}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-neutral-500 leading-tight">
-                        {field.guide}
+            {/* STEP 5: CUSTOM MEASUREMENTS & CATEGORY TAILORING FORM (PART 5) */}
+            {activeStep === 5 && (
+              <div className="space-y-6">
+                {/* If user is in Standard Size mode, form is hidden and prompt is shown */}
+                {sizeMode === 'standard' ? (
+                  <div className="p-8 rounded-2xl bg-neutral-50 border border-neutral-200 text-center space-y-4">
+                    <div className="w-14 h-14 mx-auto rounded-full bg-neutral-200 flex items-center justify-center text-3xl">
+                      📏
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-extrabold text-base text-brand-dark">
+                        Standard Size Active (Size: {selectedSize})
+                      </h3>
+                      <p className="text-xs text-neutral-500 max-w-md mx-auto leading-relaxed">
+                        The custom measurement form is hidden because you have selected standard calibrated sizing. If you have unique body proportions, switch to custom measurement below.
                       </p>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSizeMode('custom');
+                          setSelectedSize('Custom Tailored');
+                          setValidationError(null);
+                        }}
+                        className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition shadow-xs"
+                      >
+                        Switch to Custom Measurement
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveStep(6)}
+                        className="px-4 py-2 rounded-lg bg-brand-dark hover:bg-black text-white text-xs font-bold transition"
+                      >
+                        Continue to Step 6: Fit (Size: {selectedSize}) &rarr;
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Header callout with category & guide */}
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <span className="text-base">📐</span>
+                        <div>
+                          <strong className="block font-bold">
+                            Bespoke Measurements for {product?.category || 'Garment'}
+                          </strong>
+                          <span>
+                            Enter required tailoring dimensions in {measurementUnit}. Master artisan tolerances applied.
+                          </span>
+                        </div>
+                      </div>
 
-                {/* Measurement summary status */}
-                <div className="p-3 rounded-lg bg-white border border-neutral-200 text-xs text-neutral-500 flex items-center justify-between">
-                  <span>
-                    Metrics status:{' '}
-                    <strong className="text-brand-dark">
-                      {hasMeasurements ? 'Custom metrics registered' : 'No measurements recorded'}
-                    </strong>
-                  </span>
-                  {hasMeasurements && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCustomMeasurements({
-                          neck: '',
-                          chest: '',
-                          waist: '',
-                          shoulder: '',
-                          sleeve: '',
-                          length: ''
-                        })
-                      }
-                      className="text-xs text-red-500 hover:underline font-medium"
-                    >
-                      Reset all fields
-                    </button>
-                  )}
-                </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSizeMode('standard');
+                            setSelectedSize('M');
+                            setCustomMeasurements({});
+                            setValidationError(null);
+                            setActiveStep(4);
+                          }}
+                          className="px-3 py-1.5 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 text-neutral-700 font-bold text-xs transition"
+                        >
+                          &larr; Switch to Standard Size
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setGuideModalOpen(true)}
+                          className="px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 transition shadow-xs"
+                        >
+                          📖 How to Measure Guide
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Unit Switcher */}
+                    <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                      <span className="text-xs font-bold uppercase tracking-wider text-brand-dark">
+                        Measurement Unit (Values convert automatically)
+                      </span>
+                      <div className="flex items-center p-1 rounded-lg bg-neutral-100 border border-neutral-200">
+                        <button
+                          type="button"
+                          onClick={() => handleUnitToggle('in')}
+                          className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                            measurementUnit === 'in'
+                              ? 'bg-white text-brand-dark shadow-sm'
+                              : 'text-neutral-500 hover:text-neutral-800'
+                          }`}
+                        >
+                          Inches (in)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUnitToggle('cm')}
+                          className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                            measurementUnit === 'cm'
+                              ? 'bg-white text-brand-dark shadow-sm'
+                              : 'text-neutral-500 hover:text-neutral-800'
+                          }`}
+                        >
+                          Centimeters (cm)
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Metric Fields Grid tailored to product category */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {categoryMeasurementFields.map((field) => (
+                        <div key={field.key} className="p-3.5 rounded-xl border border-neutral-200 bg-neutral-50/50 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label
+                              htmlFor={`metric-${field.key}`}
+                              className="text-xs font-bold uppercase tracking-wider text-brand-dark"
+                            >
+                              {field.label} {field.required && <span className="text-red-500 font-bold">*</span>}
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveGuideKey(field.key);
+                                setGuideModalOpen(true);
+                              }}
+                              className="text-[10px] text-amber-600 hover:underline font-semibold"
+                            >
+                              Help ?
+                            </button>
+                          </div>
+                          <div className="relative">
+                            <input
+                              id={`metric-${field.key}`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              placeholder={
+                                measurementUnit === 'cm' && field.placeholder
+                                  ? (parseFloat(field.placeholder) * 2.54).toFixed(1)
+                                  : field.placeholder
+                              }
+                              value={customMeasurements[field.key] || ''}
+                              onChange={(e) => {
+                                setValidationError(null);
+                                handleMeasurementChange(field.key, e.target.value);
+                              }}
+                              className="w-full px-3.5 py-2 rounded-lg border border-neutral-300 bg-white text-sm font-semibold text-brand-dark placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
+                            />
+                            <span className="absolute right-3 top-2 text-xs font-semibold text-neutral-400">
+                              {measurementUnit}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-neutral-500 leading-tight">
+                            {field.guide}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Clear / Reset Fields */}
+                    <div className="p-3 rounded-lg bg-white border border-neutral-200 text-xs text-neutral-500 flex items-center justify-between">
+                      <span>
+                        Metrics status:{' '}
+                        <strong className="text-brand-dark">
+                          {hasMeasurements ? 'Custom metrics registered' : 'No measurements recorded'}
+                        </strong>
+                      </span>
+                      {hasMeasurements && (
+                        <button
+                          type="button"
+                          onClick={() => setCustomMeasurements({})}
+                          className="text-red-600 hover:underline font-semibold"
+                        >
+                          Clear All Fields
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -973,803 +1485,283 @@ export default function CustomizePage() {
               </div>
             )}
 
-            {/* STEP 7: PERFUME (Phase 4 — Fully Functional Scent Pairing) */}
+            {/* STEP 7: PERFUME (PART 4: 18 Fictional Perfumes across 10 Families + "No Perfume") */}
             {activeStep === 7 && (
               <div className="space-y-6">
-                {/* Active Fragrance Selection Banner */}
                 <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-full bg-brand-accentLight border border-brand-accent/30 flex items-center justify-center text-lg">
-                      {selectedPerfume ? selectedPerfume.icon : '🚫'}
-                    </span>
+                    <span className="text-2xl">{selectedPerfume?.icon || '🌿'}</span>
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                        Current Fragrance Selection
+                      <div className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        Selected Fragrance
                       </div>
-                      <div className="text-sm font-bold text-brand-dark flex items-center gap-2">
-                        <span>{selectedPerfume ? `${selectedPerfume.name} by ${selectedPerfume.brand}` : 'No Perfume Selected'}</span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-brand-accentLight text-brand-accent">
-                          {selectedPerfume ? `+₹${selectedPerfume.price}` : '+₹0'}
-                        </span>
+                      <div className="text-sm font-bold text-brand-dark">
+                        {selectedPerfume && selectedPerfume.id !== 'no-perfume'
+                          ? `${selectedPerfume.name} by ${selectedPerfume.brand || 'Atelier'} (+₹${selectedPerfume.price})`
+                          : 'No Perfume Selected (₹0)'}
                       </div>
                     </div>
                   </div>
-
                   {selectedPerfume && (
                     <button
                       type="button"
                       onClick={() => setSelectedPerfume(null)}
-                      className="text-xs font-semibold text-neutral-500 hover:text-red-600 transition-colors self-start sm:self-center"
+                      className="text-xs text-red-600 hover:underline font-semibold"
                     >
-                      Clear &bull; Opt for No Perfume
+                      Reset to No Fragrance
                     </button>
                   )}
                 </div>
 
-                {/* Section A: Recommended for your style */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-brand-accent text-base">✨</span>
-                    <div>
-                      <h3 className="text-sm font-bold text-brand-dark uppercase tracking-wider">
-                        Recommended For Your Style
-                      </h3>
-                      <p className="text-xs text-neutral-500">
-                        Curated to complement your {selectedFabric?.name || 'fabric'} in {selectedColor?.name || 'color'} ({product.category})
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                    {recommendedPerfumes.map((perfume) => {
-                      const isSelected = selectedPerfume?.id === perfume.id;
-                      return (
-                        <div
-                          key={perfume.id}
-                          className={`p-4 rounded-xl border transition-all flex flex-col justify-between relative ${
-                            isSelected
-                              ? 'border-brand-accent bg-brand-accentLight/50 ring-2 ring-brand-accent shadow-sm'
-                              : 'border-amber-200/80 bg-amber-50/30 hover:bg-white hover:border-amber-300'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-start justify-between gap-1 mb-2">
-                              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1">
-                                <span>⭐</span> Curated Match
-                              </span>
-                              <span className="text-xs font-bold text-brand-dark">
-                                +₹{perfume.price}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-lg">{perfume.icon}</span>
-                              <div>
-                                <h4 className="font-bold text-sm text-brand-dark leading-tight">
-                                  {perfume.name}
-                                </h4>
-                                <span className="text-[11px] text-neutral-500 italic">
-                                  {perfume.brand}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded bg-neutral-100 text-neutral-600 mb-2">
-                              Family: {perfume.fragranceFamily}
-                            </div>
-
-                            <p className="text-xs text-neutral-600 line-clamp-3 mb-2 leading-relaxed">
-                              {perfume.description}
-                            </p>
-
-                            <div className="text-[11px] text-neutral-500 flex items-center gap-1">
-                              <span className="font-semibold text-neutral-700">Occasion:</span> {perfume.suitableOccasion}
-                            </div>
-                          </div>
-
-                          <div className="pt-3 mt-3 border-t border-neutral-200/60">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedPerfume(isSelected ? null : perfume)}
-                              className={`w-full py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
-                                isSelected
-                                  ? 'bg-brand-accent text-white shadow-sm'
-                                  : 'bg-white border border-neutral-300 text-brand-dark hover:bg-neutral-50'
-                              }`}
-                            >
-                              {isSelected ? 'Selected ✓' : 'Select Perfume'}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                {/* Fragrance Family Filter Tabs */}
+                <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-neutral-100">
+                  {['All', 'Recommended', 'Fresh', 'Citrus', 'Aquatic', 'Woody', 'Amber', 'Floral', 'Musk', 'Spicy', 'Oriental', 'Green'].map((fam) => (
+                    <button
+                      key={fam}
+                      type="button"
+                      onClick={() => setPerfumeFilterGroup(fam)}
+                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                        perfumeFilterGroup === fam
+                          ? 'bg-brand-dark text-white'
+                          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {fam}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Section B: All Fragrance Options & No Perfume Option */}
-                <div className="space-y-3 pt-4 border-t border-neutral-100">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
-                      All Artisanal Fragrances ({MOCK_PERFUMES.length} Available)
-                    </label>
-                    <span className="text-xs text-neutral-500">
-                      Fragrance pairing is completely optional
-                    </span>
-                  </div>
+                {/* Perfumes Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {displayedPerfumes.map((perfume) => {
+                    const isSelected = selectedPerfume?.id === perfume.id || (!selectedPerfume && perfume.id === 'no-perfume');
+                    const isFreeOption = perfume.price === 0;
 
-                  {/* "No Perfume" Option Card */}
-                  <div
-                    onClick={() => setSelectedPerfume(null)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
-                      selectedPerfume === null
-                        ? 'border-brand-dark bg-brand-dark text-white ring-2 ring-brand-dark/20 shadow-sm'
-                        : 'border-neutral-200 bg-neutral-50 hover:bg-white text-neutral-800'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                        selectedPerfume === null ? 'bg-neutral-800 text-white' : 'bg-neutral-200 text-neutral-700'
-                      }`}>
-                        🚫
-                      </span>
-                      <div>
-                        <div className="font-bold text-sm flex items-center gap-2">
-                          <span>No Perfume (Garment Only)</span>
-                          {selectedPerfume === null && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-brand-dark">
-                              Active Choice
-                            </span>
-                          )}
-                        </div>
-                        <div className={`text-xs ${selectedPerfume === null ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                          Receive your tailored cloth without any fragrance pairing. No additional fee.
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className={`text-sm font-bold ${selectedPerfume === null ? 'text-emerald-300' : 'text-emerald-600'}`}>
-                        +₹0 (Free)
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Full Grid of All Fragrances */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {MOCK_PERFUMES.map((perfume) => {
-                      const isSelected = selectedPerfume?.id === perfume.id;
-                      return (
-                        <div
-                          key={perfume.id}
-                          className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
-                            isSelected
-                              ? 'border-brand-accent bg-brand-accentLight/60 ring-2 ring-brand-accent shadow-sm'
-                              : 'border-neutral-200 bg-neutral-50 hover:bg-white'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-neutral-200/80 text-neutral-700">
-                                {perfume.fragranceFamily}
-                              </span>
-                              <span className="text-xs font-bold text-brand-dark">
-                                +₹{perfume.price}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-lg">{perfume.icon}</span>
-                              <div>
-                                <h4 className="font-bold text-sm text-brand-dark">
-                                  {perfume.name}
-                                </h4>
-                                <span className="text-xs text-neutral-500 italic">
-                                  {perfume.brand}
-                                </span>
-                              </div>
-                            </div>
-
-                            <p className="text-xs text-neutral-600 leading-relaxed mb-2">
-                              {perfume.description}
-                            </p>
-
-                            <div className="text-[11px] text-neutral-500">
-                              <strong className="text-neutral-700">Occasion:</strong> {perfume.suitableOccasion}
-                            </div>
-                          </div>
-
-                          <div className="pt-3 mt-3 border-t border-neutral-200/60 flex items-center justify-between">
-                            <span className="text-xs font-bold text-brand-dark">
-                              ₹{perfume.price} Add-on
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedPerfume(isSelected ? null : perfume)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                isSelected
-                                  ? 'bg-brand-accent text-white shadow-sm'
-                                  : 'bg-white border border-neutral-300 text-brand-dark hover:bg-neutral-100'
-                              }`}
-                            >
-                              {isSelected ? 'Selected ✓' : 'Select'}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 8: PREVIEW (Phase 4 — Complete Composite Garment & Scent Overview) */}
-            {activeStep === 8 && (
-              <div className="space-y-8">
-                {/* Visual Product Preview Card (Step 4 requirement) */}
-                <div className={`rounded-2xl bg-gradient-to-br ${product.silhouetteColor || 'from-stone-100 to-amber-50'} p-6 sm:p-8 border border-neutral-300/80 shadow-md relative overflow-hidden`}>
-                  <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-white text-brand-dark shadow-sm">
-                        {product.category}
-                      </span>
-                      <span className="text-xs font-semibold text-neutral-700 bg-white/90 px-2.5 py-1 rounded-md">
-                        Model #{product.id}
-                      </span>
-                    </div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-brand-accent bg-white/95 px-3 py-1 rounded-full shadow-sm">
-                      ✨ Customized Bespoke Edition
-                    </span>
-                  </div>
-
-                  {/* Centered Garment Stylized Showcase */}
-                  <div className="my-6 text-center">
-                    <div className="w-48 sm:w-56 mx-auto rounded-2xl bg-white/95 border border-neutral-300/80 shadow-xl flex flex-col items-center justify-center p-6 space-y-3 relative group">
-                      <svg
-                        className="w-20 h-20 transition-transform group-hover:scale-105 duration-200"
-                        style={{ color: selectedColor?.hex || '#1F2937' }}
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
+                    return (
+                      <div
+                        key={perfume.id}
+                        className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
+                          isSelected
+                            ? 'border-brand-accent bg-brand-accentLight/40 ring-2 ring-brand-accent shadow-sm'
+                            : 'border-neutral-200 bg-white hover:border-neutral-300'
+                        }`}
                       >
-                        <path d="M9 3v2m6-2v2M9 5H7a2 2 0 00-2 2v2l2 1v9a2 2 0 002 2h6a2 2 0 002-2v-9l2-1V7a2 2 0 00-2-2h-2m-6 0a2 2 0 002 2h2a2 2 0 002-2m-6 0h6" />
-                      </svg>
-
-                      <div className="space-y-1">
-                        <div className="text-sm font-black text-brand-dark">
-                          {product.name}
-                        </div>
-                        <div className="text-xs text-neutral-600 flex items-center justify-center gap-1.5">
-                          <span
-                            style={{ backgroundColor: selectedColor?.hex || '#171717' }}
-                            className="w-3 h-3 rounded-full border border-neutral-300 inline-block"
-                          />
-                          <span>{selectedColor?.name || 'Default'}</span>
-                        </div>
-                        <div className="text-[11px] text-neutral-500 font-medium">
-                          {selectedFabric?.name} &bull; {selectedFit} Fit
-                        </div>
-                      </div>
-
-                      {/* Monogram Badge Overlay if applied */}
-                      {designOptions.monogram && (
-                        <div className="px-3 py-1 rounded-md bg-neutral-950 text-amber-300 text-[10px] font-serif tracking-widest border border-amber-400/40 shadow-sm">
-                          🧵 Monogram: "{designOptions.monogram}"
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Visual Preview Specs Bar */}
-                  <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3.5 border border-neutral-200/80 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-                    <div>
-                      <div className="text-neutral-500 text-[10px] uppercase font-semibold">Collar & Cuff</div>
-                      <div className="font-bold text-brand-dark">{designOptions.collar} / {designOptions.cuff}</div>
-                    </div>
-                    <div>
-                      <div className="text-neutral-500 text-[10px] uppercase font-semibold">Hardware</div>
-                      <div className="font-bold text-brand-dark">{designOptions.buttons}</div>
-                    </div>
-                    <div>
-                      <div className="text-neutral-500 text-[10px] uppercase font-semibold">Sizing</div>
-                      <div className="font-bold text-brand-dark">{selectedSize} ({selectedFit})</div>
-                    </div>
-                    <div>
-                      <div className="text-neutral-500 text-[10px] uppercase font-semibold">Fragrance</div>
-                      <div className="font-bold text-brand-accent truncate">
-                        {selectedPerfume ? selectedPerfume.name : 'No Perfume'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Comprehensive Specification Breakdown with Edit Buttons (Steps 3, 5, 6) */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-base font-extrabold text-brand-dark uppercase tracking-wider">
-                      Customization Specifications & Review
-                    </h3>
-                    <span className="text-xs text-neutral-500">
-                      Click "Edit" on any section to adjust
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* 1. Fabric Spec */}
-                    <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                          1. Fabric Selection
-                        </div>
-                        <div className="font-bold text-brand-dark text-sm">
-                          {selectedFabric?.name || 'Standard Weave'}
-                        </div>
-                        <div className="text-xs text-neutral-600">
-                          Composition: {selectedFabric?.composition || '100% Certified Textile'}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep(1)}
-                        className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors shrink-0"
-                      >
-                        Edit Fabric
-                      </button>
-                    </div>
-
-                    {/* 2. Color Spec */}
-                    <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                          2. Colorway Dye
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span
-                            style={{ backgroundColor: selectedColor?.hex || '#171717' }}
-                            className="w-4 h-4 rounded-full border border-neutral-300 inline-block shadow-xs"
-                          />
-                          <span className="font-bold text-brand-dark text-sm">
-                            {selectedColor?.name || 'Default Color'}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-2xl">{perfume.icon || '✨'}</span>
+                            <span className={`text-xs font-black ${isFreeOption ? 'text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded' : 'text-brand-accent'}`}>
+                              {isFreeOption ? '₹0 Included' : `+₹${perfume.price}`}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-extrabold text-sm text-brand-dark">{perfume.name}</h4>
+                            {perfume.rating && (
+                              <span className="text-[11px] font-bold text-amber-600">★ {perfume.rating}</span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-neutral-500 block mb-1.5">
+                            {perfume.brand} &bull; {perfume.fragranceFamily}
                           </span>
-                        </div>
-                        <div className="text-xs text-neutral-600 font-mono">
-                          Hex: {selectedColor?.hex || '#171717'}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep(2)}
-                        className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors shrink-0"
-                      >
-                        Edit Color
-                      </button>
-                    </div>
+                          <p className="text-xs text-neutral-600 leading-relaxed mb-3">
+                            {perfume.description}
+                          </p>
 
-                    {/* 3. Design Spec */}
-                    <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex items-start justify-between gap-3">
-                      <div className="space-y-1 flex-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                          3. Garment Architecture
-                        </div>
-                        <div className="text-xs text-neutral-700 space-y-0.5">
-                          <div>Collar: <strong className="text-brand-dark">{designOptions.collar}</strong></div>
-                          <div>Cuff: <strong className="text-brand-dark">{designOptions.cuff}</strong></div>
-                          <div>Buttons: <strong className="text-brand-dark">{designOptions.buttons}</strong></div>
-                          <div>
-                            Monogram: <strong className="text-brand-dark">{designOptions.monogram ? `"${designOptions.monogram}"` : 'None'}</strong>
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep(3)}
-                        className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors shrink-0"
-                      >
-                        Edit Design
-                      </button>
-                    </div>
-
-                    {/* 4 & 5. Size & Measurements Spec */}
-                    <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex items-start justify-between gap-3">
-                      <div className="space-y-1 flex-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                          4 & 5. Sizing & Tailoring Metrics
-                        </div>
-                        <div className="font-bold text-brand-dark text-sm flex items-center gap-2">
-                          <span>{selectedSize}</span>
-                          {isCustomTailored && (
-                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
-                              Bespoke
-                            </span>
+                          {perfume.notes && perfume.notes.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {perfume.notes.map((note) => (
+                                <span key={note} className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600">
+                                  {note}
+                                </span>
+                              ))}
+                            </div>
                           )}
                         </div>
-                        {hasMeasurements ? (
-                          <div className="text-[11px] text-neutral-600 grid grid-cols-2 gap-x-2 gap-y-0.5 pt-1">
-                            {customMeasurements.neck && <span>Neck: {customMeasurements.neck} {measurementUnit}</span>}
-                            {customMeasurements.chest && <span>Chest: {customMeasurements.chest} {measurementUnit}</span>}
-                            {customMeasurements.waist && <span>Waist: {customMeasurements.waist} {measurementUnit}</span>}
-                            {customMeasurements.shoulder && <span>Shoulder: {customMeasurements.shoulder} {measurementUnit}</span>}
-                            {customMeasurements.sleeve && <span>Sleeve: {customMeasurements.sleeve} {measurementUnit}</span>}
-                            {customMeasurements.length && <span>Length: {customMeasurements.length} {measurementUnit}</span>}
-                          </div>
-                        ) : (
-                          <div className="text-xs text-neutral-500">
-                            Standard off-the-rack dimensions
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-1.5 shrink-0">
+
                         <button
                           type="button"
-                          onClick={() => setActiveStep(4)}
-                          className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors"
+                          onClick={() => setSelectedPerfume(perfume.id === 'no-perfume' ? null : perfume)}
+                          className={`mt-3 w-full py-2 rounded-lg text-xs font-bold transition ${
+                            isSelected
+                              ? 'bg-brand-accent text-white'
+                              : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800'
+                          }`}
                         >
-                          Edit Size
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveStep(5)}
-                          className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors"
-                        >
-                          Edit Metrics
+                          {isSelected ? '✓ Selected' : isFreeOption ? 'Select No Fragrance' : 'Pair With Outfit'}
                         </button>
                       </div>
-                    </div>
-
-                    {/* 6. Fit Spec */}
-                    <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                          6. Silhouette Fit
-                        </div>
-                        <div className="font-bold text-brand-dark text-sm">
-                          {selectedFit} Fit
-                        </div>
-                        <div className="text-xs text-neutral-600">
-                          {FIT_OPTIONS.find((f) => f.id === selectedFit)?.desc || 'Classic drape and balance.'}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep(6)}
-                        className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors shrink-0"
-                      >
-                        Edit Fit
-                      </button>
-                    </div>
-
-                    {/* 7. Perfume Spec */}
-                    <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 flex items-start justify-between gap-3">
-                      <div className="space-y-1 flex-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                          7. Fragrance Pairing
-                        </div>
-                        {selectedPerfume ? (
-                          <>
-                            <div className="font-bold text-brand-dark text-sm flex items-center gap-1.5">
-                              <span>{selectedPerfume.icon}</span>
-                              <span>{selectedPerfume.name}</span>
-                            </div>
-                            <div className="text-xs text-neutral-600">
-                              By {selectedPerfume.brand} &bull; {selectedPerfume.fragranceFamily} (+₹{selectedPerfume.price})
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="font-bold text-brand-dark text-sm flex items-center gap-1.5">
-                              <span>🚫</span> No Perfume Selected
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              Garment-only delivery (+₹0)
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep(7)}
-                        className="px-2.5 py-1 rounded-md bg-white border border-neutral-300 text-xs font-semibold text-brand-accent hover:bg-neutral-100 transition-colors shrink-0"
-                      >
-                        Edit Perfume
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Final Price Breakdown Card (Step 3 & 6 requirement) */}
-                <div className="p-6 rounded-2xl bg-neutral-900 text-white shadow-lg space-y-4">
-                  <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-                    <h4 className="text-base font-bold uppercase tracking-wider text-amber-300">
-                      Final Order Price Breakdown
-                    </h4>
-                    <span className="text-xs text-neutral-400">
-                      Currency: INR (₹)
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center text-neutral-300">
-                      <span>Base Clothing Price ({product.name}):</span>
-                      <span className="font-semibold text-white">₹{basePrice}</span>
-                    </div>
-
-                    <div className="flex justify-between items-center text-neutral-300">
-                      <span>Customization & Tailoring Architecture:</span>
-                      <span className="font-semibold text-emerald-400">Included (₹0)</span>
-                    </div>
-
-                    <div className="flex justify-between items-center text-neutral-300">
-                      <span>
-                        Fragrance Pairing {selectedPerfume ? `(${selectedPerfume.name})` : '(None)'}:
-                      </span>
-                      <span className="font-semibold text-amber-300">
-                        {selectedPerfume ? `+₹${perfumePrice}` : '₹0'}
-                      </span>
-                    </div>
-
-                    <div className="pt-3 border-t border-neutral-800 flex justify-between items-baseline">
-                      <div>
-                        <div className="text-base font-extrabold text-white">
-                          Final Estimated Total
-                        </div>
-                        <div className="text-[11px] text-neutral-400">
-                          Taxes and complimentary bespoke packaging included
-                        </div>
-                      </div>
-                      <div className="text-2xl font-black text-amber-300">
-                        ₹{totalPrice}
-                      </div>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* Stepper Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-neutral-100 gap-3">
-              <Button
-                variant="outline"
-                size="md"
+            {/* STEP 8: COMPOSITE FINAL PREVIEW */}
+            {activeStep === 8 && (
+              <div className="space-y-6">
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">✨</span>
+                    <span>Review your bespoke master pattern specifications before dispatching to the tailor.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveToVault}
+                    disabled={savingDesign}
+                    className="px-3 py-1.5 rounded-lg bg-neutral-900 text-amber-300 text-xs font-bold hover:bg-black transition shadow-xs disabled:opacity-50"
+                  >
+                    {savingDesign ? 'Saving...' : '💾 Save to Vault'}
+                  </button>
+                </div>
+
+                {/* Embedded Reusable CustomizationSummary Component */}
+                <CustomizationSummary
+                  product={product}
+                  customization={currentCustomizationPayload}
+                  price={totalPrice}
+                  compact={false}
+                  showPricing={true}
+                  onEdit={(step) => setActiveStep(typeof step === 'number' ? step : 1)}
+                  onAddToCart={handleProceedToCart}
+                />
+              </div>
+            )}
+
+            {/* Configurator Navigation Step Controls */}
+            <div className="pt-6 border-t border-neutral-100 flex items-center justify-between gap-4">
+              <button
+                type="button"
+                onClick={handlePrevStep}
                 disabled={activeStep === 1}
-                onClick={() => setActiveStep((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 rounded-lg border border-neutral-300 text-xs font-bold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
               >
                 &larr; Previous Step
-              </Button>
+              </button>
 
-              <div className="text-xs text-neutral-500 hidden sm:block">
-                Step {activeStep} of {CUSTOMIZATION_STEPS.length}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleSaveToVault}
+                  disabled={savingDesign}
+                  className="px-4 py-2 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition shadow-xs disabled:opacity-50"
+                >
+                  {savingDesign ? 'Saving...' : 'Save Design'}
+                </button>
+
+                {activeStep < 8 ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="px-5 py-2 rounded-lg bg-brand-dark text-white text-xs font-bold hover:bg-black transition shadow-sm"
+                  >
+                    Next: {activeStep === 4 && sizeMode === 'standard' ? 'Fit' : CUSTOMIZATION_STEPS[activeStep]?.title} &rarr;
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleProceedToCart}
+                    className="px-6 py-2.5 rounded-lg bg-brand-accent hover:bg-brand-accentHover text-white text-xs font-extrabold transition shadow-md"
+                  >
+                    {editingCartItemId ? 'Update Bag Item →' : 'Add to Bag →'}
+                  </button>
+                )}
               </div>
-
-              {activeStep < CUSTOMIZATION_STEPS.length ? (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setActiveStep((prev) => Math.min(prev + 1, CUSTOMIZATION_STEPS.length))}
-                >
-                  Next: {CUSTOMIZATION_STEPS[activeStep]?.title} &rarr;
-                </Button>
-              ) : (
-                <Button
-                  variant="primary"
-                  size="md"
-                  to="/cart"
-                  className="font-bold shadow-md bg-brand-dark hover:bg-neutral-800"
-                >
-                  Proceed to Cart (₹{totalPrice}) &rarr;
-                </Button>
-              )}
             </div>
           </div>
 
-          {/* Right Column: Live Customization Summary Section */}
-          <div className="lg:col-span-4 bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-6 sticky top-24">
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">
-                  Live Customization
-                </span>
-                <h3 className="text-lg font-black text-brand-dark">
-                  Summary & Specs
-                </h3>
-              </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Live Sync Active" />
-            </div>
-
-            {/* Selected Spec List */}
-            <div className="space-y-4 text-xs">
-              {/* 1. Fabric */}
-              <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200/70 space-y-1">
-                <div className="flex items-center justify-between text-neutral-500 font-semibold uppercase text-[10px]">
-                  <span>1. Fabric</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(1)}
-                    className="text-brand-accent hover:underline lowercase font-medium"
-                  >
-                    edit
-                  </button>
-                </div>
-                <div className="font-bold text-brand-dark text-sm">
-                  {selectedFabric?.name || 'Standard Cotton'}
-                </div>
-                <div className="text-neutral-500 text-[11px]">
-                  {selectedFabric?.composition || '100% Cotton'}
-                </div>
-              </div>
-
-              {/* 2. Color */}
-              <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200/70 space-y-1">
-                <div className="flex items-center justify-between text-neutral-500 font-semibold uppercase text-[10px]">
-                  <span>2. Color</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(2)}
-                    className="text-brand-accent hover:underline lowercase font-medium"
-                  >
-                    edit
-                  </button>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <span
-                    style={{ backgroundColor: selectedColor?.hex || '#171717' }}
-                    className="w-4 h-4 rounded-full border border-neutral-300 shadow-xs"
-                  />
-                  <span className="font-bold text-brand-dark text-sm">
-                    {selectedColor?.name || 'Default'}
+          {/* Right Column: Sticky Summary Sidebar */}
+          <div className="lg:col-span-4 space-y-6 sticky top-24">
+            <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-5">
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent">
+                    Atelier Summary
                   </span>
+                  <h3 className="font-extrabold text-base text-brand-dark">
+                    {product.name}
+                  </h3>
                 </div>
+                <span
+                  style={{ backgroundColor: activeColorHex }}
+                  className="w-5 h-5 rounded-full border border-neutral-300 shadow-xs"
+                  title={selectedColor?.name}
+                />
               </div>
 
-              {/* 3. Design Options */}
-              <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200/70 space-y-1.5">
-                <div className="flex items-center justify-between text-neutral-500 font-semibold uppercase text-[10px]">
-                  <span>3. Design Architecture</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(3)}
-                    className="text-brand-accent hover:underline lowercase font-medium"
-                  >
-                    edit
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-1 text-[11px] text-neutral-700">
-                  <div>Collar: <strong className="text-brand-dark">{designOptions.collar}</strong></div>
-                  <div>Cuff: <strong className="text-brand-dark">{designOptions.cuff}</strong></div>
-                  <div>Buttons: <strong className="text-brand-dark">{designOptions.buttons}</strong></div>
-                  <div>
-                    Monogram:{' '}
-                    <strong className="text-brand-dark">
-                      {designOptions.monogram ? `"${designOptions.monogram}"` : 'None'}
-                    </strong>
-                  </div>
-                </div>
-              </div>
+              {/* Compact Summary Component */}
+              <CustomizationSummary
+                product={product}
+                customization={currentCustomizationPayload}
+                price={totalPrice}
+                compact={true}
+                showPricing={false}
+                onEdit={(step) => setActiveStep(typeof step === 'number' ? step : 1)}
+              />
 
-              {/* 4 & 5. Size & Custom Measurements */}
-              <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200/70 space-y-1.5">
-                <div className="flex items-center justify-between text-neutral-500 font-semibold uppercase text-[10px]">
-                  <span>4 & 5. Size & Measurements</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(4)}
-                    className="text-brand-accent hover:underline lowercase font-medium"
-                  >
-                    edit
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-brand-dark text-sm">
-                    {selectedSize}
-                  </span>
-                  {isCustomTailored && (
-                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
-                      Bespoke
-                    </span>
-                  )}
-                </div>
-
-                {hasMeasurements ? (
-                  <div className="pt-1.5 border-t border-neutral-200 text-[11px] text-neutral-600 grid grid-cols-2 gap-1">
-                    {customMeasurements.neck && <div>Neck: {customMeasurements.neck} {measurementUnit}</div>}
-                    {customMeasurements.chest && <div>Chest: {customMeasurements.chest} {measurementUnit}</div>}
-                    {customMeasurements.waist && <div>Waist: {customMeasurements.waist} {measurementUnit}</div>}
-                    {customMeasurements.shoulder && <div>Shoulder: {customMeasurements.shoulder} {measurementUnit}</div>}
-                    {customMeasurements.sleeve && <div>Sleeve: {customMeasurements.sleeve} {measurementUnit}</div>}
-                    {customMeasurements.length && <div>Length: {customMeasurements.length} {measurementUnit}</div>}
-                  </div>
-                ) : (
-                  <div className="text-[11px] text-neutral-400">
-                    Standard garment calibration
-                  </div>
-                )}
-              </div>
-
-              {/* 6. Fit */}
-              <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200/70 space-y-1">
-                <div className="flex items-center justify-between text-neutral-500 font-semibold uppercase text-[10px]">
-                  <span>6. Fit Silhouette</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(6)}
-                    className="text-brand-accent hover:underline lowercase font-medium"
-                  >
-                    edit
-                  </button>
-                </div>
-                <div className="font-bold text-brand-dark text-sm">
-                  {selectedFit} Fit
-                </div>
-                <div className="text-neutral-500 text-[11px]">
-                  {FIT_OPTIONS.find((f) => f.id === selectedFit)?.badge || 'Custom Drape'}
-                </div>
-              </div>
-
-              {/* 7. Perfume (Phase 4) */}
-              <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200/70 space-y-1">
-                <div className="flex items-center justify-between text-neutral-500 font-semibold uppercase text-[10px]">
-                  <span>7. Fragrance Pairing</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(7)}
-                    className="text-brand-accent hover:underline lowercase font-medium"
-                  >
-                    edit
-                  </button>
-                </div>
-                {selectedPerfume ? (
-                  <div>
-                    <div className="font-bold text-brand-dark text-sm flex items-center justify-between">
-                      <span className="truncate">{selectedPerfume.name}</span>
-                      <span className="text-brand-accent font-bold">+₹{selectedPerfume.price}</span>
-                    </div>
-                    <div className="text-neutral-500 text-[11px]">
-                      {selectedPerfume.brand} &bull; {selectedPerfume.fragranceFamily}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="font-semibold text-brand-dark text-sm flex items-center justify-between">
-                      <span>No Perfume</span>
-                      <span className="text-emerald-600 font-semibold">₹0</span>
-                    </div>
-                    <div className="text-neutral-500 text-[11px]">
-                      Garment-only option
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Pricing Section (Dynamic calculated total) */}
-            <div className="pt-4 border-t border-neutral-100 space-y-2 text-xs">
-              <div className="flex justify-between items-center text-neutral-600">
-                <span>Base Garment Price:</span>
-                <span className="font-semibold text-brand-dark">₹{basePrice}</span>
-              </div>
-              <div className="flex justify-between items-center text-neutral-600">
-                <span>Customization Engine:</span>
-                <span className="font-semibold text-emerald-600">Included</span>
-              </div>
-              <div className="flex justify-between items-center text-neutral-600">
-                <span>Fragrance Pairing:</span>
-                <span className={`font-semibold ${selectedPerfume ? 'text-brand-accent' : 'text-neutral-600'}`}>
-                  {selectedPerfume ? `+₹${perfumePrice}` : '₹0'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center pt-2 border-t border-neutral-200 text-sm font-extrabold text-brand-dark">
-                <span>Estimated Total:</span>
-                <span className="text-base text-brand-dark">₹{totalPrice}</span>
-              </div>
-            </div>
-
-            {/* Quality Commitment Badges */}
-            <div className="pt-3 border-t border-neutral-100 grid grid-cols-2 gap-2 text-[10px] text-neutral-500">
-              <div className="flex items-center gap-1.5">
-                <span className="text-brand-accent font-bold">&#10003;</span> Master Tailored
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-brand-accent font-bold">&#10003;</span> Fit Guaranteed
+              <div className="pt-3 border-t border-neutral-100">
+                <Button
+                  onClick={activeStep === 8 ? handleProceedToCart : handleNextStep}
+                  variant="primary"
+                  className="w-full text-xs font-bold"
+                >
+                  {activeStep === 8 ? (editingCartItemId ? 'Update Bag Item →' : 'Add to Bag →') : `Continue: ${CUSTOMIZATION_STEPS[activeStep]?.title || 'Next'} →`}
+                </Button>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Modal: How to Measure Guide */}
+        {guideModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+            <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 border border-neutral-200">
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                <h3 className="font-extrabold text-base text-brand-dark flex items-center gap-2">
+                  <span>📐</span> How to Measure Guide
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setGuideModalOpen(false)}
+                  className="text-neutral-400 hover:text-neutral-800 text-base font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+                {Object.entries(MEASUREMENT_GUIDE_DATA).map(([k, guide]) => (
+                  <div
+                    key={k}
+                    className={`p-3.5 rounded-xl border text-xs space-y-1 transition ${
+                      activeGuideKey === k
+                        ? 'border-brand-accent bg-brand-accentLight/30 ring-1 ring-brand-accent'
+                        : 'border-neutral-200 bg-neutral-50'
+                    }`}
+                  >
+                    <div className="font-bold text-brand-dark flex items-center justify-between">
+                      <span>{guide.title}</span>
+                      {activeGuideKey === k && (
+                        <span className="text-[10px] font-bold text-brand-accent uppercase">Selected Metric</span>
+                      )}
+                    </div>
+                    <p className="text-neutral-600 leading-relaxed">
+                      {guide.instruction}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-neutral-100 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setGuideModalOpen(false)}
+                  className="px-4 py-2 bg-brand-dark text-white rounded-lg text-xs font-bold hover:bg-black transition"
+                >
+                  Close Guide
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </PageContainer>
     </div>
   );

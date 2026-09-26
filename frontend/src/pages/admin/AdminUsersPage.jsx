@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import { getAllUsersForAdmin, getAllOrdersForAdmin } from '../../services/firestoreService.js';
+import { getCashbackWallet, adjustCustomerCashbackAdmin } from '../../services/cashbackService.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -10,6 +12,76 @@ export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [feedback, setFeedback] = useState(null);
+
+
+  const { user: currentAdmin } = useAuth();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [clientWallet, setClientWallet] = useState(null);
+  const [loadingWallet, setLoadingWallet] = useState(false);
+  const [adjAmount, setAdjAmount] = useState('');
+  const [adjReason, setAdjReason] = useState('');
+  const [adjusting, setAdjusting] = useState(false);
+
+  const handleSelectClient = async (client) => {
+    setSelectedClient(client);
+    setAdjAmount('');
+    setAdjReason('');
+    const uid = client.uid || client.id;
+    if (uid) {
+      try {
+        setLoadingWallet(true);
+        const w = await getCashbackWallet(uid);
+        setClientWallet(w);
+      } catch (err) {
+        console.warn('Error loading client wallet:', err);
+      } finally {
+        setLoadingWallet(false);
+      }
+    }
+  };
+
+  const handleApplyCashbackAdjustment = async (e) => {
+    e.preventDefault();
+    if (!selectedClient) return;
+    const uid = selectedClient.uid || selectedClient.id;
+    const numAmt = Number(adjAmount);
+    if (!numAmt || isNaN(numAmt)) {
+      alert('Please specify a valid non-zero adjustment amount (positive to grant, negative to deduct).');
+      return;
+    }
+    if (!adjReason.trim()) {
+      alert('Please enter a mandatory audit reason explaining this adjustment.');
+      return;
+    }
+
+    try {
+      setAdjusting(true);
+      const res = await adjustCustomerCashbackAdmin({
+        userId: uid,
+        amount: numAmt,
+        reason: adjReason.trim(),
+        adminId: currentAdmin?.uid || 'admin',
+        adminEmail: currentAdmin?.email || 'admin@fitfusion.com'
+      });
+
+      if (res.success) {
+        setFeedback({
+          type: 'success',
+          message: `Successfully adjusted cashback for ${selectedClient.name || 'Client'}: ${numAmt > 0 ? '+' : ''}₹${numAmt}.`
+        });
+        const updated = await getCashbackWallet(uid);
+        setClientWallet(updated);
+        setAdjAmount('');
+        setAdjReason('');
+      } else {
+        alert(res.error || 'Adjustment failed');
+      }
+    } catch (err) {
+      alert('Adjustment error: ' + (err?.message || 'Access error'));
+    } finally {
+      setAdjusting(false);
+    }
+  };
 
   const loadData = async (isRefresh = false) => {
     try {
@@ -219,7 +291,7 @@ export default function AdminUsersPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs divide-y divide-neutral-200">
+              <table className="w-full min-w-[680px] text-left text-xs divide-y divide-neutral-200">
                 <thead className="bg-neutral-50 text-[10px] uppercase font-bold text-neutral-500 tracking-wider">
                   <tr>
                     <th className="py-3 px-4">Client Identity</th>
@@ -228,7 +300,8 @@ export default function AdminUsersPage() {
                     <th className="py-3 px-4">Assigned Role</th>
                     <th className="py-3 px-4">Commissions</th>
                     <th className="py-3 px-4">Gross Spend</th>
-                    <th className="py-3 px-4 text-right">Registered</th>
+                    <th className="py-3 px-4">Registered</th>
+                    <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200">
@@ -303,8 +376,17 @@ export default function AdminUsersPage() {
                         </td>
 
                         {/* Registered Date */}
-                        <td className="py-3 px-4 text-right text-neutral-500 text-[11px]">
+                        <td className="py-3 px-4 text-neutral-500 text-[11px]">
                           {joinDate}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectClient(client)}
+                            className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-neutral-100 hover:bg-neutral-800 hover:text-white text-neutral-700 transition-colors shadow-2xs cursor-pointer"
+                          >
+                            Inspect Profile &rarr;
+                          </button>
                         </td>
                       </tr>
                     );
@@ -314,6 +396,174 @@ export default function AdminUsersPage() {
             </div>
           )}
         </div>
+
+        
+      {/* Customer Profile & History Modal */}
+      {selectedClient && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-neutral-200 shadow-2xl max-w-3xl w-full p-6 space-y-6 my-8 animate-fadeIn max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-neutral-200 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-brand-dark text-white flex items-center justify-center text-lg font-black font-serif">
+                  {(selectedClient.name || selectedClient.email || 'C')[0].toUpperCase()}
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-neutral-900">
+                    {selectedClient.name || selectedClient.displayName || 'Bespoke Client'}
+                  </h2>
+                  <p className="text-xs text-neutral-500">
+                    {selectedClient.email} &bull; {selectedClient.phone || 'No phone set'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedClient(null)}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 text-lg font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Client Lifetime Metrics */}
+            {(() => {
+              const uid = selectedClient.uid || selectedClient.id;
+              const clientOrders = orders.filter(
+                (o) => o.userId === uid || (selectedClient.email && o.customer?.email?.toLowerCase() === selectedClient.email.toLowerCase())
+              );
+              const grossSpent = clientOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+              const avgSpend = clientOrders.length > 0 ? Math.round(grossSpent / clientOrders.length) : 0;
+
+              return (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                      <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Total Orders</div>
+                      <div className="text-xl font-black text-neutral-900">{clientOrders.length}</div>
+                    </div>
+
+                    <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                      <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Lifetime Spend</div>
+                      <div className="text-xl font-black text-neutral-900">₹{grossSpent.toLocaleString('en-IN')}</div>
+                    </div>
+
+                    <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                      <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Average Order</div>
+                      <div className="text-xl font-black text-neutral-900">₹{avgSpend.toLocaleString('en-IN')}</div>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                      <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Available Wallet</div>
+                      <div className="text-xl font-black text-emerald-900">
+                        {loadingWallet ? '...' : `₹${(clientWallet?.available || 0).toLocaleString('en-IN')}`}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Auditable Cashback Adjustment Section */}
+                  <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold text-amber-950 flex items-center gap-1.5 uppercase tracking-wider">
+                        <span>💳</span> Auditable Atelier Wallet Adjustment
+                      </h4>
+                      <span className="text-[10px] text-amber-800 font-medium">
+                        Pending delivery: ₹{(clientWallet?.pending || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    <form onSubmit={handleApplyCashbackAdjustment} className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
+                      <div className="sm:col-span-4">
+                        <label className="block text-[10px] font-bold text-neutral-600 mb-0.5">
+                          Amount (₹) [+ grant / - deduct]
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          value={adjAmount}
+                          onChange={(e) => setAdjAmount(e.target.value)}
+                          placeholder="e.g. 250 or -100"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-neutral-300 font-mono text-xs focus:outline-none focus:border-brand-accent text-neutral-900 font-bold"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-6">
+                        <label className="block text-[10px] font-bold text-neutral-600 mb-0.5">
+                          Mandatory Audit Reason *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={adjReason}
+                          onChange={(e) => setAdjReason(e.target.value)}
+                          placeholder="e.g. Good-will tailoring credit / dispute resolution"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-neutral-300 text-xs focus:outline-none focus:border-brand-accent text-neutral-900"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2 flex items-end">
+                        <button
+                          type="submit"
+                          disabled={adjusting}
+                          className="w-full py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg font-bold text-xs shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                          {adjusting ? 'Saving...' : 'Apply'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Order History Table */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
+                      Bespoke Commissions History ({clientOrders.length})
+                    </h4>
+                    {clientOrders.length === 0 ? (
+                      <p className="text-xs text-neutral-400 italic py-4 text-center bg-neutral-50 rounded-xl">
+                        No orders recorded for this client yet.
+                      </p>
+                    ) : (
+                      <div className="rounded-xl border border-neutral-200 overflow-hidden text-xs">
+                        <table className="w-full min-w-[500px] text-left divide-y divide-neutral-200">
+                          <thead className="bg-neutral-50 text-[10px] font-bold uppercase text-neutral-500">
+                            <tr>
+                              <th className="py-2 px-3">Order ID</th>
+                              <th className="py-2 px-3">Date</th>
+                              <th className="py-2 px-3">Stage / Status</th>
+                              <th className="py-2 px-3 text-right">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-neutral-100">
+                            {clientOrders.map((ord) => (
+                              <tr key={ord.id || ord.orderId} className="hover:bg-neutral-50">
+                                <td className="py-2 px-3 font-mono font-bold text-neutral-900">
+                                  #{ord.orderId || ord.id}
+                                </td>
+                                <td className="py-2 px-3 text-neutral-500 text-[11px]">
+                                  {ord.createdAt ? new Date(ord.createdAt).toLocaleDateString('en-IN') : 'N/A'}
+                                </td>
+                                <td className="py-2 px-3">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-800">
+                                    {ord.orderStatus || ord.status || 'Confirmed'}
+                                  </span>
+                                </td>
+                                <td className="py-2 px-3 text-right font-black font-mono text-neutral-900">
+                                  ₹{Number(ord.total || 0).toLocaleString('en-IN')}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
 
         {/* Security & Data Safety Callout */}
         <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-3 text-xs text-neutral-500">

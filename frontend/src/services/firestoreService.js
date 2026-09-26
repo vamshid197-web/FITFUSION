@@ -1,5 +1,6 @@
 import {
   collection,
+  onSnapshot,
   doc,
   setDoc,
   getDoc,
@@ -219,7 +220,8 @@ export async function createFirestoreOrder(order, userId) {
       pincode: order.deliveryAddress?.pincode || order.shippingAddress?.pincode || ''
     },
     paymentMethod: order.paymentMethod || 'Cash on Delivery',
-    paymentStatus: order.paymentStatus || 'Confirmed (Demo)',
+    paymentStatus: order.paymentStatus || (order.paymentMethod === 'Cash on Delivery' ? 'Pending' : 'Paid'),
+    paymentReference: order.paymentReference || null,
     orderStatus: order.status || order.orderStatus || 'Order Confirmed',
     status: order.status || order.orderStatus || 'Order Confirmed',
     tailoringStatus: order.tailoringStatus || 'Pattern Drafting & Fabric Allocation',
@@ -284,10 +286,136 @@ export async function getUserOrders(userId) {
 }
 
 /**
+ * Unified Order Lifecycle Tracking Stages
+ */
+export const ORDER_TRACKING_STAGES = [
+  'Order Confirmed',
+  'Fabric Cutting',
+  'Artisan Stitching',
+  'Master QA Check',
+  'Dispatched',
+  'Delivered'
+];
+
+export const TAILORING_LIFECYCLE_MAPPING = {
+  'Order Confirmed': 'Pattern Drafting & Fabric Allocation',
+  'Fabric Cutting': 'Textile Allocation & Laser Fabric Cutting',
+  'Artisan Stitching': 'Hand-stitched by Master Atelier Artisan',
+  'Master QA Check': 'Final Quality & Dimensional Audit',
+  'Dispatched': 'Packaged in Luxury Box & Dispatched to Courier',
+  'Delivered': 'Delivered to Client & Fitting Confirmed',
+  'Cancelled': 'Order Cancelled & Production Halted'
+};
+
+/**
+ * Retrieve a single bespoke tailoring order by ID
+ * @param {string} orderId - Order identifier (e.g. FF-2026-XXXXXX)
+ * @param {string} [userId] - Optional user UID for ownership validation
+ */
+export async function getOrderById(orderId, userId = null) {
+  if (!orderId) {
+    return { success: false, order: null, error: new Error('Order ID is required') };
+  }
+
+  const cleanOrderId = String(orderId).trim();
+
+  try {
+    const orderDocRef = doc(db, 'orders', cleanOrderId);
+    const snap = await getDoc(orderDocRef);
+
+    if (snap.exists()) {
+      const order = { id: snap.id, ...snap.data() };
+      return { success: true, order, source: 'firestore' };
+    }
+  } catch (err) {
+    console.warn('[Firestore] getOrderById failed for ' + cleanOrderId + ':', err?.message || err);
+  }
+
+  // Graceful local cache fallback (offline resilience)
+  try {
+    const saved = localStorage.getItem('fitfusion_orders');
+    if (saved) {
+      const localOrders = JSON.parse(saved);
+      if (Array.isArray(localOrders)) {
+        const found = localOrders.find(
+          (o) => String(o.id || o.orderId || o.orderNumber) === cleanOrderId
+        );
+        if (found) {
+          return { success: true, order: found, source: 'local_cache' };
+        }
+      }
+    }
+  } catch (cacheErr) {
+    console.warn('[Firestore] Failed inspecting local cache for order:', cacheErr);
+  }
+
+  return { success: false, order: null, source: 'not_found' };
+}
+
+/**
+ * Real-time listener for a single order's status
+ * @param {string} orderId
+ * @param {function} onUpdate - callback(order)
+ * @param {function} [onError] - callback(error)
+ * @returns {function} unsubscribe function
+ */
+export function subscribeToOrder(orderId, onUpdate, onError) {
+  if (!orderId) return () => {};
+  try {
+    const orderDocRef = doc(db, 'orders', String(orderId).trim());
+    return onSnapshot(
+      orderDocRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          onUpdate({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          onUpdate(null);
+        }
+      },
+      (err) => {
+        console.warn('[Firestore Realtime] Error on order ' + orderId + ':', err);
+        if (onError) onError(err);
+      }
+    );
+  } catch (err) {
+    console.warn('[Firestore Realtime] Failed attaching listener:', err);
+    return () => {};
+  }
+}
+
+
+/**
  * ---------------------------------------------------------------------
  * 3. PRODUCT CATALOG PERSISTENCE (`products` Collection)
  * ---------------------------------------------------------------------
  */
+
+/**
+ * Fetch a single product by ID from Firestore with fallback to MOCK_PRODUCTS
+ * @param {string} productId
+ */
+export async function getProductById(productId) {
+  if (!productId) return { success: false, product: null };
+  const cleanId = String(productId).trim();
+
+  try {
+    const prodRef = doc(db, 'products', cleanId);
+    const snap = await getDoc(prodRef);
+    if (snap.exists()) {
+      return { success: true, product: { id: snap.id, ...snap.data() }, source: 'firestore' };
+    }
+  } catch (err) {
+    console.warn('[Firestore] getProductById failed for ' + cleanId + ':', err?.message || err);
+  }
+
+  // Fallback to MOCK_PRODUCTS
+  const fallback = MOCK_PRODUCTS.find((p) => String(p.id) === cleanId || p.slug === cleanId);
+  if (fallback) {
+    return { success: true, product: fallback, source: 'fallback' };
+  }
+
+  return { success: false, product: null, source: 'not_found' };
+}
 
 /**
  * Fetch apparel catalog from Firestore with fallback to MOCK_PRODUCTS
@@ -479,12 +607,23 @@ export async function getAdminProducts() {
 export async function createAdminProduct(productData) {
   const nowIso = new Date().toISOString();
   const id = productData.id ? String(productData.id) : 'prod-' + Date.now();
+  const slug = productData.slug || (productData.name ? productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : id);
 
   const payload = sanitizePayload({
     ...productData,
     id,
+    slug,
+    currency: 'INR',
     basePrice: Number(productData.basePrice || productData.price) || 0,
+    compareAtPrice: productData.compareAtPrice ? Number(productData.compareAtPrice) : null,
     available: productData.available !== false,
+    stock: productData.stock !== undefined ? Math.max(0, Number(productData.stock)) : 25,
+    lowStockThreshold: productData.lowStockThreshold !== undefined ? Math.max(1, Number(productData.lowStockThreshold)) : 5,
+    stockStatus: productData.stockStatus || (productData.available === false || Number(productData.stock) === 0 ? 'Out of Stock' : (Number(productData.stock) <= (Number(productData.lowStockThreshold) || 5) ? 'Low Stock' : 'In Stock')),
+    customizationEnabled: productData.customizationEnabled !== false,
+    featured: Boolean(productData.featured),
+    trending: Boolean(productData.trending),
+    recommended: Boolean(productData.recommended),
     rating: Number(productData.rating) || 5.0,
     reviewsCount: Number(productData.reviewsCount) || 0,
     createdAt: nowIso,
@@ -540,4 +679,32 @@ Firestore Admin] Failed updating product ${productId}:`, err?.message || err);
  */
 export async function toggleProductAvailability(productId, available) {
   return updateAdminProduct(productId, { available: Boolean(available) });
+}
+
+
+/**
+ * Phase 17: Update product inventory stock and threshold directly
+ * @param {string} productId
+ * @param {number} stock
+ * @param {number} [lowStockThreshold]
+ */
+export async function updateProductStock(productId, stock, lowStockThreshold = 5) {
+  const stockNum = Math.max(0, Number(stock) || 0);
+  const thresholdNum = Math.max(1, Number(lowStockThreshold) || 5);
+  let stockStatus = 'In Stock';
+  let available = true;
+
+  if (stockNum === 0) {
+    stockStatus = 'Out of Stock';
+    available = false;
+  } else if (stockNum <= thresholdNum) {
+    stockStatus = 'Low Stock';
+  }
+
+  return updateAdminProduct(productId, {
+    stock: stockNum,
+    lowStockThreshold: thresholdNum,
+    stockStatus,
+    available
+  });
 }

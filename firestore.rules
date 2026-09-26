@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // =====================================================================
-    // FITFUSION BESPOKE TAILORING PLATFORM - FIRESTORE SECURITY RULES (PHASE 7)
+    // FITFUSION BESPOKE TAILORING PLATFORM - FIRESTORE SECURITY RULES (PHASE 17)
     // =====================================================================
 
     /**
@@ -31,6 +31,24 @@ service cloud.firestore {
         (request.auth.uid == userId && (!('role' in request.resource.data) || request.resource.data.role == resource.data.role))
       );
       allow delete: if isAdmin();
+
+      /**
+       * 1a. User Wishlist Subcollection (/users/{userId}/wishlist/{productId})
+       * - Customers can manage only their own curated wishlist pieces.
+       * - Isolated strictly to request.auth.uid == userId.
+       */
+      match /wishlist/{productId} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
+
+      /**
+       * 1b. User Saved Addresses Subcollection (/users/{userId}/addresses/{addressId})
+       * - Customers can manage only their own saved shipping destinations.
+       * - Isolated strictly to request.auth.uid == userId.
+       */
+      match /addresses/{addressId} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
     }
 
     /**
@@ -39,7 +57,6 @@ service cloud.firestore {
      * - Customers can read only their own orders.
      * - Admins can read all orders across all customers.
      * - Admins can update order status and tailoring status.
-     * - Admins can perform necessary order management / archival.
      * - Customers cannot update or delete orders.
      */
     match /orders/{orderId} {
@@ -79,6 +96,112 @@ service cloud.firestore {
     match /perfumes/{perfumeId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    /**
+     * 6. Notifications Collection (/notifications/{notificationId})
+     * - Customers can read and update (mark as read) only their own notifications.
+     * - Admins can read all notifications and manage system notifications.
+     * - Authenticated users can create notifications for orders/payments.
+     * - Customers cannot modify notification ownership (userId cannot be changed).
+     */
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        (resource.data.userId == 'admin' && isAdmin()) ||
+        resource.data.userId == 'all' || 
+        isAdmin()
+      );
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) || 
+        isAdmin()
+      );
+      allow delete: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+    }
+
+    /**
+     * 7. Saved Customizations Collection (/savedCustomizations/{customizationId})
+     * - Customers can create, read, update, and delete only their own saved bespoke configurations.
+     * - Customers cannot modify the ownership (userId) of any saved design.
+     */
+    match /savedCustomizations/{customizationId} {
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) || 
+        isAdmin()
+      );
+      allow delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    /**
+     * 8. Reviews Collection (/reviews/{reviewId}) - PHASE 14
+     * - Public can read reviews that have status == 'published'
+     * - Review author or Admin can read reviews regardless of status (e.g. pending/hidden)
+     * - Authenticated user can create review where request.resource.data.userId == request.auth.uid
+     * - Customer can update only their own review (userId, productId, verifiedPurchase, status unchanged)
+     * - Admins can moderate reviews (change status to published/hidden) or update/delete any review
+     * - Customer can delete their own review
+     */
+    match /reviews/{reviewId} {
+      allow read: if resource.data.status == 'published' || 
+                  (request.auth != null && (resource.data.userId == request.auth.uid || isAdmin()));
+      
+      allow create: if request.auth != null && 
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.rating >= 1 && request.resource.data.rating <= 5 &&
+                    request.resource.data.status in ['published', 'pending'];
+      
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        (
+          resource.data.userId == request.auth.uid &&
+          request.resource.data.userId == resource.data.userId &&
+          request.resource.data.productId == resource.data.productId &&
+          request.resource.data.verifiedPurchase == resource.data.verifiedPurchase &&
+          request.resource.data.status == resource.data.status &&
+          request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        )
+      );
+      
+      allow delete: if request.auth != null && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+    }
+
+    /**
+     * 9. Offers & Promotions Catalog (/offers/{offerId}) - PHASE 16
+     * - Active offers are publicly readable by customers.
+     * - Inactive offers only readable by administrators.
+     * - All modifications (create, update, delete) restricted to Admins.
+     */
+    match /offers/{offerId} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    /**
+     * 10. Customer Cashback Ledger Subcollection (/users/{userId}/cashback_transactions/{txId}) - PHASE 16
+     * - Customers can read their own verified cashback credit/debit transaction history.
+     * - Admins can read all transactions for customer support and dispute auditing.
+     * - Write restricted to Admin or verified order execution context.
+     */
+    match /users/{userId}/cashback_transactions/{txId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin() || (request.auth != null && request.auth.uid == userId);
+    }
+
+    /**
+     * 11. Administrative Activity Logs (/admin_activity_logs/{logId}) - PHASE 17
+     * - Only authenticated administrators can read and write audit entries.
+     * - Ensures business accountability and compliance.
+     */
+    match /admin_activity_logs/{logId} {
+      allow read, write: if isAdmin();
     }
 
     /**

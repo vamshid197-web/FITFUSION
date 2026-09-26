@@ -3,6 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
 import { useCart } from '../../context/CartContext.jsx';
+import SmartBudgetAssistant from '../../components/cart/SmartBudgetAssistant.jsx';
+import ErrorBoundary from '../../components/common/ErrorBoundary.jsx';
+import CartOffersSection from '../../components/cart/CartOffersSection.jsx';
+import ProductImage from '../../components/common/ProductImage.jsx';
 
 export default function CartPage() {
   const {
@@ -17,7 +21,14 @@ export default function CartPage() {
     removeCoupon,
     discount,
     total,
-    demoCoupons
+    demoCoupons,
+    freePerfume,
+    removeFreePerfume,
+    freePerfumeDiscount,
+    appliedOffer,
+    removeOffer,
+    offerDiscount,
+    potentialCashback
   } = useCart();
 
   const navigate = useNavigate();
@@ -48,6 +59,7 @@ export default function CartPage() {
     navigate(`/customize/${item.productId}`, {
       state: {
         editConfig: item,
+        cartItemId: item.id,
         initialStep: 1
       }
     });
@@ -65,19 +77,19 @@ export default function CartPage() {
 
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
-                Bespoke Bag
+                Your Cart
               </span>
               <h1 className="text-2xl sm:text-3xl font-black text-brand-dark">
                 Your cart is empty
               </h1>
               <p className="text-sm text-neutral-600 max-w-md mx-auto leading-relaxed">
-                You haven't added any customized apparel yet. Choose a master cloth from our catalog and personalize every detail to perfection.
+                You haven't added anything yet. Browse our catalog and customize a garment to get started.
               </p>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <Button to="/shop" variant="secondary" size="lg" className="w-full sm:w-auto shadow-sm">
-                Explore Clothing Collection &rarr;
+                Browse Collection &rarr;
               </Button>
               <Button to="/home" variant="outline" size="lg" className="w-full sm:w-auto">
                 Return Home
@@ -146,7 +158,7 @@ export default function CartPage() {
             {items.map((item) => {
               const isCustomTailored = item.size === "Custom Tailored";
               const isExpanded = expandedItemId === item.id;
-              const hasCustomMetrics = item.customMeasurements && Object.values(item.customMeasurements).some(v => v !== '');
+              const hasCustomMetrics = Boolean(item.customMeasurements && typeof item.customMeasurements === 'object' && Object.values(item.customMeasurements).some(v => v !== '' && v !== null && v !== undefined));
 
               return (
                 <div
@@ -155,27 +167,20 @@ export default function CartPage() {
                 >
                   <div className="flex flex-col sm:flex-row gap-5 items-start">
                     {/* Item Visual Thumbnail */}
-                    <div
-                      className={`w-24 h-28 sm:w-28 sm:h-32 rounded-xl bg-gradient-to-br ${
-                        item.silhouetteColor || 'from-stone-100 to-amber-50'
-                      } border border-neutral-200/80 p-2.5 flex flex-col justify-between shrink-0 relative`}
-                    >
-                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white text-brand-dark shadow-xs self-start">
+                    <div className="w-24 h-28 sm:w-28 sm:h-32 rounded-xl bg-neutral-100 border border-neutral-200 p-1 flex flex-col justify-between shrink-0 relative overflow-hidden">
+                      <ProductImage
+                        src={item.productImage || item.image}
+                        alt={item.productName}
+                        category={item.category}
+                        tintColor={item.selectedColor?.hex || item.color?.hex}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+
+                      <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/95 text-brand-dark shadow-xs z-10">
                         {item.category || 'Apparel'}
                       </span>
 
-                      <div className="my-auto text-center">
-                        <svg
-                          className="w-10 h-10 mx-auto"
-                          style={{ color: item.selectedColor?.hex || '#1F2937' }}
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M9 3v2m6-2v2M9 5H7a2 2 0 00-2 2v2l2 1v9a2 2 0 002 2h6a2 2 0 002-2v-9l2-1V7a2 2 0 00-2-2h-2m-6 0a2 2 0 002 2h2a2 2 0 002-2m-6 0h6" />
-                        </svg>
-                      </div>
-
-                      <div className="text-[10px] text-center font-bold text-neutral-800 bg-white/80 rounded py-0.5 truncate">
+                      <div className="absolute bottom-1.5 inset-x-1.5 text-[9px] text-center font-bold text-neutral-800 bg-white/90 backdrop-blur-xs rounded py-0.5 truncate z-10 shadow-2xs">
                         {item.size} &bull; {item.fit}
                       </div>
                     </div>
@@ -190,12 +195,12 @@ export default function CartPage() {
                             </h2>
                             {isCustomTailored && (
                               <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                                Bespoke
+                                Custom Fit
                               </span>
                             )}
                           </div>
                           <p className="text-xs text-neutral-500">
-                            Custom Tailored Garment &bull; Master Pattern #{item.productId}
+                            Custom Tailored Clothing &bull; Item #{item.productId}
                           </p>
                         </div>
 
@@ -238,7 +243,7 @@ export default function CartPage() {
                         <div className="p-2 rounded-lg bg-neutral-50 border border-neutral-100">
                           <span className="text-[10px] uppercase font-semibold text-neutral-400 block">Fragrance</span>
                           <span className="font-bold text-brand-accent truncate block">
-                            {item.selectedPerfume ? item.selectedPerfume.name : 'None'}
+                            {item.selectedPerfume ? (item.selectedPerfume.name || 'Selected Fragrance') : 'None'}
                           </span>
                         </div>
                       </div>
@@ -258,22 +263,23 @@ export default function CartPage() {
                             </div>
                             <div><strong>Silhouette Fit:</strong> {item.fit} Fit</div>
                             <div>
-                              <strong>Fragrance Pairing:</strong> {item.selectedPerfume ? `${item.selectedPerfume.name} by ${item.selectedPerfume.brand} (+₹${item.selectedPerfume.price})` : 'No fragrance selected'}
+                              <strong>Fragrance:</strong> {item.selectedPerfume ? `${item.selectedPerfume.name || 'Perfume'} ${item.selectedPerfume.brand ? 'by ' + item.selectedPerfume.brand : ''} (+₹${item.selectedPerfume.price || 0})` : 'No fragrance selected (₹0)'}
                             </div>
                           </div>
 
-                          {hasCustomMetrics && (
+                          {hasCustomMetrics && item.customMeasurements && (
                             <div className="pt-2 border-t border-neutral-200">
                               <span className="font-bold text-brand-dark block mb-1">
-                                Bespoke Body Metrics ({item.measurementUnit || 'in'}):
+                                Custom Measurements ({item.measurementUnit || 'in'}):
                               </span>
-                              <div className="grid grid-cols-3 gap-2 text-[11px] text-neutral-600">
-                                {item.customMeasurements.neck && <span>Neck: {item.customMeasurements.neck} {item.measurementUnit}</span>}
-                                {item.customMeasurements.chest && <span>Chest: {item.customMeasurements.chest} {item.measurementUnit}</span>}
-                                {item.customMeasurements.waist && <span>Waist: {item.customMeasurements.waist} {item.measurementUnit}</span>}
-                                {item.customMeasurements.shoulder && <span>Shoulder: {item.customMeasurements.shoulder} {item.measurementUnit}</span>}
-                                {item.customMeasurements.sleeve && <span>Sleeve: {item.customMeasurements.sleeve} {item.measurementUnit}</span>}
-                                {item.customMeasurements.length && <span>Length: {item.customMeasurements.length} {item.measurementUnit}</span>}
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] text-neutral-600">
+                                {Object.entries(item.customMeasurements).map(([k, v]) => (
+                                  v !== '' && v !== null && v !== undefined ? (
+                                    <span key={k} className="capitalize">
+                                      <strong className="text-neutral-700">{k}:</strong> {v} {item.measurementUnit || 'in'}
+                                    </span>
+                                  ) : null
+                                ))}
                               </div>
                             </div>
                           )}
@@ -342,6 +348,50 @@ export default function CartPage() {
                 </div>
               );
             })}
+
+            {/* Claimed Free Perfume Notification / Card */}
+            {freePerfume && (
+              <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-white rounded-2xl border border-emerald-200 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-sm shrink-0">
+                    🎁
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                        Complimentary Fragrance Gift
+                      </span>
+                      <span className="text-xs font-black text-emerald-700">FREE</span>
+                    </div>
+                    <h4 className="text-sm font-extrabold text-brand-dark mt-0.5">
+                      {freePerfume.name}
+                    </h4>
+                    <p className="text-[11px] text-neutral-600">
+                      Standard Price: <span className="line-through text-neutral-400">₹{freePerfume.originalPrice || 499}</span> &bull;
+                      <span className="text-emerald-700 font-semibold ml-1">Complimentary Tier Offer (Cart &ge; ₹3,999)</span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeFreePerfume}
+                  className="self-end sm:self-center text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 transition"
+                  title="Remove free perfume promotion"
+                >
+                  Remove Gift
+                </button>
+              </div>
+            )}
+
+            {/* Available Store Offers & Promotional Privileges - Phase 16 */}
+            <ErrorBoundary title="Promotional Offers">
+              <CartOffersSection />
+            </ErrorBoundary>
+
+            {/* Smart Budget Shopping Assistant Component */}
+            <ErrorBoundary title="Budget Assistant">
+              <SmartBudgetAssistant />
+            </ErrorBoundary>
           </div>
 
           {/* Right Column: Order Summary & Coupon System */}
@@ -378,6 +428,33 @@ export default function CartPage() {
                   </span>
                 </div>
 
+                {freePerfume && (
+                  <div className="flex justify-between items-center text-emerald-700 font-medium">
+                    <div className="flex items-center gap-1">
+                      <span>🎁 Fragrance Gift:</span>
+                      <span className="text-[11px] text-neutral-500 font-normal">({freePerfume.name})</span>
+                    </div>
+                    <span className="font-bold text-emerald-700">FREE (₹0)</span>
+                  </div>
+                )}
+
+                {appliedOffer && offerDiscount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-600 font-medium">
+                    <div className="flex items-center gap-1">
+                      <span>Store Offer ({appliedOffer.code}):</span>
+                      <button
+                        type="button"
+                        onClick={removeOffer}
+                        className="text-[10px] text-red-500 hover:underline ml-1"
+                        title="Remove offer"
+                      >
+                        (remove)
+                      </button>
+                    </div>
+                    <span className="font-bold">-₹{offerDiscount}</span>
+                  </div>
+                )}
+
                 {appliedCoupon && (
                   <div className="flex justify-between items-center text-emerald-600">
                     <div className="flex items-center gap-1">
@@ -413,6 +490,19 @@ export default function CartPage() {
               >
                 Proceed to Checkout (₹{total}) &rarr;
               </Button>
+
+              {/* Patron Cashback Reward - Phase 16 */}
+              {potentialCashback > 0 && (
+                <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between font-semibold shadow-2xs">
+                  <span className="flex items-center gap-1.5">
+                    <span>✨</span>
+                    <span>Patron Cashback on Delivery:</span>
+                  </span>
+                  <span className="font-black text-purple-700">
+                    +₹{potentialCashback.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              )}
 
               {/* Free delivery threshold indicator */}
               <div className="text-[11px] text-neutral-500 text-center pt-2">

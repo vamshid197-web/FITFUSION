@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import { getAllOrdersForAdmin, updateOrderStatus } from '../../services/firestoreService.js';
+import { unlockDeliveredCashback } from '../../services/cashbackService.js';
+import { createNotification, NOTIFICATION_TYPES } from '../../services/notificationService.js';
+import { logAdminActivity } from '../../services/adminActivityService.js';
 
 export const ORDER_STATUSES = [
   'Order Confirmed',
@@ -72,7 +75,67 @@ export default function AdminOrdersPage() {
   }, [feedback]);
 
   // Handle status update
+  const handlePaymentStatusChange = async (orderId, newPaymentStatus) => {
+    const targetOrder = orders.find((o) => (o.id || o.orderId) === orderId);
+    const oldPaymentStatus = targetOrder?.paymentStatus;
+
+    try {
+      setUpdatingOrderId(orderId);
+      const res = await updateOrderStatus(orderId, {
+        paymentStatus: newPaymentStatus
+      });
+      if (res.success) {
+        setOrders((prev) =>
+          prev.map((o) => {
+            if ((o.id || o.orderId) === orderId) {
+              return { ...o, paymentStatus: newPaymentStatus };
+            }
+            return o;
+          })
+        );
+        setFeedback({
+          type: 'success',
+          message: `Order #${orderId} payment status updated to "${newPaymentStatus}"`
+        });
+        try {
+          logAdminActivity({
+            action: 'ORDER_PAYMENT_UPDATED',
+            targetType: 'order',
+            targetId: orderId,
+            details: `Order #${orderId} payment marked as "${newPaymentStatus}".`
+          });
+        } catch(e) {}
+
+        // Phase 10: Customer Payment Notification Trigger
+        if (targetOrder?.userId && oldPaymentStatus !== newPaymentStatus) {
+          createNotification({
+            userId: targetOrder.userId,
+            type: newPaymentStatus === 'Paid' ? NOTIFICATION_TYPES.PAYMENT_SUCCESS : NOTIFICATION_TYPES.GENERAL,
+            title: `Payment Status: ${newPaymentStatus}`,
+            message: `The payment status for your bespoke commission #${orderId} was updated to "${newPaymentStatus}" by atelier administration.`,
+            orderId: orderId,
+            metadata: { paymentStatus: newPaymentStatus }
+          }).catch((err) => console.warn('[AdminOrdersPage] Customer payment notification error:', err));
+        }
+      } else {
+        setFeedback({
+          type: 'error',
+          message: `Failed to update payment status for #${orderId}`
+        });
+      }
+    } catch (err) {
+      setFeedback({
+        type: 'error',
+        message: 'Could not update payment status in Firestore'
+      });
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
   const handleStatusChange = async (orderId, newStatus) => {
+    const targetOrder = orders.find((o) => (o.id || o.orderId) === orderId);
+    const oldStatus = targetOrder?.orderStatus || targetOrder?.status;
     const recommendedTailoring = TAILORING_LIFECYCLE_MAPPING[newStatus] || newStatus;
 
     try {
@@ -106,6 +169,41 @@ export default function AdminOrdersPage() {
           type: 'success',
           message: `Order #${orderId} status advanced to "${newStatus}"`
         });
+        try {
+          logAdminActivity({
+            action: 'ORDER_STATUS_UPDATED',
+            targetType: 'order',
+            targetId: orderId,
+            details: `Order #${orderId} status advanced from "${oldStatus}" to "${newStatus}". Stage: ${recommendedTailoring}.`
+          });
+        } catch(e) {}
+
+        // Phase 10: Customer Order Status & Tailoring Notification Trigger
+        if (targetOrder?.userId && oldStatus !== newStatus) {
+          const notifType =
+            newStatus === 'Dispatched'
+              ? NOTIFICATION_TYPES.ORDER_DISPATCHED
+              : newStatus === 'Delivered'
+              ? NOTIFICATION_TYPES.ORDER_DELIVERED
+              : NOTIFICATION_TYPES.ORDER_STATUS_UPDATED;
+
+          createNotification({
+            userId: targetOrder.userId,
+            type: notifType,
+            title: `Order Status: ${newStatus}`,
+            message: `Your bespoke commission #${orderId} has progressed to "${newStatus}". Stage: ${recommendedTailoring}.`,
+            orderId: orderId,
+            metadata: { orderStatus: newStatus, tailoringStatus: recommendedTailoring }
+          }).catch((err) => console.warn('[AdminOrdersPage] Customer status notification error:', err));
+
+          // Phase 16: Automatically unlock pending cashback when marked as Delivered
+          if (newStatus === 'Delivered') {
+            unlockDeliveredCashback({
+              userId: targetOrder.userId,
+              orderId: orderId
+            }).catch((cbErr) => console.warn('[AdminOrdersPage] Cashback unlock error:', cbErr));
+          }
+        }
       } else {
         throw res.error || new Error('Update failed');
       }
@@ -356,7 +454,7 @@ export default function AdminOrdersPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs divide-y divide-neutral-200">
+              <table className="w-full min-w-[720px] text-left text-xs divide-y divide-neutral-200">
                 <thead className="bg-neutral-50 text-[10px] uppercase font-bold text-neutral-500 tracking-wider">
                   <tr>
                     <th className="py-3 px-4">Order ID & Date</th>
@@ -423,10 +521,16 @@ export default function AdminOrdersPage() {
 
                           {/* Payment */}
                           <td className="py-3 px-4 text-neutral-700">
-                            <div className="text-[11px] font-medium">{order.paymentMethod || 'COD'}</div>
-                            <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[9px] font-semibold rounded bg-neutral-100 text-neutral-600">
-                              {order.paymentStatus || 'Confirmed'}
-                            </span>
+                            <div className="text-[11px] font-bold text-neutral-900">{order.paymentMethod || 'COD'}</div>
+                            {order.paymentStatus === 'Paid' ? (
+                              <span className="inline-block mt-0.5 px-2 py-0.5 text-[9px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                ✓ Paid
+                              </span>
+                            ) : (
+                              <span className="inline-block mt-0.5 px-2 py-0.5 text-[9px] font-bold rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                                ⏳ Pending
+                              </span>
+                            )}
                           </td>
 
                           {/* Status Management Dropdown */}
@@ -528,8 +632,32 @@ export default function AdminOrdersPage() {
                                       <span>Total Charged:</span>
                                       <span>₹{Number(order.total || 0).toLocaleString('en-IN')}</span>
                                     </div>
-                                    <div className="text-[10px] text-neutral-400 pt-1">
-                                      Payment Method: <span className="font-semibold text-neutral-700">{order.paymentMethod}</span>
+                                    <div className="text-[10px] text-neutral-500 pt-1 space-y-1">
+                                      <div>
+                                        Payment Method: <span className="font-semibold text-neutral-800">{order.paymentMethod}</span>
+                                      </div>
+                                      {order.paymentReference && (
+                                        <div>
+                                          Ref: <span className="font-mono text-neutral-700">{order.paymentReference}</span>
+                                        </div>
+                                      )}
+                                      <div className="pt-2 flex items-center justify-between border-t border-neutral-100">
+                                        <span>Status: <strong className={order.paymentStatus === 'Paid' ? 'text-emerald-700' : 'text-amber-800'}>{order.paymentStatus || 'Pending'}</strong></span>
+                                        {order.paymentStatus !== 'Paid' ? (
+                                          <button
+                                            type="button"
+                                            onClick={() => handlePaymentStatusChange(orderId, 'Paid')}
+                                            disabled={isUpdating}
+                                            className="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors"
+                                          >
+                                            ✓ Mark as Paid
+                                          </button>
+                                        ) : (
+                                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                            Payment Verified
+                                          </span>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
