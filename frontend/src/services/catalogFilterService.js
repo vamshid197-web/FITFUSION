@@ -13,13 +13,17 @@ export function searchProducts(products = [], query = '') {
   const trimmed = (query || '').trim().toLowerCase();
   if (!trimmed) return products;
 
-  // Split query into tokens for multi-term discovery (e.g. "blue cotton shirt")
+  // Split query into tokens for multi-term discovery (e.g. "black hoodie", "women jeans")
   const tokens = trimmed.split(/\s+/).filter(Boolean);
 
   return products.filter((product) => {
     // Collect all searchable text fields for this product
     const name = (product.name || '').toLowerCase();
     const category = (product.category || '').toLowerCase();
+    const subcategory = (product.subcategory || '').toLowerCase();
+    const group = (product.group || '').toLowerCase();
+    const gender = (product.gender || '').toLowerCase();
+    const style = (product.style || '').toLowerCase();
     const shortDesc = (product.shortDescription || '').toLowerCase();
     const desc = (product.description || '').toLowerCase();
     const badge = (product.badge || '').toLowerCase();
@@ -34,19 +38,149 @@ export function searchProducts(products = [], query = '') {
 
     const sizes = (product.availableSizes || []).map((s) => String(s).toLowerCase());
 
+    const occasions = (Array.isArray(product.occasion) ? product.occasion : [product.occasion || '']).map(o => String(o).toLowerCase());
+    const seasons = (Array.isArray(product.season) ? product.season : [product.season || '']).map(s => String(s).toLowerCase());
+
+    // Build compound searchable corpus
+    const corpus = [
+      name,
+      category,
+      subcategory,
+      group,
+      gender,
+      style,
+      shortDesc,
+      desc,
+      badge,
+      ...fabrics,
+      ...colors,
+      ...sizes,
+      ...occasions,
+      ...seasons
+    ].join(' ');
+
     // Every token must match at least one attribute of the product (AND logic across words)
     return tokens.every((token) => {
-      if (name.includes(token)) return true;
-      if (category.includes(token)) return true;
-      if (shortDesc.includes(token)) return true;
-      if (desc.includes(token)) return true;
-      if (badge.includes(token)) return true;
-      if (fabrics.some((f) => f.includes(token))) return true;
-      if (colors.some((c) => c.includes(token))) return true;
-      if (sizes.some((s) => s.includes(token))) return true;
+      // Direct substring match
+      if (corpus.includes(token)) return true;
+
+      // Gender term normalization
+      if (token === 'men' || token === 'mens' || token === "men's" || token === 'man') {
+        return gender === 'men' || gender === 'unisex';
+      }
+      if (token === 'women' || token === 'womens' || token === "women's" || token === 'woman' || token === 'ladies' || token === 'lady') {
+        return gender === 'women' || gender === 'unisex';
+      }
+      if (token === 'kids' || token === 'kid' || token === 'baby' || token === 'boys' || token === 'girls') {
+        return gender === 'kids' || gender === 'baby';
+      }
+
+      // Garment term normalization
+      if (token === 'tshirt' || token === 't-shirt' || token === 'tee' || token === 'tees') {
+        return name.includes('t-shirt') || category.includes('t-shirt') || subcategory.includes('t-shirt');
+      }
+      if (token === 'hoodie' || token === 'hoodies') {
+        return name.includes('hoodie') || subcategory.includes('hoodie') || category.includes('hoodie');
+      }
+      if (token === 'jeans' || token === 'jean' || token === 'denim') {
+        return name.includes('jean') || subcategory.includes('jean') || category.includes('jean') || corpus.includes('denim');
+      }
+      if (token === 'saree' || token === 'sari' || token === 'saris' || token === 'sarees') {
+        return name.includes('saree') || subcategory.includes('saree');
+      }
+      if (token === 'lehenga' || token === 'lehengas') {
+        return name.includes('lehenga') || subcategory.includes('lehenga');
+      }
+      if (token === 'shoes' || token === 'shoe' || token === 'sneakers' || token === 'footwear') {
+        return category.includes('footwear') || subcategory.includes('shoes') || name.includes('shoes') || name.includes('sneakers');
+      }
+
       return false;
     });
   });
+}
+
+/**
+ * Centralized Category Normalization
+ * Consistently maps all category variations, slugs, and synonyms across
+ * Home, Shop, URL query parameters, facets, and mockProducts.
+ * @param {string} category 
+ * @returns {string} One of the canonical category names or 'All'
+ */
+export function normalizeCategory(category) {
+  if (!category || category === 'All' || category.toLowerCase() === 'all') {
+    return 'All';
+  }
+  const clean = category.toLowerCase().trim();
+
+  // 1. T-Shirts
+  if (
+    clean === 't-shirts' || clean === 'tshirts' || clean === 't-shirt' ||
+    clean === 'tshirt' || clean === 'tees' || clean === 'tee' ||
+    clean === 'polo' || clean === 'polo t-shirts' || clean === 'polo t-shirt' ||
+    clean.includes('t-shirt') || clean.includes('tshirt')
+  ) {
+    return 'T-Shirts';
+  }
+
+  // 2. Shirts (ensure not confused with t-shirts)
+  if (
+    clean === 'shirts' || clean === 'shirt' || clean === 'formal shirts' ||
+    clean === 'casual shirts' || clean === 'overshirt' || clean === 'overshirts' ||
+    clean === 'button-down' || clean === 'oxford shirt'
+  ) {
+    return 'Shirts';
+  }
+
+  // 3. Hoodies
+  if (
+    clean === 'hoodies' || clean === 'hoodie' || clean === 'sweatshirts' ||
+    clean === 'sweatshirt' || clean === 'sweaters' || clean === 'sweater' ||
+    clean === 'pullover' || clean.includes('hoodie') || clean.includes('sweatshirt')
+  ) {
+    return 'Hoodies';
+  }
+
+  // 4. Jeans & Pants
+  if (
+    clean === 'jeans & pants' || clean === 'jeans and pants' || clean === 'pants / jeans' ||
+    clean === 'pants/jeans' || clean === 'pants' || clean === 'pant' ||
+    clean === 'jeans' || clean === 'jean' || clean === 'chinos' || clean === 'chino' ||
+    clean === 'trousers' || clean === 'trouser' || clean === 'cargo pants' || clean === 'cargos' ||
+    clean.includes('jean') || clean.includes('pant') || clean.includes('chino') || clean.includes('trouser')
+  ) {
+    return 'Jeans & Pants';
+  }
+
+  // 5. Dresses
+  if (
+    clean === 'dresses' || clean === 'dress' || clean === 'skirts' || clean === 'skirt' ||
+    clean.includes('dress') || clean.includes('gown')
+  ) {
+    return 'Dresses';
+  }
+
+  // 6. Jackets
+  if (
+    clean === 'jackets' || clean === 'jacket' || clean === 'blazers' || clean === 'blazer' ||
+    clean === 'jackets / blazers' || clean === 'jackets/blazers' || clean === 'coats' || clean === 'coat' ||
+    clean.includes('jacket') || clean.includes('blazer')
+  ) {
+    return 'Jackets';
+  }
+
+  // 7. Traditional Wear
+  if (
+    clean === 'traditional wear' || clean === 'traditional' || clean === 'ethnic wear' ||
+    clean === 'ethnic' || clean === 'kurtas' || clean === 'kurta' || clean === 'sherwani' ||
+    clean === 'sherwanis' || clean === 'nehru jacket' || clean === 'waistcoat' || clean === 'waistcoats' ||
+    clean === 'kurta pajama' || clean.includes('traditional') || clean.includes('ethnic') ||
+    clean.includes('kurta') || clean.includes('sherwani')
+  ) {
+    return 'Traditional Wear';
+  }
+
+  return category;
 }
 
 /**
@@ -59,11 +193,16 @@ export function filterProducts(products = [], filters = {}) {
   const {
     searchQuery = '',
     category = 'All',
+    subcategory = null,
+    gender = null,
     minPrice = null,
     maxPrice = null,
     color = null,
     fabric = null,
     size = null,
+    occasion = null,
+    season = null,
+    style = null,
     rating = 'all',
     availability = 'all', // 'all' | 'in-stock'
     customizableOnly = false
@@ -74,10 +213,31 @@ export function filterProducts(products = [], filters = {}) {
 
   // 2. Category facet
   if (category && category !== 'All') {
-    const catLower = category.toLowerCase();
-    result = result.filter(
-      (p) => (p.category || '').toLowerCase() === catLower
-    );
+    const targetNorm = normalizeCategory(category);
+    result = result.filter((p) => {
+      const pNorm = normalizeCategory(p.category);
+      return pNorm === targetNorm || (p.group && p.group.toLowerCase() === category.toLowerCase());
+    });
+  }
+
+  // 2b. Subcategory facet
+  if (subcategory && subcategory !== 'all' && subcategory !== 'All') {
+    const subLower = subcategory.toLowerCase().trim();
+    result = result.filter((p) => {
+      return (p.subcategory || '').toLowerCase().trim() === subLower;
+    });
+  }
+
+  // 2c. Gender facet
+  if (gender && gender !== 'all' && gender !== 'All') {
+    const genLower = gender.toLowerCase().trim();
+    result = result.filter((p) => {
+      const pGen = (p.gender || '').toLowerCase();
+      if (genLower === 'men') return pGen === 'men' || pGen === 'unisex';
+      if (genLower === 'women') return pGen === 'women' || pGen === 'unisex';
+      if (genLower === 'kids') return pGen === 'kids' || pGen === 'baby';
+      return pGen === genLower;
+    });
   }
 
   // 3. Price range facet
@@ -121,6 +281,32 @@ export function filterProducts(products = [], filters = {}) {
     result = result.filter((p) => {
       const sizes = (p.availableSizes || []).map((s) => String(s).toLowerCase());
       return sizes.includes(sizeLower);
+    });
+  }
+
+  // 6b. Occasion facet
+  if (occasion && occasion !== 'all') {
+    const occLower = occasion.toLowerCase();
+    result = result.filter((p) => {
+      const occs = (Array.isArray(p.occasion) ? p.occasion : [p.occasion || '']).map(o => String(o).toLowerCase());
+      return occs.some(o => o.includes(occLower));
+    });
+  }
+
+  // 6c. Season facet
+  if (season && season !== 'all') {
+    const seaLower = season.toLowerCase();
+    result = result.filter((p) => {
+      const seas = (Array.isArray(p.season) ? p.season : [p.season || '']).map(s => String(s).toLowerCase());
+      return seas.some(s => s.includes(seaLower));
+    });
+  }
+
+  // 6d. Style facet
+  if (style && style !== 'all') {
+    const styLower = style.toLowerCase();
+    result = result.filter((p) => {
+      return (p.style || '').toLowerCase().includes(styLower);
     });
   }
 
@@ -206,13 +392,29 @@ export function sortProducts(products = [], sortBy = 'recommended') {
  */
 export function extractCatalogFacets(products = []) {
   const categoriesSet = new Set();
+  const subcategoriesSet = new Set();
+  const gendersSet = new Set();
+  const occasionsSet = new Set();
+  const seasonsSet = new Set();
+  const stylesSet = new Set();
   const colorsMap = new Map(); // name -> { name, hex }
   const fabricsSet = new Set();
   const sizesSet = new Set();
   const prices = [];
 
   products.forEach((p) => {
-    if (p.category) categoriesSet.add(p.category);
+    if (p.category) categoriesSet.add(normalizeCategory(p.category));
+    if (p.subcategory) subcategoriesSet.add(p.subcategory);
+    if (p.gender) gendersSet.add(p.gender);
+    if (p.style) stylesSet.add(p.style);
+
+    (Array.isArray(p.occasion) ? p.occasion : [p.occasion]).forEach(o => {
+      if (o && typeof o === 'string' && o.trim()) occasionsSet.add(o.trim());
+    });
+
+    (Array.isArray(p.season) ? p.season : [p.season]).forEach(s => {
+      if (s && typeof s === 'string' && s.trim()) seasonsSet.add(s.trim());
+    });
 
     const price = Number(p.basePrice || p.price || 0);
     if (!isNaN(price) && price > 0) prices.push(price);
@@ -260,6 +462,11 @@ export function extractCatalogFacets(products = []) {
 
   return {
     categories: ['All', ...Array.from(categoriesSet)],
+    subcategories: Array.from(subcategoriesSet).sort(),
+    genders: ['All', ...Array.from(gendersSet).sort()],
+    occasions: Array.from(occasionsSet).sort(),
+    seasons: Array.from(seasonsSet).sort(),
+    styles: Array.from(stylesSet).sort(),
     colors: Array.from(colorsMap.values()),
     fabrics: Array.from(fabricsSet),
     sizes: Array.from(sizesSet),

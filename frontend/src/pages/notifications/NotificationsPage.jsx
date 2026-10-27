@@ -200,7 +200,7 @@ export default function NotificationsPage() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-serif font-black text-brand-dark tracking-tight">
-                Notifications & Atelier Updates
+                Notifications & Updates
               </h1>
               {unreadCount > 0 && (
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-accent text-white shadow-sm">
@@ -209,7 +209,7 @@ export default function NotificationsPage() {
               )}
             </div>
             <p className="text-xs sm:text-sm text-neutral-600 mt-1">
-              Live updates for your bespoke commissions, tailoring milestones, and payment confirmations.
+              Live updates for your orders, delivery milestones, and account alerts.
             </p>
           </div>
 

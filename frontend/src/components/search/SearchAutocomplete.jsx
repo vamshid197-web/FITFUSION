@@ -294,6 +294,7 @@ export default function SearchAutocomplete({
                     >
                       <div className="w-10 h-10 rounded-lg bg-neutral-100 overflow-hidden shrink-0 border border-neutral-200 relative">
                         <ProductImage
+                          productId={p.id}
                           src={p.image || p.images?.[0] || p.thumbnail || getProductImage(p)}
                           alt={p.name}
                           category={p.category}

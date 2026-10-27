@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: fitfusion-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: CLIENT_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: KOLORS_PROVIDER
+        value: fal-ai
+      - key: FAL_KEY
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: ALLOW_COMMUNITY_HF
+        value: "false"
+      - key: VTON_DENOISE_STEPS
+        value: "22"

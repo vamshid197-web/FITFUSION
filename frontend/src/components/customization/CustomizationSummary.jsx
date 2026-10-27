@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ProductImage from '../common/ProductImage.jsx';
 import { getProductImage } from '../../data/mockProducts.js';
+import { MASTER_COLORS } from '../../data/customizationOptions.js';
+import { GRAPHICS_LIBRARY, PATCHES_LIBRARY } from '../../data/clothingDesignLibrary.js';
+import { ThreeGarmentEngine } from '../../services/clothing3DService.js';
 
 /**
  * Reusable CustomizationSummary Component (Parts 5, 6, 9)
@@ -27,14 +30,28 @@ export default function CustomizationSummary({
     customMeasurements,
     measurementUnit = 'in',
     monogram,
-    perfume
+    perfume,
+    designLayers = []
   } = customization || {};
 
   const activeMeasurements = customMeasurements || measurements || {};
 
   // Resolve best product image URL
   const baseImg = customization?.productImage || product?.image || getProductImage(product);
-  const colorHex = color?.hex || color?.value || null;
+  
+  // Resolve color hex with fallbacks
+  let colorHex = color?.hex || color?.value || null;
+  if (!colorHex && color) {
+    const colorStr = typeof color === 'string' ? color : color?.name;
+    if (colorStr) {
+      if (colorStr.startsWith('#')) {
+        colorHex = colorStr;
+      } else {
+        const match = MASTER_COLORS.find(c => c.name.toLowerCase() === colorStr.toLowerCase());
+        if (match) colorHex = match.hex;
+      }
+    }
+  }
 
   // Format currency
   const formatPrice = (amt) => {
@@ -45,6 +62,35 @@ export default function CustomizationSummary({
     }).format(amt || 0);
   };
 
+  // Interactive Preview Mode: '3d' | '2d'
+  const [previewMode, setPreviewMode] = useState('3d');
+  const threeCanvasRef = useRef(null);
+  const threeContainerRef = useRef(null);
+  const engineRef = useRef(null);
+
+  useEffect(() => {
+    if (previewMode !== '3d' || !threeCanvasRef.current || !threeContainerRef.current) return;
+
+    let engine = null;
+    try {
+      engine = new ThreeGarmentEngine(threeCanvasRef.current, threeContainerRef.current, {
+        mode: 'studio',
+        product: product,
+        customization: customization
+      });
+      engineRef.current = engine;
+    } catch (err) {
+      console.warn('[CustomizationSummary] 3D Engine init error:', err);
+    }
+
+    return () => {
+      if (engine) {
+        engine.dispose();
+      }
+      engineRef.current = null;
+    };
+  }, [previewMode, product, customization]);
+
   // ── Compact Mode (Sticky Sidebar) ──────────────────────────────────────────
   if (compact) {
     return (
@@ -53,6 +99,7 @@ export default function CustomizationSummary({
           {/* Garment Image with live color tint */}
           <div className="w-16 h-20 rounded-lg overflow-hidden border border-neutral-200 shrink-0 bg-neutral-100">
             <ProductImage
+              productId={product?.id}
               src={baseImg}
               alt={product?.name || 'Custom Garment'}
               fallbackCategory={product?.category || 'Shirts'}
@@ -98,6 +145,19 @@ export default function CustomizationSummary({
               <span>✨ Fragrance:</span> {perfume.name}
             </div>
           )}
+          {designLayers && designLayers.length > 0 && (
+            <div className="col-span-2 pt-1.5 border-t border-neutral-100 text-[11px] space-y-0.5">
+              <div className="text-neutral-500 font-semibold flex items-center justify-between">
+                <span>🎨 Artwork Designs ({designLayers.length}):</span>
+                <span className="text-[10px] text-brand-accent uppercase font-bold">
+                  {[...new Set(designLayers.map(l => l.printStyle || 'Solid'))][0]}
+                </span>
+              </div>
+              <div className="text-neutral-800 font-medium truncate">
+                {designLayers.map(l => l.name || (l.type === 'text' ? `"${l.text}"` : l.type)).join(' • ')}
+              </div>
+            </div>
+          )}
         </div>
 
         {onEdit && (
@@ -119,53 +179,179 @@ export default function CustomizationSummary({
   return (
     <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-md">
       {/* Header */}
-      <div className="px-6 py-4 bg-neutral-50 border-b border-neutral-200 flex items-center justify-between">
+      <div className="px-6 py-4 bg-neutral-50 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-brand-accent">
             Customization Summary
           </span>
-          <h2 className="text-xl font-extrabold text-brand-dark">Your Preview</h2>
+          <h2 className="text-xl font-extrabold text-brand-dark">Your Customized Garment</h2>
         </div>
-        {onEdit && (
-          <button
-            type="button"
-            onClick={() => onEdit(1)}
-            className="px-3.5 py-1.5 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-700 text-xs font-bold transition shadow-2xs"
-          >
-            Edit Customization
-          </button>
-        )}
+
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-neutral-200/80 p-1 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setPreviewMode('3d')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                previewMode === '3d'
+                  ? 'bg-neutral-900 text-amber-300 shadow-xs'
+                  : 'text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              <span>🌐</span> 3D Garment
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewMode('2d')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                previewMode === '2d'
+                  ? 'bg-white text-neutral-900 shadow-xs'
+                  : 'text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              <span>📸</span> Atelier Photo
+            </button>
+          </div>
+
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(1)}
+              className="px-3.5 py-1.5 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-700 text-xs font-bold transition shadow-2xs"
+            >
+              Edit Customization
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="p-6 sm:p-8 space-y-8">
-        {/* Main Product Image Hero with live color tinting */}
+        {/* Main Product Hero with 3D Canvas / 2D Photo */}
         <div className="max-w-md mx-auto">
-          <div className="relative rounded-2xl overflow-hidden border border-neutral-200 shadow-md bg-neutral-100 group">
-            <ProductImage
-              src={baseImg}
-              alt={product?.name || 'Garment preview'}
-              fallbackCategory={product?.category || 'Shirts'}
-              tintColor={colorHex}
-              aspectRatio="aspect-[4/3] sm:aspect-square"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            {/* Color name badge */}
-            <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-xs border border-neutral-200/80 flex items-center gap-2">
-              {colorHex && (
-                <span
-                  className="w-3.5 h-3.5 rounded-full border border-neutral-300 shadow-2xs shrink-0"
-                  style={{ backgroundColor: colorHex }}
-                />
-              )}
-              <span className="text-xs font-bold text-neutral-800">{color?.name || 'Selected Color'}</span>
+          {previewMode === '3d' ? (
+            <div
+              ref={threeContainerRef}
+              className="relative rounded-2xl overflow-hidden border border-neutral-200 shadow-md bg-gradient-to-b from-neutral-100 to-neutral-200 aspect-square flex items-center justify-center"
+            >
+              <canvas ref={threeCanvasRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-[10px] font-bold text-neutral-700 border border-neutral-200/80 shadow-2xs">
+                🔄 Drag to rotate 360° &bull; Scroll to zoom
+              </div>
+              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-xs border border-neutral-200/80 flex items-center gap-2">
+                {colorHex && (
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-neutral-300 shadow-2xs shrink-0"
+                    style={{ backgroundColor: colorHex }}
+                  />
+                )}
+                <span className="text-xs font-bold text-neutral-800">
+                  {color?.name || 'Custom Color'} ({fit || 'Regular Fit'})
+                </span>
+              </div>
             </div>
+          ) : (
+            <div className="relative rounded-2xl overflow-hidden border border-neutral-200 shadow-md bg-neutral-100 group">
+              <ProductImage
+                productId={product?.id}
+                src={baseImg}
+                alt={product?.name || 'Garment preview'}
+                fallbackCategory={product?.category || 'Shirts'}
+                tintColor={colorHex}
+                colorImages={product?.colorImages}
+                selectedColor={color}
+                aspectRatio="aspect-[4/3] sm:aspect-square"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
 
-            <div className="absolute top-3 right-3 bg-brand-dark/85 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-xs">
-              {product?.category || 'Apparel'}
+              {/* Design layers overlay rendered on top of garment */}
+              {designLayers && designLayers.length > 0 && (
+                <div
+                  className="absolute pointer-events-none overflow-hidden"
+                  style={{
+                    width: '60%',
+                    height: '62%',
+                    top: '19%',
+                    left: '20%'
+                  }}
+                >
+                  {designLayers.map((layer) => {
+                    const pos = layer.position || { x: 50, y: 50 };
+                    const scale = layer.scale || 1;
+                    const rot = layer.rotation || 0;
+                    const opacity = layer.opacity ?? 1;
+
+                    return (
+                      <div
+                        key={layer.id}
+                        style={{
+                          position: 'absolute',
+                          left: `${pos.x}%`,
+                          top: `${pos.y}%`,
+                          transform: `translate(-50%, -50%) rotate(${rot}deg) scale(${scale})`,
+                          opacity: opacity
+                        }}
+                        className="drop-shadow-md"
+                      >
+                        {layer.type === 'text' && (
+                          <span
+                            style={{
+                              color: layer.color || '#FFFFFF',
+                              fontFamily: layer.font || 'sans-serif',
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap',
+                              textShadow: '0 2px 4px rgba(0,0,0,0.6)'
+                            }}
+                            className="text-xs sm:text-sm tracking-wider"
+                          >
+                            {layer.text}
+                          </span>
+                        )}
+                        {layer.type === 'photo' && layer.asset && (
+                          <img src={layer.asset} alt="Print" className="w-16 h-16 object-cover rounded shadow-sm" />
+                        )}
+                        {layer.type === 'drawing' && layer.asset && (
+                          <img src={layer.asset} alt="Drawing" className="w-16 h-16 object-contain" />
+                        )}
+                        {layer.type === 'graphic' && (
+                          <div
+                            className="w-16 h-16 flex items-center justify-center pointer-events-none"
+                            style={{ color: layer.color || '#FFFFFF' }}
+                            dangerouslySetInnerHTML={{
+                              __html: GRAPHICS_LIBRARY.find((g) => g.id === layer.asset)?.svg || ''
+                            }}
+                          />
+                        )}
+                        {layer.type === 'patch' && (
+                          <div
+                            className="w-14 h-14 flex items-center justify-center pointer-events-none"
+                            style={{ color: layer.color || '#2563EB' }}
+                            dangerouslySetInnerHTML={{
+                              __html: PATCHES_LIBRARY.find((p) => p.id === layer.asset)?.svg || ''
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Color name badge */}
+              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-xs border border-neutral-200/80 flex items-center gap-2">
+                {colorHex && (
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-neutral-300 shadow-2xs shrink-0"
+                    style={{ backgroundColor: colorHex }}
+                  />
+                )}
+                <span className="text-xs font-bold text-neutral-800">
+                  {color?.name || 'Default Color'}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
           <p className="text-center text-xs text-neutral-500 mt-2">
-            Selected garment shown in <strong className="text-neutral-800">{color?.name || 'chosen color'}</strong>
+            Selected garment shown in <strong className="text-neutral-800">{color?.name || 'chosen color'}</strong> ({previewMode === '3d' ? 'Interactive 3D WebGL Model' : 'Photoreal Atelier View'})
           </p>
         </div>
 
@@ -283,10 +469,10 @@ export default function CustomizationSummary({
             </div>
           </div>
 
-          {/* Card 4: Extras & Perfume */}
+          {/* Card 4: Perfume Pairing */}
           <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/60 space-y-2">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-200">
-              <span className="font-bold text-xs uppercase tracking-wider text-neutral-500">Extras & Perfume</span>
+              <span className="font-bold text-xs uppercase tracking-wider text-neutral-500">Perfume Pairing</span>
               {onEdit && (
                 <button type="button" onClick={() => onEdit(7)} className="text-xs text-brand-accent hover:underline font-semibold">
                   Change
@@ -295,17 +481,7 @@ export default function CustomizationSummary({
             </div>
             <div className="space-y-2 text-xs pt-1">
               <div className="flex justify-between items-center">
-                <span className="text-neutral-500">Monogram:</span>
-                {monogram?.enabled && monogram?.text ? (
-                  <span className="font-bold text-brand-accent">
-                    "{monogram.text}" ({monogram.position || 'Chest'})
-                  </span>
-                ) : (
-                  <span className="text-neutral-400">None</span>
-                )}
-              </div>
-              <div className="flex justify-between items-center pt-1 border-t border-neutral-200">
-                <span className="text-neutral-500">Perfume Pairing:</span>
+                <span className="text-neutral-500">Selected Perfume:</span>
                 {perfume?.name && perfume.id !== 'no-perfume' ? (
                   <div className="text-right">
                     <span className="font-bold text-brand-accent">✨ {perfume.name}</span>
@@ -319,6 +495,65 @@ export default function CustomizationSummary({
               </div>
             </div>
           </div>
+
+          {/* Card 5 (Section 18): DESIGNS, PRINT STYLE & PLACEMENT */}
+          {designLayers && designLayers.length > 0 && (
+            <div className="col-span-1 md:col-span-2 p-5 rounded-xl border border-neutral-200 bg-neutral-50/80 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-neutral-200">
+                <span className="font-bold text-xs uppercase tracking-wider text-neutral-500">
+                  Custom Artwork & Graphic Designs ({designLayers.length})
+                </span>
+                {onEdit && (
+                  <button type="button" onClick={() => onEdit(3)} className="text-xs text-brand-accent hover:underline font-semibold">
+                    Edit Designs &rarr;
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                {/* DESIGNS List */}
+                <div>
+                  <span className="text-neutral-500 font-bold uppercase tracking-wider block mb-1.5 text-[11px]">
+                    DESIGNS
+                  </span>
+                  <ul className="space-y-1 text-neutral-900 font-semibold">
+                    {designLayers.map((l, i) => (
+                      <li key={i} className="flex items-center gap-1.5 truncate">
+                        <span className="text-brand-accent font-bold">&bull;</span>
+                        <span>{l.name || (l.type === 'text' ? `"${l.text}" Text` : `${l.type} Design`)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* PRINT STYLE */}
+                <div>
+                  <span className="text-neutral-500 font-bold uppercase tracking-wider block mb-1.5 text-[11px]">
+                    PRINT STYLE
+                  </span>
+                  <div className="font-extrabold text-brand-dark text-sm">
+                    {[...new Set(designLayers.map(l => l.printStyle || 'solid'))].map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')}
+                  </div>
+                  <span className="text-[11px] text-neutral-400 block mt-0.5">
+                    High-definition textile bonding
+                  </span>
+                </div>
+
+                {/* PLACEMENT */}
+                <div>
+                  <span className="text-neutral-500 font-bold uppercase tracking-wider block mb-1.5 text-[11px]">
+                    PLACEMENT
+                  </span>
+                  <div className="font-extrabold text-brand-dark text-sm">
+                    {[...new Set(designLayers.map(l => (l.printArea || 'front').replace('_', ' ')))].map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(' / ')}
+                  </div>
+                  <span className="text-[11px] text-neutral-400 block mt-0.5">
+                    Garment-specific print coordinates
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Pricing Summary & Action CTA */}

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
+import { CompareProvider } from './context/CompareContext.jsx';
 import App from './App.jsx';
 import './index.css';
 
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <App />
+            <CompareProvider>
+              <App />
+            </CompareProvider>
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>

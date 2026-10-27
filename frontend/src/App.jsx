@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // Layouts
-import PublicLayout from './layouts/PublicLayout.jsx';
 import CustomerLayout from './layouts/CustomerLayout.jsx';
 import AuthLayout from './layouts/AuthLayout.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
@@ -14,15 +13,12 @@ import ScrollToTop from './components/common/ScrollToTop.jsx';
 import NotFoundPage from './pages/common/NotFoundPage.jsx';
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
-// Public Pages
-import LandingPage from './pages/home/LandingPage.jsx';
-
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage.jsx';
 import SignupPage from './pages/auth/SignupPage.jsx';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.jsx';
 
-// Protected Customer Pages
+// Customer Pages (Main Shopping, Catalog, Customizer & Try-On)
 import HomePage from './pages/home/HomePage.jsx';
 import ShopPage from './pages/shop/ShopPage.jsx';
 import ProductDetailsPage from './pages/product/ProductDetailsPage.jsx';
@@ -35,6 +31,8 @@ import ProfilePage from './pages/profile/ProfilePage.jsx';
 import NotificationsPage from './pages/notifications/NotificationsPage.jsx';
 import SavedDesignsPage from './pages/customization/SavedDesignsPage.jsx';
 import WishlistPage from './pages/wishlist/WishlistPage.jsx';
+import VirtualTryOnPage from './pages/tryon/VirtualTryOnPage.jsx';
+import OutfitBuilderPage from './pages/outfit/OutfitBuilderPage.jsx';
 
 // Phase 7 Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx';
@@ -50,32 +48,53 @@ export default function App() {
       <>
       <ScrollToTop />
       <Routes>
-        {/* 1. Public Landing Page */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<LandingPage />} />
-        </Route>
-
-        {/* 2. Public Authentication Routes */}
+        {/* 1. Public Authentication Routes */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
 
-        {/* 3. Protected Customer Routes (Requires Firebase Authentication) */}
+        {/* 2. Public Main Shopping Homepage, Catalog, Customization, Outfit Builder, and Virtual Try-On */}
+        <Route element={<CustomerLayout />}>
+          {/* Unified Shopping Homepage */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
+
+          {/* Catalog & Product Details */}
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
+
+          {/* 3D Customization Studio */}
+          <Route path="/customize" element={<CustomizePage />} />
+          <Route path="/customize/:id" element={<CustomizePage />} />
+
+          {/* Outfit Builder & Saved Designs */}
+          <Route path="/outfit-builder" element={<OutfitBuilderPage />} />
+          <Route path="/saved-designs" element={<SavedDesignsPage />} />
+
+          {/* Kolors AI Virtual Try-On & Studio Routing Aliases */}
+          <Route path="/virtual-try-on" element={<VirtualTryOnPage />} />
+          <Route path="/virtual-try-on/:id" element={<VirtualTryOnPage />} />
+          <Route path="/try-on" element={<VirtualTryOnPage />} />
+          <Route path="/try-on/:id" element={<VirtualTryOnPage />} />
+          <Route path="/live-fitting-room" element={<VirtualTryOnPage />} />
+          <Route path="/live-fitting-room/:id" element={<VirtualTryOnPage />} />
+          <Route path="/live-try-on" element={<VirtualTryOnPage />} />
+          <Route path="/live-try-on/:id" element={<VirtualTryOnPage />} />
+
+          {/* Shopping Cart & Wishlist accessible for browsing */}
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
+        </Route>
+
+        {/* 3. Protected Customer Account Routes (Requires Firebase Authentication) */}
         <Route element={<ProtectedRoute />}>
           <Route element={<CustomerLayout />}>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/product/:id" element={<ProductDetailsPage />} />
-            <Route path="/customize/:id" element={<CustomizePage />} />
-            <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/saved-designs" element={<SavedDesignsPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

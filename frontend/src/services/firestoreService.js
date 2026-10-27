@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase.js';
 import { MOCK_PRODUCTS } from '../data/mockProducts.js';
+import { getProductMappedImage, getProductGallery } from '../data/productImageMap.js';
 
 /**
  * =====================================================================
@@ -21,9 +22,12 @@ import { MOCK_PRODUCTS } from '../data/mockProducts.js';
  * Includes graceful offline/demo fallbacks to prevent screen crashes.
  */
 
-// Helper to remove any undefined fields before Firestore serialization
+// Helper to remove any undefined fields and strip large base64 strings before Firestore serialization
 function sanitizePayload(obj) {
   if (obj === null || typeof obj !== 'object') {
+    if (typeof obj === 'string' && obj.startsWith('data:image/') && obj.length > 500) {
+      return '[PHOTO_ASSET_REFERENCE]';
+    }
     return obj;
   }
   if (Array.isArray(obj)) {
@@ -169,6 +173,28 @@ export async function createFirestoreOrder(order, userId) {
       cuff: item.cuff || item.designOptions?.cuff || 'Standard',
       buttons: item.buttons || item.designOptions?.buttons || 'Standard',
       monogram: item.monogram || item.designOptions?.monogram || null,
+
+      // Studio design layers (Section 9 & 17)
+      designLayers: (item.designLayers || item.customization?.designLayers || []).map(lyr => ({
+        id: lyr.id,
+        type: lyr.type,
+        asset: lyr.asset || null,
+        title: lyr.title || lyr.type,
+        position: lyr.position || { x: 50, y: 50 },
+        scale: lyr.scale || 1,
+        rotation: lyr.rotation || 0,
+        color: lyr.color || '#D4AF37',
+        opacity: lyr.opacity ?? 1,
+        printStyle: lyr.printStyle || 'solid',
+        printArea: lyr.printArea || 'front',
+        text: lyr.text || '',
+        fontFamily: lyr.fontFamily || 'Inter',
+        fontSize: lyr.fontSize || 24,
+        isBold: !!lyr.isBold,
+        isItalic: !!lyr.isItalic,
+        filter: lyr.filter || 'none'
+      })),
+      designLayersSurcharge: Number(item.designLayersSurcharge || 0),
 
       // Size & tailoring metrics
       size: item.size || 'Custom Tailored',
@@ -402,7 +428,20 @@ export async function getProductById(productId) {
     const prodRef = doc(db, 'products', cleanId);
     const snap = await getDoc(prodRef);
     if (snap.exists()) {
-      return { success: true, product: { id: snap.id, ...snap.data() }, source: 'firestore' };
+      const data = snap.data();
+      const mappedImg = getProductMappedImage(snap.id);
+      const gallery = getProductGallery(snap.id);
+      return {
+        success: true,
+        product: {
+          id: snap.id,
+          ...data,
+          image: mappedImg || data.image,
+          thumbnail: mappedImg || data.thumbnail,
+          images: gallery.length > 0 ? gallery : (data.images || [mappedImg || data.image])
+        },
+        source: 'firestore'
+      };
     }
   } catch (err) {
     console.warn('[Firestore] getProductById failed for ' + cleanId + ':', err?.message || err);
@@ -411,7 +450,18 @@ export async function getProductById(productId) {
   // Fallback to MOCK_PRODUCTS
   const fallback = MOCK_PRODUCTS.find((p) => String(p.id) === cleanId || p.slug === cleanId);
   if (fallback) {
-    return { success: true, product: fallback, source: 'fallback' };
+    const mappedImg = getProductMappedImage(fallback.id);
+    const gallery = getProductGallery(fallback.id);
+    return {
+      success: true,
+      product: {
+        ...fallback,
+        image: mappedImg || fallback.image,
+        thumbnail: mappedImg || fallback.thumbnail,
+        images: gallery.length > 0 ? gallery : (fallback.images || [mappedImg || fallback.image])
+      },
+      source: 'fallback'
+    };
   }
 
   return { success: false, product: null, source: 'not_found' };
@@ -426,11 +476,38 @@ export async function getProductsFromFirestore() {
     const snap = await getDocs(productsRef);
 
     if (!snap.empty) {
-      const products = [];
+      const firestoreProducts = [];
       snap.forEach((docSnap) => {
-        products.push({ id: docSnap.id, ...docSnap.data() });
+        firestoreProducts.push({ id: docSnap.id, ...docSnap.data() });
       });
-      return { success: true, products, source: 'firestore' };
+
+      // Merge base MOCK_PRODUCTS with Firestore items so the full catalog is always preserved
+      const mergedMap = new Map();
+      MOCK_PRODUCTS.forEach((p) => mergedMap.set(String(p.id), { ...p }));
+
+      firestoreProducts.forEach((fp) => {
+        const id = String(fp.id);
+        if (mergedMap.has(id)) {
+          mergedMap.set(id, { ...mergedMap.get(id), ...fp });
+        } else {
+          mergedMap.set(id, fp);
+        }
+      });
+
+      return { 
+        success: true, 
+        products: Array.from(mergedMap.values()).map((p) => {
+          const mappedImg = getProductMappedImage(p.id);
+          const gallery = getProductGallery(p.id);
+          return {
+            ...p,
+            image: mappedImg || p.image,
+            thumbnail: mappedImg || p.thumbnail,
+            images: gallery.length > 0 ? gallery : (p.images || [mappedImg || p.image])
+          };
+        }), 
+        source: 'firestore_merged' 
+      };
     }
   } catch (err) {
     console.warn('[Firestore] Could not load products from Firestore, using mock fallback:', err?.message || err);

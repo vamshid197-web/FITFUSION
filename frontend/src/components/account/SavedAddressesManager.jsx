@@ -161,10 +161,10 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100">
         <div>
           <h3 className="text-base font-bold text-brand-dark flex items-center gap-2">
-            <span>📍</span> Saved Atelier Delivery Destinations
+            <span>📍</span> Saved Addresses
           </h3>
           <p className="text-xs text-neutral-500 mt-0.5">
-            Manage your home, atelier, and office delivery addresses for fast white-glove shipping.
+            Manage your delivery addresses for easy checkout and delivery tracking.
           </p>
         </div>
 
@@ -200,21 +200,21 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
         <div className="p-5 bg-neutral-50/80 rounded-2xl border border-neutral-200 shadow-sm space-y-4 animate-fadeIn">
           <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
             <h4 className="text-sm font-bold text-brand-dark">
-              {editingId ? 'Edit Delivery Destination' : 'Add New Delivery Destination'}
+              {editingId ? 'Edit Address' : 'Add New Address'}
             </h4>
             <span className="text-[11px] text-neutral-400 font-medium">
-              Precision Indian Postal Validation
+              Indian Postal Address
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
-            {/* Label selector: Home, Work, Other */}
+            {/* Label selector: Home, Work */}
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1.5">
-                Address Tag
+                Address Type
               </label>
               <div className="flex items-center gap-2">
-                {['Home', 'Work', 'Other'].map((lbl) => (
+                {['Home', 'Work'].map((lbl) => (
                   <button
                     key={lbl}
                     type="button"
@@ -225,7 +225,7 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
                         : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100'
                     }`}
                   >
-                    {lbl === 'Home' ? '🏡 Home' : lbl === 'Work' ? '🏢 Work' : '📍 Other'}
+                    {lbl === 'Home' ? '🏡 Home' : '🏢 Work'}
                   </button>
                 ))}
               </div>
@@ -234,13 +234,13 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
-                  Recipient Full Name *
+                  Full Name *
                 </label>
                 <input
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  placeholder="Alexander Wright"
+                  placeholder="Your Full Name"
                   className={`w-full px-3.5 py-2 text-xs rounded-xl border bg-white focus:outline-hidden focus:ring-1 focus:ring-brand-accent ${
                     formErrors.fullName ? 'border-rose-400 ring-1 ring-rose-300' : 'border-neutral-300'
                   }`}
@@ -252,7 +252,7 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
 
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
-                  10-Digit Mobile Number *
+                  10-Digit Phone Number *
                 </label>
                 <input
                   type="tel"
@@ -272,13 +272,13 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
-                Street Address / House / Flat / Atelier *
+                House / Flat / Building *
               </label>
-              <textarea
-                rows={2}
+              <input
+                type="text"
                 value={formData.addressLine1}
                 onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-                placeholder="42 Haute Couture Way, Flat 4B, Signature Towers"
+                placeholder="House / Flat No., Building Name, Floor"
                 className={`w-full px-3.5 py-2 text-xs rounded-xl border bg-white focus:outline-hidden focus:ring-1 focus:ring-brand-accent ${
                   formErrors.addressLine1 ? 'border-rose-400 ring-1 ring-rose-300' : 'border-neutral-300'
                 }`}
@@ -290,13 +290,13 @@ export default function SavedAddressesManager({ onSelectAddress, selectedAddress
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
-                Area / Colony / Landmark (Optional)
+                Street / Area *
               </label>
               <input
                 type="text"
                 value={formData.addressLine2}
                 onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
-                placeholder="Near Jubilee Hills Check Post"
+                placeholder="Street Name, Area, Landmark"
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-neutral-300 bg-white focus:outline-hidden focus:ring-1 focus:ring-brand-accent"
               />
             </div>

@@ -32,3 +32,9 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Local FITFUSION test images
+/frontend/public/test_generated_result.png
+/frontend/public/test_polo.jpg
+/frontend/public/test_real_photo.jpg
+/frontend/public/test_real_photo.webp

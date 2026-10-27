@@ -200,18 +200,31 @@ export const MASTER_FABRICS = [
  * Filter fabrics by product clothing category
  */
 export function getFabricsForCategory(category = 'Shirts') {
-  const cat = (category || 'Shirts').trim().toLowerCase();
+  const rawCat = (category || 'Shirts').trim().toLowerCase();
+  
+  // Expand composite category names to constituent keywords
+  let targetKeywords = [rawCat];
+  if (rawCat.includes('traditional') || rawCat.includes('ethnic')) {
+    targetKeywords.push('kurtas', 'kurta sets', 'waistcoats', 'ethnic wear');
+  }
+  if (rawCat.includes('pant') || rawCat.includes('jean')) {
+    targetKeywords.push('jeans', 'trousers', 'chinos', 'cargo pants');
+  }
+  if (rawCat.includes('jacket') || rawCat.includes('blazer')) {
+    targetKeywords.push('jackets', 'blazers', 'overshirts');
+  }
+
   const matched = MASTER_FABRICS.filter((fab) =>
     fab.compatibleCategories.some((c) => {
       const target = c.toLowerCase();
-      return cat.includes(target) || target.includes(cat);
+      return targetKeywords.some(k => k.includes(target) || target.includes(k));
     })
   );
   return matched.length > 0 ? matched : MASTER_FABRICS.slice(0, 10);
 }
 
 /**
- * 30 Professional Colorways with Hex codes & Swatch values
+ * Comprehensive Professional Colorways with Hex codes & Swatch values (Phase 6)
  */
 export const MASTER_COLORS = [
   // Neutrals & Monochromes
@@ -228,34 +241,91 @@ export const MASTER_COLORS = [
   { id: 'col-navy', name: 'Navy', hex: '#1E3A8A', group: 'Blues' },
   { id: 'col-royal-blue', name: 'Royal Blue', hex: '#2563EB', group: 'Blues' },
   { id: 'col-sky-blue', name: 'Sky Blue', hex: '#38BDF8', group: 'Blues' },
+  { id: 'col-powder-blue', name: 'Powder Blue', hex: '#B0E0E6', group: 'Blues' },
   { id: 'col-baby-blue', name: 'Baby Blue', hex: '#BAE6FD', group: 'Blues' },
   { id: 'col-teal', name: 'Teal', hex: '#0D9488', group: 'Blues' },
   
   // Greens & Olives
   { id: 'col-olive', name: 'Olive', hex: '#65A30D', group: 'Greens' },
   { id: 'col-forest-green', name: 'Forest Green', hex: '#15803D', group: 'Greens' },
+  { id: 'col-emerald', name: 'Emerald', hex: '#059669', group: 'Greens' },
   { id: 'col-mint', name: 'Mint', hex: '#6EE7B7', group: 'Greens' },
+  { id: 'col-green', name: 'Green', hex: '#16A34A', group: 'Greens' },
   
   // Reds, Maroons & Purples
   { id: 'col-maroon', name: 'Maroon', hex: '#831843', group: 'Reds' },
   { id: 'col-burgundy', name: 'Burgundy', hex: '#881337', group: 'Reds' },
-  { id: 'col-red', name: 'Red', hex: '#DC2626', group: 'Reds' },
   { id: 'col-wine', name: 'Wine', hex: '#701A75', group: 'Reds' },
+  { id: 'col-red', name: 'Red', hex: '#DC2626', group: 'Reds' },
   { id: 'col-pink', name: 'Pink', hex: '#F472B6', group: 'Warm' },
   { id: 'col-rose', name: 'Rose', hex: '#FB7185', group: 'Warm' },
+  { id: 'col-magenta', name: 'Magenta', hex: '#D946EF', group: 'Warm' },
   { id: 'col-lavender', name: 'Lavender', hex: '#C084FC', group: 'Warm' },
   { id: 'col-purple', name: 'Purple', hex: '#9333EA', group: 'Warm' },
   
-  // Warm & Earthy
+  // Warm, Earthy & Metallics
   { id: 'col-mustard', name: 'Mustard', hex: '#CA8A04', group: 'Earth' },
   { id: 'col-yellow', name: 'Yellow', hex: '#EAB308', group: 'Earth' },
   { id: 'col-orange', name: 'Orange', hex: '#EA580C', group: 'Earth' },
+  { id: 'col-rust', name: 'Rust', hex: '#B45309', group: 'Earth' },
+  { id: 'col-tan', name: 'Tan', hex: '#D2B48C', group: 'Earth' },
+  { id: 'col-camel', name: 'Camel', hex: '#C19A6B', group: 'Earth' },
+  { id: 'col-khaki', name: 'Khaki', hex: '#C3B091', group: 'Earth' },
   { id: 'col-brown', name: 'Brown', hex: '#78350F', group: 'Earth' },
   { id: 'col-chocolate-brown', name: 'Chocolate Brown', hex: '#451A03', group: 'Earth' },
-  { id: 'col-tan', name: 'Tan', hex: '#D2B48C', group: 'Earth' }
+  { id: 'col-gold', name: 'Gold', hex: '#F59E0B', group: 'Earth' }
 ];
 
-export function getAvailableColors() {
+/**
+ * Curated realistic color palettes tailored by apparel garment type (Phase 6)
+ */
+export function getGarmentColorPalette(category = '') {
+  const cat = (category || '').toLowerCase().trim();
+
+  if (cat.includes('formal shirt') || cat.includes('dress shirt') || cat === 'shirts') {
+    // Formal / Crisp shirt palette
+    const shirtNames = ['White', 'Light Grey', 'Powder Blue', 'Sky Blue', 'Navy', 'Cream', 'Off White', 'Pink', 'Lavender', 'Charcoal', 'Khaki', 'Royal Blue'];
+    return MASTER_COLORS.filter(c => shirtNames.includes(c.name));
+  }
+
+  if (cat.includes('hoodie') || cat.includes('sweatshirt') || cat.includes('sweater')) {
+    // Streetwear & outerwear hoodie palette
+    const hoodieNames = ['Black', 'Charcoal', 'Grey', 'Light Grey', 'Navy', 'Olive', 'Burgundy', 'Wine', 'Forest Green', 'Camel', 'Rust', 'Beige', 'Off White'];
+    return MASTER_COLORS.filter(c => hoodieNames.includes(c.name));
+  }
+
+  if (cat.includes('traditional') || cat.includes('kurta') || cat.includes('ethnic') || cat.includes('sherwani')) {
+    // Royal, rich jewel tones & celebration palettes
+    const ethnicNames = ['White', 'Cream', 'Off White', 'Maroon', 'Royal Blue', 'Emerald', 'Burgundy', 'Gold', 'Mustard', 'Wine', 'Teal', 'Navy', 'Beige'];
+    return MASTER_COLORS.filter(c => ethnicNames.includes(c.name));
+  }
+
+  if (cat.includes('jean') || cat.includes('pant') || cat.includes('trouser') || cat.includes('chino')) {
+    // Tailored bottom-wear palette
+    const pantsNames = ['Black', 'Charcoal', 'Grey', 'Navy', 'Royal Blue', 'Khaki', 'Beige', 'Tan', 'Camel', 'Olive', 'Brown', 'Off White'];
+    return MASTER_COLORS.filter(c => pantsNames.includes(c.name));
+  }
+
+  if (cat.includes('blazer') || cat.includes('suit') || cat.includes('jacket') || cat.includes('coat')) {
+    // Outerwear & sartorial blazers
+    const blazerNames = ['Black', 'Charcoal', 'Navy', 'Royal Blue', 'Grey', 'Camel', 'Wine', 'Burgundy', 'Olive', 'Brown', 'Off White'];
+    return MASTER_COLORS.filter(c => blazerNames.includes(c.name));
+  }
+
+  if (cat.includes('dress') || cat.includes('skirt')) {
+    // Evening & casual dresses
+    const dressNames = ['Black', 'Off White', 'Cream', 'Rose', 'Magenta', 'Emerald', 'Navy', 'Wine', 'Powder Blue', 'Lavender', 'Red', 'Teal', 'Gold', 'Pink'];
+    return MASTER_COLORS.filter(c => dressNames.includes(c.name));
+  }
+
+  // Default: Return the complete rich colorway list
+  return MASTER_COLORS;
+}
+
+export function getAvailableColors(category = null) {
+  if (category) {
+    return getGarmentColorPalette(category);
+  }
   return MASTER_COLORS;
 }
 
@@ -660,8 +730,7 @@ export function getProductDesignOptions(category = 'Shirts') {
         { id: 'Tonal Stitch', title: 'Matching Thread Stitch', desc: 'Clean color-matched thread for a seamless look.', color: '#4B5563', surcharge: 0 },
         { id: 'Contrast Gold', title: 'Contrast Topstitch', desc: 'Decorative topstitching along shoulders and hem.', color: '#F59E0B', surcharge: 50 },
         { id: 'Reinforced', title: 'Reinforced Seams', desc: 'Extra durable twin-needle reinforced seams.', color: '#18181B', surcharge: 40 }
-      ],
-      monogramPositions: ['Left Chest', 'Right Sleeve Hem', 'Back Neck Yoke']
+      ]
     };
   }
 
@@ -689,8 +758,7 @@ export function getProductDesignOptions(category = 'Shirts') {
         { id: 'Braided Metal', title: 'Braided Cord with Metal Tips', desc: 'Heavy flat-braided cotton cord with metal aglets.', color: '#B45309', surcharge: 50 },
         { id: 'Matte Black', title: 'Matte Black Dipped Tips', desc: 'Clean dipped silicone cord tips.', color: '#18181B', surcharge: 40 },
         { id: 'Clean Cordless', title: 'No Drawstring', desc: 'Streamlined clean finish without cords.', color: '#4B5563', surcharge: 0 }
-      ],
-      monogramPositions: ['Left Chest', 'Pocket Flap', 'Wrist Cuff']
+      ]
     };
   }
 
@@ -718,8 +786,7 @@ export function getProductDesignOptions(category = 'Shirts') {
         { id: 'Straight Hem', title: 'Classic Straight Hem', desc: 'Clean standard finish at your chosen inseam.', color: '#4B5563', surcharge: 0 },
         { id: 'Vintage Wash', title: 'Vintage Soft Wash Hem', desc: 'Light distressing and faded hem detailing.', color: '#1F2937', surcharge: 80 },
         { id: 'Tapered Ankle', title: 'Tapered Ankle Cut', desc: 'Narrowed bottom opening resting cleanly on shoes.', color: '#78350F', surcharge: 0 }
-      ],
-      monogramPositions: ['Waistband Inner', 'Back Pocket Welt', 'Front Pocket Edge']
+      ]
     };
   }
 
@@ -747,8 +814,7 @@ export function getProductDesignOptions(category = 'Shirts') {
         { id: 'Horn 2-Button', title: '2-Button Dark Horn', desc: 'Natural genuine horn buttons with dual back vents.', color: '#4B5563', surcharge: 80 },
         { id: 'Antique Brass', title: 'Antique Brass Crest Buttons', desc: 'Engraved metallic buttons for a classic look.', color: '#B45309', surcharge: 120 },
         { id: 'Matte Black', title: 'Matte Black Buttons', desc: 'Clean modern dark buttons with single center vent.', color: '#18181B', surcharge: 0 }
-      ],
-      monogramPositions: ['Inside Chest Pocket', 'Under Collar', 'Left Sleeve Cuff']
+      ]
     };
   }
 
@@ -778,8 +844,7 @@ export function getProductDesignOptions(category = 'Shirts') {
         { id: 'Midi Length', title: 'Midi Length (Calf)', desc: 'Versatile length falling just below the knee.', color: '#4B5563', surcharge: 0 },
         { id: 'Maxi Length', title: 'Maxi Length (Ankle)', desc: 'Flowing full length dress brushing the ankles.', color: '#1F2937', surcharge: 100 },
         { id: 'Knee Length', title: 'Above-the-Knee Length', desc: 'Casual daytime length resting at the top of the knee.', color: '#78350F', surcharge: 0 }
-      ],
-      monogramPositions: ['Inside Hemline', 'Waist Tag', 'Cuff']
+      ]
     };
   }
 
@@ -807,8 +872,7 @@ export function getProductDesignOptions(category = 'Shirts') {
         { id: 'Potli Buttons', title: 'Handmade Fabric Buttons', desc: 'Matching hand-tied fabric potli buttons.', color: '#D97706', surcharge: 60 },
         { id: 'Metallic Studs', title: 'Antique Metal Studs', desc: 'Removable metallic stud buttons with brass patina.', color: '#B45309', surcharge: 100 },
         { id: 'Concealed Placket', title: 'Hidden Button Placket', desc: 'Clean front with hidden fastener strip.', color: '#4B5563', surcharge: 0 }
-      ],
-      monogramPositions: ['Left Chest', 'Right Cuff', 'Side Slit']
+      ]
     };
   }
 
@@ -818,27 +882,24 @@ export function getProductDesignOptions(category = 'Shirts') {
     section1Title: 'Collar Style',
     section1Key: 'collar',
     section1Options: [
-      { id: 'Classic', title: 'Classic Point Collar', desc: 'Timeless standard collar for casual or tie wear.', surcharge: 0 },
-      { id: 'Spread', title: 'Wide Spread Collar', desc: 'Wider collar points creating an open, modern look.', surcharge: 0 },
-      { id: 'Mandarin', title: 'Mandarin Stand Collar', desc: 'Clean minimalist stand collar without fold.', surcharge: 0 },
-      { id: 'Button Down', title: 'Button-Down Collar', desc: 'Collars with small corner buttons for a crisp casual look.', surcharge: 0 }
+      { id: 'Classic', title: 'Classic Point Collar', desc: 'Timeless standard collar for casual or tie wear.', surcharge: 0, image: 'https://images.pexels.com/photos/35331033/pexels-photo-35331033.jpeg' },
+      { id: 'Button Down', title: 'Button Down Collar', desc: 'Collars with corner buttons for a crisp casual look.', surcharge: 0, image: null },
+      { id: 'Spread', title: 'Wide Spread Collar', desc: 'Wider collar points creating an open, modern look.', surcharge: 0, image: null }
     ],
     section2Title: 'Cuff Style',
     section2Key: 'cuff',
     section2Options: [
-      { id: 'Standard', title: 'Single Button Barrel Cuff', desc: 'Standard comfortable daily wrist cuff.', surcharge: 0 },
-      { id: 'French', title: 'Double French Cuff', desc: 'Fold-back cuff made for wearing with cufflinks.', surcharge: 100 },
-      { id: 'Rounded', title: 'Rounded Contour Cuff', desc: 'Gently curved cuff corners for a softer touch.', surcharge: 0 }
+      { id: 'Standard', title: 'Single Button Barrel Cuff', desc: 'Standard comfortable daily wrist cuff.', surcharge: 0, image: null },
+      { id: 'French', title: 'Double French Cuff', desc: 'Fold-back cuff made for wearing with cufflinks.', surcharge: 100, image: null },
+      { id: 'Rounded', title: 'Rounded Contour Cuff', desc: 'Gently curved cuff corners for a softer touch.', surcharge: 0, image: null }
     ],
     section3Title: 'Buttons',
     section3Key: 'buttons',
     section3Options: [
-      { id: 'Standard Horn', title: 'Standard Neutral Buttons', desc: 'Durable polished buttons in matching neutral tone.', color: '#4B5563', surcharge: 0 },
-      { id: 'Mother of Pearl', title: 'Mother of Pearl Buttons', desc: 'Natural shell buttons with a smooth pearl sheen.', color: '#F3F4F6', surcharge: 120 },
-      { id: 'Matte Black', title: 'Matte Black Buttons', desc: 'Contemporary dark buttons with a satin finish.', color: '#18181B', surcharge: 50 },
-      { id: 'Antique Brass', title: 'Brass Buttons', desc: 'Warm metallic buttons with vintage charm.', color: '#B45309', surcharge: 80 }
-    ],
-    monogramPositions: ['Left Cuff', 'Left Chest Pocket', 'Bottom Hem']
+      { id: 'Standard Horn', title: 'Standard Neutral Buttons', desc: 'Durable polished buttons in matching neutral tone.', color: '#4B5563', surcharge: 0, image: null },
+      { id: 'Matte Black', title: 'Matte Black Buttons', desc: 'Contemporary dark buttons with a satin finish.', color: '#18181B', surcharge: 50, image: null },
+      { id: 'Antique Brass', title: 'Brass Buttons', desc: 'Warm metallic buttons with vintage charm.', color: '#B45309', surcharge: 80, image: null }
+    ]
   };
 }
 

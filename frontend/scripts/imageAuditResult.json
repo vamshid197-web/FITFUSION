@@ -1,0 +1,3001 @@
+{
+  "totalProducts": 526,
+  "verifiedRealistic": 27,
+  "imageRequired": 499,
+  "items": [
+    {
+      "id": "2",
+      "name": "Oversized Heavyweight T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "tshirt-5",
+      "name": "Slim Fit V-Neck T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "tshirt-7",
+      "name": "Textured Waffle T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "tshirt-8",
+      "name": "Performance Athletic T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "5",
+      "name": "Linen Casual Relaxed Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "4",
+      "name": "Oxford Cloth Button-Down Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "shirt-6",
+      "name": "Striped Banker Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "shirt-7",
+      "name": "Mandarin Collar Band Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "7",
+      "name": "Classic French Terry Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-2",
+      "name": "Oversized Boxy Pullover Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-3",
+      "name": "Zip-Up Cotton Everyday Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-4",
+      "name": "Heavyweight 450GSM Fleece Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-5",
+      "name": "Minimal Logo Graphic Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-6",
+      "name": "Relaxed Fit Raglan Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-7",
+      "name": "Color Block Vintage Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "hoodie-8",
+      "name": "Lightweight Summer Modal Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "pants-2",
+      "name": "Slim Fit Stretch Chinos",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "pants-3",
+      "name": "Relaxed Pleated Chinos",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "pants-5",
+      "name": "Slim Indigo Denim Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "pants-6",
+      "name": "Relaxed Carpenter Denim Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "pants-8",
+      "name": "Classic Pleated Formal Trousers",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "16",
+      "name": "Pure Silk Slip Evening Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "17",
+      "name": "A-Line Casual Day Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "dress-8",
+      "name": "Pleated Georgette Midi Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "jacket-4",
+      "name": "Casual Cotton Utility Overshirt",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "jacket-6",
+      "name": "Double-Breasted Structured Blazer",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "jacket-8",
+      "name": "Down-Filled Winter Puffer Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "14",
+      "name": "Classic Handloom Cotton Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "trad-2",
+      "name": "Premium Pure Linen Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "15",
+      "name": "Embroidered Chikankari Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "trad-4",
+      "name": "Festive Silk Jacquard Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "trad-5",
+      "name": "Hand-Woven Nehru Jacket",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "trad-6",
+      "name": "Classic Kurta Pajama Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "trad-7",
+      "name": "Royal Wedding Sherwani",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "trad-8",
+      "name": "Embroidered Festive Waistcoat",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-classic-crew-neck-t-shirt",
+      "name": "Classic Crew Neck T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-oversized-black-t-shirt",
+      "name": "Oversized Black T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-longline-curved-hem-t-shirt",
+      "name": "Longline Curved Hem T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-classic-piqu-polo-t-shirt",
+      "name": "Classic Piqué Polo T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-premium-v-neck-t-shirt",
+      "name": "Premium V-Neck T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-waffle-knit-henley-t-shirt",
+      "name": "Waffle Knit Henley T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-urban-graphic-print-t-shirt",
+      "name": "Urban Graphic Print T-Shirt",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-scoop-neck-stretch-tank-top",
+      "name": "Scoop Neck Stretch Tank Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-satin-tie-back-halter-top",
+      "name": "Satin Tie-Back Halter Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-seamless-strapless-tube-top",
+      "name": "Seamless Strapless Tube Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ruffled-off-shoulder-top",
+      "name": "Ruffled Off-Shoulder Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-structured-strapless-corset-top",
+      "name": "Structured Strapless Corset Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-flax-linen-wrap-top",
+      "name": "Flax Linen Wrap Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-tailored-peplum-flounce-top",
+      "name": "Tailored Peplum Flounce Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-silk-lace-trim-camisole",
+      "name": "Silk Lace Trim Camisole",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-sculpting-seamless-bodysuit",
+      "name": "Sculpting Seamless Bodysuit",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-embroidered-longline-tunic-top",
+      "name": "Embroidered Longline Tunic Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-breathable-training-sports-top",
+      "name": "Breathable Training Sports Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-high-impact-compression-top",
+      "name": "High-Impact Compression Top",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-merino-wool-thermal-base-layer",
+      "name": "Merino Wool Thermal Base Layer",
+      "category": "T-Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-relaxed-oxford-casual-shirt",
+      "name": "Relaxed Oxford Casual Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-executive-crisp-formal-shirt",
+      "name": "Executive Crisp Formal Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-french-cuff-luxury-dress-shirt",
+      "name": "French Cuff Luxury Dress Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-classic-heavy-oxford-button-down",
+      "name": "Classic Heavy Oxford Button-Down",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-western-washed-indigo-denim-shirt",
+      "name": "Western Washed Indigo Denim Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-pure-normandy-linen-shirt",
+      "name": "Pure Normandy Linen Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-tropical-floral-print-hawaiian-shirt",
+      "name": "Tropical Floral Print Hawaiian Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-buffalo-plaid-heavy-flannel-shirt",
+      "name": "Buffalo Plaid Heavy Flannel Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-smart-gingham-check-shirt",
+      "name": "Smart Gingham Check Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-modern-geometric-printed-shirt",
+      "name": "Modern Geometric Printed Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-drop-shoulder-boxy-oversized-shirt",
+      "name": "Drop-Shoulder Boxy Oversized Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-band-collar-kurta-style-shirt",
+      "name": "Band Collar Kurta-Style Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-vintage-heavyweight-rugby-shirt",
+      "name": "Vintage Heavyweight Rugby Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-double-mercerized-polo-shirt",
+      "name": "Double Mercerized Polo Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-hand-dyed-resort-tie-dye-shirt",
+      "name": "Hand-Dyed Resort Tie-Dye Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-camp-collar-short-sleeve-shirt",
+      "name": "Camp Collar Short-Sleeve Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-peached-cotton-long-sleeve-shirt",
+      "name": "Peached Cotton Long-Sleeve Shirt",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-belted-cotton-poplin-shirt-dress",
+      "name": "Belted Cotton Poplin Shirt Dress",
+      "category": "Shirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-merino-wool-crewneck-sweater",
+      "name": "Merino Wool Crewneck Sweater",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-fine-knit-cotton-cashmere-pullover",
+      "name": "Fine-Knit Cotton Cashmere Pullover",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-horn-button-chunky-knit-cardigan",
+      "name": "Horn-Button Chunky Knit Cardigan",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-classic-v-neck-lightweight-sweater",
+      "name": "Classic V-Neck Lightweight Sweater",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-ribbed-roll-neck-turtleneck-sweater",
+      "name": "Ribbed Roll-Neck Turtleneck Sweater",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-waffle-stitch-crewneck-sweater",
+      "name": "Waffle Stitch Crewneck Sweater",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-vintage-washed-oversized-sweatshirt",
+      "name": "Vintage Washed Oversized Sweatshirt",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-quarter-zip-fleece-sweatshirt",
+      "name": "Quarter-Zip Fleece Sweatshirt",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-heavy-400-gsm-kangaroo-pocket-hoodie",
+      "name": "Heavy 400 GSM Kangaroo Pocket Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-relaxed-streetwear-oversized-hoodie",
+      "name": "Relaxed Streetwear Oversized Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-thermal-lined-full-zip-up-hoodie",
+      "name": "Thermal Lined Full Zip-Up Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-raw-hem-fleece-cropped-hoodie",
+      "name": "Raw Hem Fleece Cropped Hoodie",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-polar-fleece-quarter-zip-pullover",
+      "name": "Polar Fleece Quarter-Zip Pullover",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-fitted-stretch-thermal-turtleneck",
+      "name": "Fitted Stretch Thermal Turtleneck",
+      "category": "Hoodies",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-classic-5-pocket-regular-fit-jeans",
+      "name": "Classic 5-Pocket Regular Fit Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-streamlined-stretch-slim-fit-jeans",
+      "name": "Streamlined Stretch Slim-Fit Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-power-stretch-mid-rise-skinny-jeans",
+      "name": "Power Stretch Mid-Rise Skinny Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-authentic-vintage-straight-leg-jeans",
+      "name": "Authentic Vintage Straight-Leg Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-roomy-comfort-relaxed-jeans",
+      "name": "Roomy Comfort Relaxed Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-90s-skater-loose-fit-jeans",
+      "name": "90s Skater Loose-Fit Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-high-waist-drape-wide-leg-jeans",
+      "name": "High-Waist Drape Wide-Leg Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-retro-tailored-bootcut-jeans",
+      "name": "Retro Tailored Bootcut Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-70s-high-rise-flared-denim-jeans",
+      "name": "70s High-Rise Flared Denim Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-dramatic-flare-bell-bottom-jeans",
+      "name": "Dramatic Flare Bell-Bottom Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-tapered-high-waist-vintage-mom-jeans",
+      "name": "Tapered High-Waist Vintage Mom Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-slouchy-relaxed-fit-boyfriend-jeans",
+      "name": "Slouchy Relaxed Fit Boyfriend Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-heavyweight-rigid-denim-dad-jeans",
+      "name": "Heavyweight Rigid Denim Dad Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-multi-pocket-utility-cargo-jeans",
+      "name": "Multi-Pocket Utility Cargo Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-distressed-knee-slash-ripped-jeans",
+      "name": "Distressed Knee Slash Ripped Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-heavy-wash-vintage-distressed-jeans",
+      "name": "Heavy Wash Vintage Distressed Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-sculpt-hold-high-waist-jeans",
+      "name": "Sculpt & Hold High-Waist Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-y2k-relaxed-low-waist-denim-jeans",
+      "name": "Y2K Relaxed Low-Waist Denim Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-everyday-classic-mid-waist-jeans",
+      "name": "Everyday Classic Mid-Waist Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ankle-grazing-frayed-cropped-jeans",
+      "name": "Ankle Grazing Frayed Cropped Jeans",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ultra-comfort-elastic-waist-jeggings",
+      "name": "Ultra-Comfort Elastic Waist Jeggings",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-tailored-flat-front-formal-trousers",
+      "name": "Tailored Flat-Front Formal Trousers",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-relaxed-everyday-casual-trousers",
+      "name": "Relaxed Everyday Casual Trousers",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-garment-dyed-slim-stretch-chinos",
+      "name": "Garment-Dyed Slim Stretch Chinos",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-tactical-multi-pocket-cargo-pants",
+      "name": "Tactical Multi-Pocket Cargo Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-french-terry-cuffed-streetwear-joggers",
+      "name": "French Terry Cuffed Streetwear Joggers",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-breathable-training-track-pants",
+      "name": "Breathable Training Track Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-heavy-brushed-fleece-lounge-sweatpants",
+      "name": "Heavy Brushed Fleece Lounge Sweatpants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-wide-flowing-pleated-palazzo-pants",
+      "name": "Wide Flowing Pleated Palazzo Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-tailored-high-waist-wide-leg-pants",
+      "name": "Tailored High-Waist Wide-Leg Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-sharp-creased-straight-fit-pants",
+      "name": "Sharp Creased Straight Fit Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-stretch-ankle-fit-skinny-trousers",
+      "name": "Stretch Ankle Fit Skinny Trousers",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-modern-pleated-tapered-pants",
+      "name": "Modern Pleated Tapered Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-cropped-hem-smart-ankle-pants",
+      "name": "Cropped Hem Smart Ankle Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-double-reverse-pleat-heritage-trousers",
+      "name": "Double Reverse Pleat Heritage Trousers",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-drawstring-summer-pure-linen-pants",
+      "name": "Drawstring Summer Pure Linen Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-faux-leather-slim-moto-pants",
+      "name": "Faux Leather Slim Moto Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-reinforced-knee-workwear-utility-pants",
+      "name": "Reinforced Knee Workwear Utility Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-technical-baggy-parachute-pants",
+      "name": "Technical Baggy Parachute Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-pre-draped-silk-blend-dhoti-pants",
+      "name": "Pre-Draped Silk Blend Dhoti Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-drop-crotch-bohemian-harem-pants",
+      "name": "Drop-Crotch Bohemian Harem Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-over-the-bump-stretch-maternity-pants",
+      "name": "Over-the-Bump Stretch Maternity Pants",
+      "category": "Jeans & Pants",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-cotton-twill-weekend-casual-shorts",
+      "name": "Cotton Twill Weekend Casual Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-frayed-hem-5-pocket-denim-shorts",
+      "name": "Frayed Hem 5-Pocket Denim Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-rugged-ripstop-cargo-shorts",
+      "name": "Rugged Ripstop Cargo Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-tailored-knee-length-bermuda-shorts",
+      "name": "Tailored Knee-Length Bermuda Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-quick-dry-athletic-mesh-shorts",
+      "name": "Quick-Dry Athletic Mesh Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-2-in-1-compression-liner-gym-shorts",
+      "name": "2-in-1 Compression Liner Gym Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-split-hem-ultra-light-running-shorts",
+      "name": "Split Hem Ultra-Light Running Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-loose-fit-striped-basketball-shorts",
+      "name": "Loose Fit Striped Basketball Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-padded-chamois-high-stretch-cycling-shorts",
+      "name": "Padded Chamois High-Stretch Cycling Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-quick-dry-tropical-print-swim-shorts",
+      "name": "Quick-Dry Tropical Print Swim Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-tie-front-surfer-board-shorts",
+      "name": "Tie-Front Surfer Board Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-paperbag-belted-high-waist-shorts",
+      "name": "Paperbag Belted High-Waist Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-retro-denim-stretch-hot-pants",
+      "name": "Retro Denim Stretch Hot Pants",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-soft-modal-ribbed-lounge-shorts",
+      "name": "Soft Modal Ribbed Lounge Shorts",
+      "category": "Shorts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-satin-bias-cut-midi-skirt",
+      "name": "Satin Bias Cut Midi Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-bohemian-tiered-ruffle-maxi-skirt",
+      "name": "Bohemian Tiered Ruffle Maxi Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-high-waist-tailored-pencil-skirt",
+      "name": "High-Waist Tailored Pencil Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-structured-wool-blend-a-line-skirt",
+      "name": "Structured Wool Blend A-Line Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-metallic-accordion-pleated-skirt",
+      "name": "Metallic Accordion Pleated Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-circle-swing-flared-skirt",
+      "name": "Circle Swing Flared Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-linen-tie-waist-asymmetric-wrap-skirt",
+      "name": "Linen Tie-Waist Asymmetric Wrap Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-front-slit-vintage-denim-maxi-skirt",
+      "name": "Front Slit Vintage Denim Maxi Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-technical-utility-cargo-pocket-skirt",
+      "name": "Technical Utility Cargo Pocket Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-pleated-athletic-tennis-skirt",
+      "name": "Pleated Athletic Tennis Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ribbed-knit-seamless-bodycon-skirt",
+      "name": "Ribbed Knit Seamless Bodycon Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-cotton-poplin-tiered-skirt",
+      "name": "Cotton Poplin Tiered Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-handkerchief-hem-asymmetrical-skirt",
+      "name": "Handkerchief Hem Asymmetrical Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-full-flounce-50s-circle-skirt",
+      "name": "Full Flounce 50s Circle Skirt",
+      "category": "Skirts",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-square-neck-a-line-mini-dress",
+      "name": "Square Neck A-Line Mini Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-floral-print-chiffon-midi-dress",
+      "name": "Floral Print Chiffon Midi Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-tiered-bohemian-resort-maxi-dress",
+      "name": "Tiered Bohemian Resort Maxi Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-rouched-satin-stretch-bodycon-dress",
+      "name": "Rouched Satin Stretch Bodycon Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-fit-and-flare-twill-a-line-dress",
+      "name": "Fit and Flare Twill A-Line Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-surplice-neckline-floral-wrap-dress",
+      "name": "Surplice Neckline Floral Wrap Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-crisp-poplin-button-down-shirt-dress",
+      "name": "Crisp Poplin Button-Down Shirt Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-cowl-neck-mulberry-silk-slip-dress",
+      "name": "Cowl Neck Mulberry Silk Slip Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-one-shoulder-drape-cocktail-dress",
+      "name": "One-Shoulder Drape Cocktail Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-floor-length-velvet-evening-gown",
+      "name": "Floor-Length Velvet Evening Gown",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-sequined-sparkle-mini-party-dress",
+      "name": "Sequined Sparkle Mini Party Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-smocked-bodice-linen-sundress",
+      "name": "Smocked Bodice Linen Sundress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-t-shirt-pocket-everyday-casual-dress",
+      "name": "T-Shirt Pocket Everyday Casual Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-structured-sheath-formal-work-dress",
+      "name": "Structured Sheath Formal Work Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-backless-pleated-halter-dress",
+      "name": "Backless Pleated Halter Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-sweetheart-neck-off-shoulder-dress",
+      "name": "Sweetheart Neck Off-Shoulder Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-bustier-boned-strapless-dress",
+      "name": "Bustier Boned Strapless Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ribbed-cable-knit-turtleneck-sweater-dress",
+      "name": "Ribbed Cable Knit Turtleneck Sweater Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-fitted-western-snap-denim-dress",
+      "name": "Fitted Western Snap Denim Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-printed-silk-georgette-kaftan-dress",
+      "name": "Printed Silk Georgette Kaftan Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-empire-waist-puff-sleeve-babydoll-dress",
+      "name": "Empire Waist Puff Sleeve Babydoll Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-vintage-polka-dot-flounce-tea-dress",
+      "name": "Vintage Polka Dot Flounce Tea Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-chantilly-lace-illusion-wedding-gown",
+      "name": "Chantilly Lace Illusion Wedding Gown",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-chiffon-ruched-bridesmaid-dress",
+      "name": "Chiffon Ruched Bridesmaid Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-off-shoulder-tulle-princess-prom-dress",
+      "name": "Off-Shoulder Tulle Princess Prom Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-empire-cut-flowy-maternity-dress",
+      "name": "Empire Cut Flowy Maternity Dress",
+      "category": "Dresses",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-wide-leg-belted-tailored-jumpsuit",
+      "name": "Wide-Leg Belted Tailored Jumpsuit",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ruffled-floral-summer-playsuit",
+      "name": "Ruffled Floral Summer Playsuit",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-linen-button-front-casual-romper",
+      "name": "Linen Button-Front Casual Romper",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-vintage-washed-denim-dungarees",
+      "name": "Vintage Washed Denim Dungarees",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-heavy-canvas-workwear-overalls",
+      "name": "Heavy Canvas Workwear Overalls",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-corduroy-bib-pinafore-dress",
+      "name": "Corduroy Bib Pinafore Dress",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-zip-front-utilitarian-boilersuit",
+      "name": "Zip-Front Utilitarian Boilersuit",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-multi-pocket-belted-utility-jumpsuit",
+      "name": "Multi-Pocket Belted Utility Jumpsuit",
+      "category": "Co-ords & Jumpsuits",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-classic-trucker-heavy-denim-jacket",
+      "name": "Classic Trucker Heavy Denim Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-full-grain-biker-leather-jacket",
+      "name": "Full-Grain Biker Leather Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-satin-finish-ma-1-flight-bomber-jacket",
+      "name": "Satin Finish MA-1 Flight Bomber Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-wool-melton-leather-sleeve-varsity-jacket",
+      "name": "Wool Melton Leather-Sleeve Varsity Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-down-filled-water-repellent-puffer-jacket",
+      "name": "Down-Filled Water Repellent Puffer Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-asymmetrical-studded-biker-jacket",
+      "name": "Asymmetrical Studded Biker Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-armored-heavy-riding-jacket",
+      "name": "Armored Heavy Riding Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-goat-suede-trucker-jacket",
+      "name": "Goat Suede Trucker Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-waxed-cotton-field-utility-jacket",
+      "name": "Waxed Cotton Field Utility Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-m-65-tactical-military-field-jacket",
+      "name": "M-65 Tactical Military Field Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-structured-epaulet-military-jacket",
+      "name": "Structured Epaulet Military Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-diamond-quilted-heritage-country-jacket",
+      "name": "Diamond Quilted Heritage Country Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-fitted-denim-cropped-jacket",
+      "name": "Fitted Denim Cropped Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-boxy-vintage-oversized-jacket",
+      "name": "Boxy Vintage Oversized Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-retro-striped-zip-track-jacket",
+      "name": "Retro Striped Zip Track Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-high-pile-sherpa-fleece-jacket",
+      "name": "High-Pile Sherpa Fleece Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-packable-colorblock-windbreaker",
+      "name": "Packable Colorblock Windbreaker",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-seam-sealed-waterproof-rain-jacket",
+      "name": "Seam-Sealed Waterproof Rain Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-technical-storm-hooded-jacket",
+      "name": "Technical Storm-Hooded Jacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-heavy-twill-overshirt-shacket",
+      "name": "Heavy Twill Overshirt Shacket",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-cashmere-blend-single-breasted-overcoat",
+      "name": "Cashmere Blend Single-Breasted Overcoat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-double-breasted-heritage-trench-coat",
+      "name": "Double-Breasted Heritage Trench Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-heavy-wool-navy-sailor-peacoat",
+      "name": "Heavy Wool Navy Sailor Peacoat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-horn-toggle-hooded-duffle-coat",
+      "name": "Horn Toggle Hooded Duffle Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-velvet-collar-tailored-chesterfield",
+      "name": "Velvet Collar Tailored Chesterfield",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-faux-fur-trimmed-winter-down-parka",
+      "name": "Faux-Fur Trimmed Winter Down Parka",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-lightweight-flowing-linen-duster-coat",
+      "name": "Lightweight Flowing Linen Duster Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-belted-floor-length-wool-long-coat",
+      "name": "Belted Floor-Length Wool Long Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-double-faced-italian-wool-coat",
+      "name": "Double-Faced Italian Wool Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-rubberized-waterproof-city-raincoat",
+      "name": "Rubberized Waterproof City Raincoat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-drawstring-kangaroo-hooded-anorak",
+      "name": "Drawstring Kangaroo Hooded Anorak",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-wool-blend-arm-slit-cape-coat",
+      "name": "Wool Blend Arm-Slit Cape Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-tie-belt-waterfall-collar-wrap-coat",
+      "name": "Tie-Belt Waterfall Collar Wrap Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-maxi-full-length-puffer-quilt-coat",
+      "name": "Maxi Full-Length Puffer Quilt Coat",
+      "category": "Jackets",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-structured-classic-wool-blazer",
+      "name": "Structured Classic Wool Blazer",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-unstructured-cotton-linen-blazer",
+      "name": "Unstructured Cotton Linen Blazer",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-sharp-peak-lapel-formal-blazer",
+      "name": "Sharp Peak Lapel Formal Blazer",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-6-button-double-breasted-naval-blazer",
+      "name": "6-Button Double-Breasted Naval Blazer",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-2-button-slim-italian-blazer",
+      "name": "2-Button Slim Italian Blazer",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-super-130s-merino-suit-jacket",
+      "name": "Super 130s Merino Suit Jacket",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-slim-fit-modern-two-piece-business-suit",
+      "name": "Slim-Fit Modern Two-Piece Business Suit",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-silk-satin-shawl-lapel-midnight-tuxedo",
+      "name": "Silk Satin Shawl Lapel Midnight Tuxedo",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-ivory-jacquard-silk-dinner-jacket",
+      "name": "Ivory Jacquard Silk Dinner Jacket",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-royal-velvet-bandhgala-jodhpuri-suit",
+      "name": "Royal Velvet Bandhgala Jodhpuri Suit",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-executive-pinstripe-charcoal-business-suit",
+      "name": "Executive Pinstripe Charcoal Business Suit",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-luxurious-groom-wedding-suit",
+      "name": "Luxurious Groom Wedding Suit",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-tailored-5-button-formal-waistcoat",
+      "name": "Tailored 5-Button Formal Waistcoat",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-sleeveless-puffer-outer-vest",
+      "name": "Sleeveless Puffer Outer Vest",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-diamond-quilted-lightweight-gilet",
+      "name": "Diamond Quilted Lightweight Gilet",
+      "category": "Suits & Tailoring",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-contemporary-fusion-saree-gown",
+      "name": "Contemporary Fusion Saree Gown",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-hand-embroidered-maggam-work-blouse",
+      "name": "Hand-Embroidered Maggam Work Blouse",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-grand-kalidar-zari-embroidered-lehenga",
+      "name": "Grand Kalidar Zari Embroidered Lehenga",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-silk-jacquard-festive-lehenga-choli",
+      "name": "Silk Jacquard Festive Lehenga Choli",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-mirror-work-navratri-ghagra-choli",
+      "name": "Mirror-Work Navratri Ghagra Choli",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-floor-length-umbrella-flare-anarkali-suit",
+      "name": "Floor-Length Umbrella Flare Anarkali Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-pure-cotton-chikankari-kurta",
+      "name": "Pure Cotton Chikankari Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-a-line-printed-rayon-daily-kurti",
+      "name": "A-Line Printed Rayon Daily Kurti",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-embroidered-silk-blend-kurta-pant-set",
+      "name": "Embroidered Silk Blend Kurta Pant Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-classic-georgette-salwar-kameez",
+      "name": "Classic Georgette Salwar Kameez",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-patiala-gathers-phulkari-punjabi-suit",
+      "name": "Patiala Gathers Phulkari Punjabi Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-cotton-lycra-gathered-churidar",
+      "name": "Cotton Lycra Gathered Churidar",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-full-flared-heavy-patiala-suit",
+      "name": "Full Flared Heavy Patiala Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-flared-ruffle-tiered-sharara-set",
+      "name": "Flared Ruffle Tiered Sharara Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-zardozi-work-knee-gathers-gharara-suit",
+      "name": "Zardozi Work Knee-Gathers Gharara Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-straight-kurta-with-embroidered-palazzo",
+      "name": "Straight Kurta with Embroidered Palazzo",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-chanderi-silk-straight-cut-suit",
+      "name": "Chanderi Silk Straight Cut Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-side-tie-flared-angrakha-kurta",
+      "name": "Side-Tie Flared Angrakha Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-embellished-silk-moroccan-kaftan",
+      "name": "Embellished Silk Moroccan Kaftan",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-traditional-south-indian-dhavani-half-saree",
+      "name": "Traditional South Indian Dhavani Half Saree",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-banarasi-brocade-heavy-zari-dupatta",
+      "name": "Banarasi Brocade Heavy Zari Dupatta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-handcrafted-amritsari-phulkari-suit",
+      "name": "Handcrafted Amritsari Phulkari Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-kutch-tie-dye-bandhani-georgette-set",
+      "name": "Kutch Tie-Dye Bandhani Georgette Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-assam-muga-silk-mekhela-chador",
+      "name": "Assam Muga Silk Mekhela Chador",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-kasavu-gold-border-mundum-neriyathum",
+      "name": "Kasavu Gold Border Mundum Neriyathum",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-linen-festive-kurta-pyjama-set",
+      "name": "Linen Festive Kurta Pyjama Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-rugged-shoulder-flap-pathani-suit",
+      "name": "Rugged Shoulder-Flap Pathani Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-royal-brocade-embroidered-sherwani",
+      "name": "Royal Brocade Embroidered Sherwani",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-clean-cut-high-neck-royal-achkan",
+      "name": "Clean Cut High-Neck Royal Achkan",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-velvet-embellished-bandhgala-coat",
+      "name": "Velvet Embellished Bandhgala Coat",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-silk-khadi-printed-nehru-jacket",
+      "name": "Silk Khadi Printed Nehru Jacket",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-breeches-bandhgala-jodhpuri-set",
+      "name": "Breeches & Bandhgala Jodhpuri Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-pure-silk-gold-border-festive-dhoti",
+      "name": "Pure Silk Gold Border Festive Dhoti",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-ready-to-wear-silk-dhoti-kurta-set",
+      "name": "Ready-to-Wear Silk Dhoti Kurta Set",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-handloom-checked-cotton-lungi",
+      "name": "Handloom Checked Cotton Lungi",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-asymmetric-drape-indo-western-sherwani",
+      "name": "Asymmetric Drape Indo-Western Sherwani",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-cowl-drape-indo-western-kurta",
+      "name": "Cowl Drape Indo-Western Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-linen-textured-sleeveless-modi-jacket",
+      "name": "Linen Textured Sleeveless Modi Jacket",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-breathable-running-sports-t-shirt",
+      "name": "Breathable Running Sports T-Shirt",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-pro-athletic-match-jersey",
+      "name": "Pro Athletic Match Jersey",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-championship-football-kit-jersey",
+      "name": "Championship Football Kit Jersey",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-india-blue-edition-cricket-jersey",
+      "name": "India Blue Edition Cricket Jersey",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-sleeveless-mesh-basketball-jersey",
+      "name": "Sleeveless Mesh Basketball Jersey",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-aero-cool-collared-tennis-shirt",
+      "name": "Aero-Cool Collared Tennis Shirt",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ultralight-sweat-wicking-running-shirt",
+      "name": "Ultralight Sweat-Wicking Running Shirt",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-drop-armhole-muscle-gym-t-shirt",
+      "name": "Drop Armhole Muscle Gym T-Shirt",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-dynamic-stretch-cross-training-tee",
+      "name": "Dynamic Stretch Cross-Training Tee",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-targeted-core-compression-shirt",
+      "name": "Targeted Core Compression Shirt",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-recovery-muscle-compression-tights",
+      "name": "Recovery Muscle Compression Tights",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-base-layer-compression-spats",
+      "name": "Base Layer Compression Spats",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-side-slit-heavy-weightlifting-shorts",
+      "name": "Side Slit Heavy Weightlifting Shorts",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-split-vent-reflective-running-shorts",
+      "name": "Split Vent Reflective Running Shorts",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-gel-pad-ergonomic-cycling-shorts",
+      "name": "Gel Pad Ergonomic Cycling Shorts",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-aerodynamic-full-zip-cycling-jersey",
+      "name": "Aerodynamic Full-Zip Cycling Jersey",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-mesh-straps-pro-cycling-bib-shorts",
+      "name": "Mesh Straps Pro Cycling Bib Shorts",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-side-stripe-tricot-track-pants",
+      "name": "Side-Stripe Tricot Track Pants",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-athletic-ankle-zip-running-joggers",
+      "name": "Athletic Ankle-Zip Running Joggers",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-complete-zip-jacket-track-pants-set",
+      "name": "Complete Zip Jacket & Track Pants Set",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-high-impact-racerback-sports-bra",
+      "name": "High-Impact Racerback Sports Bra",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-high-waist-butter-soft-yoga-pants",
+      "name": "High-Waist Butter-Soft Yoga Pants",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-criss-cross-strappy-bamboo-yoga-top",
+      "name": "Criss-Cross Strappy Bamboo Yoga Top",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-seamless-ribbed-studio-training-top",
+      "name": "Seamless Ribbed Studio Training Top",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-squat-proof-compression-leggings",
+      "name": "Squat-Proof Compression Leggings",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-upf-50-thermal-surfing-rash-guard",
+      "name": "UPF 50+ Thermal Surfing Rash Guard",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ultralight-storm-shell-windbreaker",
+      "name": "Ultralight Storm Shell Windbreaker",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-water-resistant-athletic-running-jacket",
+      "name": "Water-Resistant Athletic Running Jacket",
+      "category": "Sports & Activewear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ribbed-triangle-halter-bikini-set",
+      "name": "Ribbed Triangle Halter Bikini Set",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-plunge-back-sculpting-one-piece-swimsuit",
+      "name": "Plunge Back Sculpting One-Piece Swimsuit",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-high-waist-retro-two-piece-swimsuit",
+      "name": "High-Waist Retro Two-Piece Swimsuit",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-racerback-longline-tankini-set",
+      "name": "Racerback Longline Tankini Set",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-cutout-waist-designer-monokini",
+      "name": "Cutout Waist Designer Monokini",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-flared-modest-swim-dress",
+      "name": "Flared Modest Swim Dress",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-quick-dry-drawstring-swim-trunks",
+      "name": "Quick-Dry Drawstring Swim Trunks",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-gradient-sunset-stretch-swim-shorts",
+      "name": "Gradient Sunset Stretch Swim Shorts",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-4-way-stretch-performance-board-shorts",
+      "name": "4-Way Stretch Performance Board Shorts",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-sun-defense-upf-50-swim-tights",
+      "name": "Sun Defense UPF 50+ Swim Tights",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-sheer-crochet-lace-beach-cover-up",
+      "name": "Sheer Crochet Lace Beach Cover-Up",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-printed-silk-beach-wrap-sarong",
+      "name": "Printed Silk Beach Wrap Sarong",
+      "category": "Swimwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-flannel-checked-comfort-pajama",
+      "name": "Flannel Checked Comfort Pajama",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-button-front-satin-pajama-set",
+      "name": "Button-Front Satin Pajama Set",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-pure-cotton-printed-nightdress",
+      "name": "Pure Cotton Printed Nightdress",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-vintage-lace-victorian-nightgown",
+      "name": "Vintage Lace Victorian Nightgown",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-oversized-boyfriend-nightshirt",
+      "name": "Oversized Boyfriend Nightshirt",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-breathable-modal-sleep-t-shirt",
+      "name": "Breathable Modal Sleep T-Shirt",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-drawstring-cotton-boxer-sleep-shorts",
+      "name": "Drawstring Cotton Boxer Sleep Shorts",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-full-zip-thermal-fleece-sleepsuit",
+      "name": "Full-Zip Thermal Fleece Sleepsuit",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-kimono-collar-silk-lounge-robe",
+      "name": "Kimono Collar Silk Lounge Robe",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-plush-turkish-cotton-terry-bathrobe",
+      "name": "Plush Turkish Cotton Terry Bathrobe",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-waffle-knit-ribbed-lounge-pants",
+      "name": "Waffle Knit Ribbed Lounge Pants",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-french-terry-relaxed-lounge-shorts",
+      "name": "French Terry Relaxed Lounge Shorts",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-drop-shoulder-soft-lounge-tee",
+      "name": "Drop-Shoulder Soft Lounge Tee",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-coordinated-cozy-knit-loungewear-set",
+      "name": "Coordinated Cozy Knit Loungewear Set",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-brushed-cotton-fleece-sleep-sweatpants",
+      "name": "Brushed Cotton Fleece Sleep Sweatpants",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-cashmere-touch-relaxed-loungewear-set",
+      "name": "Cashmere-Touch Relaxed Loungewear Set",
+      "category": "Sleepwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-combed-cotton-classic-briefs-pack-of-3",
+      "name": "Combed Cotton Classic Briefs (Pack of 3)",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-micromodal-anti-chafing-boxer-briefs",
+      "name": "MicroModal Anti-Chafing Boxer Briefs",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-relaxed-woven-cotton-boxer-shorts",
+      "name": "Relaxed Woven Cotton Boxer Shorts",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-low-rise-seamless-microfiber-trunks",
+      "name": "Low-Rise Seamless Microfiber Trunks",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-deep-v-neck-invisible-undershirt",
+      "name": "Deep V-Neck Invisible Undershirt",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-ribbed-athletic-tank-undershirt",
+      "name": "Ribbed Athletic Tank Undershirt",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-fleece-lined-winter-thermal-innerwear-set",
+      "name": "Fleece-Lined Winter Thermal Innerwear Set",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-everyday-non-padded-cotton-bra",
+      "name": "Everyday Non-Padded Cotton Bra",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-wirefree-high-support-sports-bra",
+      "name": "Wirefree High-Support Sports Bra",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-lace-triangle-wirefree-bralette",
+      "name": "Lace Triangle Wirefree Bralette",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-plunge-padded-push-up-bra",
+      "name": "Plunge Padded Push-Up Bra",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-seamless-molded-cup-t-shirt-bra",
+      "name": "Seamless Molded Cup T-Shirt Bra",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-silicone-grip-multiway-strapless-bra",
+      "name": "Silicone Grip Multiway Strapless Bra",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-pure-cotton-everyday-camisole",
+      "name": "Pure Cotton Everyday Camisole",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-soft-stretch-cotton-bikini-panties",
+      "name": "Soft Stretch Cotton Bikini Panties",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-full-coverage-seamless-boyshorts",
+      "name": "Full Coverage Seamless Boyshorts",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-zero-vpl-laser-cut-thong",
+      "name": "Zero-VPL Laser-Cut Thong",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-high-waist-tummy-tucking-shapewear-shorts",
+      "name": "High-Waist Tummy Tucking Shapewear Shorts",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-anti-static-silk-slip-dress-liner",
+      "name": "Anti-Static Silk Slip Dress Liner",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-firm-compression-thong-bodysuit",
+      "name": "Firm Compression Thong Bodysuit",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-steel-boned-latex-waist-trainer-corset",
+      "name": "Steel Boned Latex Waist Trainer Corset",
+      "category": "Innerwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-organic-cotton-envelope-baby-bodysuit",
+      "name": "Organic Cotton Envelope Baby Bodysuit",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-snap-button-cute-animal-baby-romper",
+      "name": "Snap Button Cute Animal Baby Romper",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-warm-footed-fleece-baby-onesie",
+      "name": "Warm Footed Fleece Baby Onesie",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-floral-ruffle-party-baby-dress",
+      "name": "Floral Ruffle Party Baby Dress",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-pure-cotton-shoulder-snap-baby-tee",
+      "name": "Pure Cotton Shoulder-Snap Baby Tee",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-mini-collar-linen-baby-shirt",
+      "name": "Mini Collar Linen Baby Shirt",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-elastic-waist-ribbed-baby-pants",
+      "name": "Elastic Waist Ribbed Baby Pants",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-soft-drawstring-cotton-baby-shorts",
+      "name": "Soft Drawstring Cotton Baby Shorts",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-gentle-stretch-elastic-baby-jeans",
+      "name": "Gentle Stretch Elastic Baby Jeans",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-printed-footless-baby-leggings",
+      "name": "Printed Footless Baby Leggings",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-two-piece-snug-fit-baby-pajama-set",
+      "name": "Two-Piece Snug Fit Baby Pajama Set",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-organic-zipped-cotton-baby-sleepsuit",
+      "name": "Organic Zipped Cotton Baby Sleepsuit",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-dino-explorer-graphic-kids-t-shirt",
+      "name": "Dino Explorer Graphic Kids T-Shirt",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-casual-gingham-check-kids-shirt",
+      "name": "Casual Gingham Check Kids Shirt",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-fleece-lined-graphic-kids-hoodie",
+      "name": "Fleece Lined Graphic Kids Hoodie",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-colorblock-ribbed-kids-sweatshirt",
+      "name": "Colorblock Ribbed Kids Sweatshirt",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-comfort-stretch-straight-kids-jeans",
+      "name": "Comfort Stretch Straight Kids Jeans",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-twirl-tulle-sparkle-kids-dress",
+      "name": "Twirl Tulle Sparkle Kids Dress",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-pleated-uniform-casual-kids-skirt",
+      "name": "Pleated Uniform/Casual Kids Skirt",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-cargo-pocket-cotton-kids-shorts",
+      "name": "Cargo Pocket Cotton Kids Shorts",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-lightweight-hooded-windproof-kids-jacket",
+      "name": "Lightweight Hooded Windproof Kids Jacket",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-athletic-tricot-two-piece-kids-tracksuit",
+      "name": "Athletic Tricot Two-Piece Kids Tracksuit",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-quick-dry-match-day-kids-sportswear",
+      "name": "Quick-Dry Match Day Kids Sportswear",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "kids-smart-tailored-school-uniform-set",
+      "name": "Smart Tailored School Uniform Set",
+      "category": "Kids",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-couture-hand-beaded-royal-wedding-gown",
+      "name": "Couture Hand-Beaded Royal Wedding Gown",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-maharani-heritage-velvet-bridal-lehenga",
+      "name": "Maharani Heritage Velvet Bridal Lehenga",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-pure-kanchipuram-real-gold-zari-bridal-saree",
+      "name": "Pure Kanchipuram Real Gold Zari Bridal Saree",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-intricate-zardozi-pearl-embroidered-blouse",
+      "name": "Intricate Zardozi & Pearl Embroidered Blouse",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-chiffon-sweetheart-floor-length-gown",
+      "name": "Chiffon Sweetheart Floor-Length Gown",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-shimmering-metallic-evening-reception-dress",
+      "name": "Shimmering Metallic Evening Reception Dress",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-pastel-floral-corset-engagement-gown",
+      "name": "Pastel Floral Corset Engagement Gown",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-draped-satin-cocktail-sangeet-dress",
+      "name": "Draped Satin Cocktail Sangeet Dress",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-crystal-embellished-mermaid-evening-gown",
+      "name": "Crystal Embellished Mermaid Evening Gown",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-princess-cut-ball-gown-prom-dress",
+      "name": "Princess Cut Ball Gown Prom Dress",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-satin-halter-slip-party-dress",
+      "name": "Satin Halter Slip Party Dress",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-architectural-pleat-column-formal-gown",
+      "name": "Architectural Pleat Column Formal Gown",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-groom-hand-embroidered-zardozi-sherwani",
+      "name": "Groom Hand-Embroidered Zardozi Sherwani",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-silk-jacquard-embroidered-wedding-kurta",
+      "name": "Silk Jacquard Embroidered Wedding Kurta",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-italian-wool-three-piece-wedding-suit",
+      "name": "Italian Wool Three-Piece Wedding Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-groom-satin-peak-lapel-midnight-tuxedo",
+      "name": "Groom Satin Peak Lapel Midnight Tuxedo",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-double-breasted-vest-royal-wedding-suit",
+      "name": "Double-Breasted Vest Royal Wedding Suit",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-embroidered-velvet-royal-jodhpuri-bandhgala",
+      "name": "Embroidered Velvet Royal Jodhpuri Bandhgala",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-retro-leather-court-sneakers",
+      "name": "Retro Leather Court Sneakers",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-pro-nitrogen-cushion-running-shoes",
+      "name": "Pro Nitrogen Cushion Running Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ultra-light-slip-on-walking-shoes",
+      "name": "Ultra-Light Slip-On Walking Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-crossfit-flat-stability-training-shoes",
+      "name": "CrossFit Flat Stability Training Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-high-ankle-ankle-lock-basketball-shoes",
+      "name": "High-Ankle Ankle Lock Basketball Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-clay-hard-court-pivot-tennis-shoes",
+      "name": "Clay & Hard Court Pivot Tennis Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-vulcanized-suede-grip-skate-shoes",
+      "name": "Vulcanized Suede Grip Skate Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-vintage-canvas-high-top-sneakers",
+      "name": "Vintage Canvas High-Top Sneakers",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-minimalist-clean-low-top-sneakers",
+      "name": "Minimalist Clean Low-Top Sneakers",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-twin-gore-elastic-slip-on-sneakers",
+      "name": "Twin-Gore Elastic Slip-On Sneakers",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-hand-burnished-cap-toe-oxford-shoes",
+      "name": "Hand-Burnished Cap Toe Oxford Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-open-lacing-leather-dress-derby-shoes",
+      "name": "Open Lacing Leather Dress Derby Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-penny-leather-slip-on-loafers",
+      "name": "Penny Leather Slip-On Loafers",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-double-buckle-monk-strap-leather-shoes",
+      "name": "Double Buckle Monk Strap Leather Shoes",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-wingtip-perforated-leather-brogues",
+      "name": "Wingtip Perforated Leather Brogues",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-full-grain-elastic-gusset-chelsea-boots",
+      "name": "Full-Grain Elastic Gusset Chelsea Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-desert-suede-3-eyelet-chukka-boots",
+      "name": "Desert Suede 3-Eyelet Chukka Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-lug-sole-military-combat-boots",
+      "name": "Lug Sole Military Combat Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-waterproof-vibram-trail-hiking-boots",
+      "name": "Waterproof Vibram Trail Hiking Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-steel-toe-oil-resistant-work-boots",
+      "name": "Steel Toe Oil-Resistant Work Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-block-heel-pointed-ankle-boots",
+      "name": "Block Heel Pointed Ankle Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-riding-style-leather-knee-high-boots",
+      "name": "Riding Style Leather Knee-High Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-stretch-suede-over-the-knee-boots",
+      "name": "Stretch Suede Over-The-Knee Boots",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ergonomic-cork-footbed-leather-sandals",
+      "name": "Ergonomic Cork Footbed Leather Sandals",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-comfort-cushion-beach-flip-flops",
+      "name": "Comfort Cushion Beach Flip-Flops",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-molded-foam-pool-slides",
+      "name": "Molded Foam Pool Slides",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-backless-leather-heeled-mules",
+      "name": "Backless Leather Heeled Mules",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ventilated-waterproof-comfort-clogs",
+      "name": "Ventilated Waterproof Comfort Clogs",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-jute-braid-sole-canvas-espadrilles",
+      "name": "Jute Braid Sole Canvas Espadrilles",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-driving-pebble-sole-soft-moccasins",
+      "name": "Driving Pebble Sole Soft Moccasins",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-royal-punjabi-embroidered-velvet-jutti",
+      "name": "Royal Punjabi Embroidered Velvet Jutti",
+      "category": "Footwear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-6-panel-curved-brim-baseball-cap",
+      "name": "6-Panel Curved Brim Baseball Cap",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-flat-brim-embroidered-snapback-cap",
+      "name": "Flat Brim Embroidered Snapback Cap",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-breathable-mesh-back-trucker-cap",
+      "name": "Breathable Mesh Back Trucker Cap",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-reversible-cotton-washed-bucket-hat",
+      "name": "Reversible Cotton Washed Bucket Hat",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ribbed-knit-fold-over-winter-beanie",
+      "name": "Ribbed Knit Fold-Over Winter Beanie",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-wool-felt-pinched-crown-fedora-hat",
+      "name": "Wool Felt Pinched Crown Fedora Hat",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-toquilla-straw-wide-brim-panama-hat",
+      "name": "Toquilla Straw Wide Brim Panama Hat",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-french-wool-classic-artist-beret",
+      "name": "French Wool Classic Artist Beret",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-packable-uv-wide-floppy-sun-hat",
+      "name": "Packable UV Wide Floppy Sun Hat",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-athletic-open-top-tennis-visor",
+      "name": "Athletic Open-Top Tennis Visor",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-pre-tied-royal-silk-festive-turban",
+      "name": "Pre-Tied Royal Silk Festive Turban",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-water-resistant-daily-city-backpack",
+      "name": "Water-Resistant Daily City Backpack",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-padded-compartment-tech-laptop-backpack",
+      "name": "Padded Compartment Tech Laptop Backpack",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-structured-saffiano-leather-handbag",
+      "name": "Structured Saffiano Leather Handbag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-heavy-canvas-stitched-shopper-tote",
+      "name": "Heavy Canvas Stitched Shopper Tote",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-90s-baguette-leather-shoulder-bag",
+      "name": "90s Baguette Leather Shoulder Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-adjustable-strap-compact-crossbody-bag",
+      "name": "Adjustable Strap Compact Crossbody Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-tactical-one-strap-chest-sling-bag",
+      "name": "Tactical One-Strap Chest Sling Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-envelope-evening-metallic-clutch",
+      "name": "Envelope Evening Metallic Clutch",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-nylon-travel-utility-waist-bag",
+      "name": "Nylon Travel Utility Waist Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-retro-streetwear-zip-fanny-pack",
+      "name": "Retro Streetwear Zip Fanny Pack",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-waxed-canvas-flap-messenger-bag",
+      "name": "Waxed Canvas Flap Messenger Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-slim-briefcase-padded-laptop-bag",
+      "name": "Slim Briefcase Padded Laptop Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-barrel-gym-travel-duffel-bag",
+      "name": "Barrel Gym & Travel Duffel Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-shoe-compartment-ventilated-gym-bag",
+      "name": "Shoe Compartment Ventilated Gym Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-weekender-water-repellent-travel-bag",
+      "name": "Weekender Water-Repellent Travel Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-drawstring-leather-slouch-bucket-bag",
+      "name": "Drawstring Leather Slouch Bucket Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-micro-chain-strap-accent-mini-bag",
+      "name": "Micro Chain Strap Accent Mini Bag",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-twin-buckle-vintage-leather-satchel",
+      "name": "Twin Buckle Vintage Leather Satchel",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-full-grain-italian-leather-pin-buckle-belt",
+      "name": "Full-Grain Italian Leather Pin-Buckle Belt",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-rfid-protected-bi-fold-leather-wallet",
+      "name": "RFID Protected Bi-Fold Leather Wallet",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-jacquard-silk-geometric-pattern-tie",
+      "name": "Jacquard Silk Geometric Pattern Tie",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-silk-satin-pre-tied-formal-bow-tie",
+      "name": "Silk Satin Pre-Tied Formal Bow Tie",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-hand-rolled-hem-silk-pocket-square",
+      "name": "Hand-Rolled Hem Silk Pocket Square",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-cashmere-feel-plaid-winter-scarf",
+      "name": "Cashmere Feel Plaid Winter Scarf",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-pure-pashmina-hand-woven-kashmiri-shawl",
+      "name": "Pure Pashmina Hand-Woven Kashmiri Shawl",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-silk-modal-digitally-printed-stole",
+      "name": "Silk Modal Digitally Printed Stole",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-touchscreen-compatible-leather-gloves",
+      "name": "Touchscreen Compatible Leather Gloves",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-combed-cotton-cushion-crew-socks-3-pack",
+      "name": "Combed Cotton Cushion Crew Socks (3-Pack)",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-no-show-low-cut-athletic-ankle-socks",
+      "name": "No-Show Low Cut Athletic Ankle Socks",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-ribbed-retro-athletic-crew-socks",
+      "name": "Ribbed Retro Athletic Crew Socks",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-knit-thermal-knee-high-socks",
+      "name": "Knit Thermal Knee-High Socks",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-semi-opaque-sheer-matte-stockings",
+      "name": "Semi-Opaque Sheer Matte Stockings",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-fleece-lined-opaque-winter-tights",
+      "name": "Fleece Lined Opaque Winter Tights",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-ribbed-ballet-knit-leg-warmers",
+      "name": "Ribbed Ballet Knit Leg Warmers",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-y-back-elastic-leather-clip-suspenders",
+      "name": "Y-Back Elastic Leather Clip Suspenders",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-polarized-uv400-acetate-sunglasses",
+      "name": "Polarized UV400 Acetate Sunglasses",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-chronograph-minimalist-leather-watch",
+      "name": "Chronograph Minimalist Leather Watch",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-mother-of-pearl-brass-cufflinks",
+      "name": "Mother of Pearl Brass Cufflinks",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-brushed-silver-formal-tie-bar",
+      "name": "Brushed Silver Formal Tie Bar",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-kundan-stone-imperial-sherwani-brooch",
+      "name": "Kundan Stone Imperial Sherwani Brooch",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-padded-velvet-embellished-hair-band",
+      "name": "Padded Velvet Embellished Hair Band",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-mulberry-silk-anti-frizz-scrunchie",
+      "name": "Mulberry Silk Anti-Frizz Scrunchie",
+      "category": "Accessories",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-traditional-floral-silk-japanese-kimono",
+      "name": "Traditional Floral Silk Japanese Kimono",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-summer-cotton-unlined-yukata-robe",
+      "name": "Summer Cotton Unlined Yukata Robe",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-tailored-mandarin-collar-silk-qipao",
+      "name": "Tailored Mandarin Collar Silk Qipao",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-jeogori-chima-traditional-korean-hanbok",
+      "name": "Jeogori & Chima Traditional Korean Hanbok",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-vibrant-print-african-heritage-dashiki",
+      "name": "Vibrant Print African Heritage Dashiki",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-gold-embroidered-dubai-royal-kaftan",
+      "name": "Gold Embroidered Dubai Royal Kaftan",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-highland-tartan-pure-wool-scottish-kilt",
+      "name": "Highland Tartan Pure Wool Scottish Kilt",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-pleated-heritage-balkan-fustanella-skirt",
+      "name": "Pleated Heritage Balkan Fustanella Skirt",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-geometric-woven-andean-wool-poncho",
+      "name": "Geometric Woven Andean Wool Poncho",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-hand-batik-balinese-cotton-sarong",
+      "name": "Hand-Batik Balinese Cotton Sarong",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-bavarian-embroidered-alpine-dirndl-dress",
+      "name": "Bavarian Embroidered Alpine Dirndl Dress",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-genuine-leather-embroidered-lederhosen",
+      "name": "Genuine Leather Embroidered Lederhosen",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-side-slit-floral-brocade-cheongsam",
+      "name": "Side-Slit Floral Brocade Cheongsam",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-flowing-crepe-embroidered-cuff-abaya",
+      "name": "Flowing Crepe Embroidered Cuff Abaya",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-crisp-white-gulf-traditional-men-thobe",
+      "name": "Crisp White Gulf Traditional Men Thobe",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "men-emirati-minimalist-clean-line-kandura",
+      "name": "Emirati Minimalist Clean Line Kandura",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "women-zari-embroidered-festive-jalabiya",
+      "name": "Zari Embroidered Festive Jalabiya",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    },
+    {
+      "id": "unisex-senegalese-grand-silk-bazin-boubou",
+      "name": "Senegalese Grand Silk Bazin Boubou",
+      "category": "Traditional Wear",
+      "reason": "Previous 2D vector flat removed per Phase 5. Needs authentic fashion photography."
+    }
+  ]
+}

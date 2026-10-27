@@ -1,6 +1,7 @@
-﻿import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 /**
  * Firebase Client Configuration
@@ -25,5 +26,8 @@ const auth = getAuth(app);
 // Initialize Cloud Firestore database instance
 const db = getFirestore(app);
 
-export { app, auth, db };
+// Initialize Firebase Storage
+const storage = getStorage(app);
+
+export { app, auth, db, storage };
 export default app;

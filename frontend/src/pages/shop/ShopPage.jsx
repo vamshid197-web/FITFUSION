@@ -6,13 +6,16 @@ import ProductCard from '../../components/common/ProductCard.jsx';
 import SearchAutocomplete from '../../components/search/SearchAutocomplete.jsx';
 import ShopFilterSidebar from '../../components/search/ShopFilterSidebar.jsx';
 import ActiveFilterChips from '../../components/search/ActiveFilterChips.jsx';
+import AiStyleSearchResult from '../../components/search/AiStyleSearchResult.jsx';
 import { MOCK_PRODUCTS } from '../../data/mockProducts.js';
 import { getProductsFromFirestore } from '../../services/firestoreService.js';
 import {
   filterProducts,
   sortProducts,
-  extractCatalogFacets
+  extractCatalogFacets,
+  normalizeCategory
 } from '../../services/catalogFilterService.js';
+import { evaluateStyleSearch, MATCH_LEVELS } from '../../services/aiStyleSearchService.js';
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +27,9 @@ export default function ShopPage() {
 
   // 1. Read Filter State from URL Query Parameters
   const urlSearch = searchParams.get('search') || '';
-  const urlCategory = searchParams.get('category') || 'All';
+  const rawCategory = searchParams.get('category') || 'All';
+  const urlCategory = normalizeCategory(rawCategory);
+  const urlGender = searchParams.get('gender') || 'all';
   const urlMinPrice = searchParams.get('minPrice') || '';
   const urlMaxPrice = searchParams.get('maxPrice') || '';
   const urlColor = searchParams.get('color') || null;
@@ -39,6 +44,7 @@ export default function ShopPage() {
   const filters = useMemo(() => ({
     searchQuery: urlSearch,
     category: urlCategory,
+    gender: urlGender,
     minPrice: urlMinPrice !== '' ? Number(urlMinPrice) : null,
     maxPrice: urlMaxPrice !== '' ? Number(urlMaxPrice) : null,
     color: urlColor,
@@ -50,6 +56,7 @@ export default function ShopPage() {
   }), [
     urlSearch,
     urlCategory,
+    urlGender,
     urlMinPrice,
     urlMaxPrice,
     urlColor,
@@ -96,6 +103,9 @@ export default function ShopPage() {
     }
     if (newFilters.category && newFilters.category !== 'All') {
       params.set('category', newFilters.category);
+    }
+    if (newFilters.gender && newFilters.gender !== 'all') {
+      params.set('gender', newFilters.gender);
     }
     if (newFilters.minPrice !== null && newFilters.minPrice !== '' && !isNaN(newFilters.minPrice)) {
       params.set('minPrice', String(newFilters.minPrice));
@@ -148,6 +158,7 @@ export default function ShopPage() {
   // Count active non-default filters
   const activeFiltersCount = [
     urlCategory !== 'All',
+    urlGender !== 'all',
     urlSearch.trim() !== '',
     urlMinPrice !== '',
     urlMaxPrice !== '',
@@ -160,6 +171,19 @@ export default function ShopPage() {
   ].filter(Boolean).length;
 
   const isAnyFilterActive = activeFiltersCount > 0 || urlSortBy !== 'recommended';
+
+  // Phase 22: AI Style Search Evaluation (Sections 22-29)
+  const aiSearchResult = useMemo(() => {
+    if (!urlSearch || !urlSearch.trim()) return null;
+    return evaluateStyleSearch(products, urlSearch);
+  }, [products, urlSearch]);
+
+  // Handle clicking a suggested alternative prompt (Section 23: puts prompt in search box & reruns search)
+  const handleApplyPrompt = (promptText) => {
+    const params = new URLSearchParams();
+    params.set('search', promptText);
+    setSearchParams(params, { replace: true });
+  };
 
   // Multi-dimensional filtering and sorting execution
   const filteredAndSortedProducts = useMemo(() => {
@@ -180,7 +204,7 @@ export default function ShopPage() {
             </li>
             <li aria-hidden="true">/</li>
             <li className="text-neutral-800 font-semibold" aria-current="page">
-              Clothing Catalog
+              {urlCategory && urlCategory !== 'All' ? urlCategory : 'All Products'}
             </li>
           </ol>
         </nav>
@@ -189,15 +213,31 @@ export default function ShopPage() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl sm:text-4xl font-serif font-black text-brand-dark tracking-tight">
-              All Garments
+              {urlSearch ? 'AI Style Search' : urlCategory && urlCategory !== 'All' ? urlCategory : 'All Products'}
             </h1>
             <p className="text-xs sm:text-sm text-neutral-600 mt-1 max-w-2xl">
-              Browse our clothing collection. Customize fabric, color, design, and size &mdash; then add a perfume to complete your look.
+              {urlSearch
+                ? `Intelligent styling recommendations tailored for "${urlSearch}".`
+                : urlCategory && urlCategory !== 'All'
+                ? `Browse our ${urlCategory} styles. Customize fabric, color, and size.`
+                : 'Browse our clothing catalog. Customize fabric, color, and size.'}
             </p>
           </div>
           <div className="text-xs text-neutral-500 whitespace-nowrap self-start sm:self-end">
-            Showing <strong className="text-brand-dark font-bold">{filteredAndSortedProducts.length}</strong> of{' '}
-            <strong className="text-neutral-800">{products.length}</strong> styles
+            {aiSearchResult ? (
+              aiSearchResult.matchLevel === MATCH_LEVELS.EXACT_MATCH ? (
+                <>Showing <strong className="text-brand-dark font-bold">{aiSearchResult.exactMatches.length}</strong> recommended styles</>
+              ) : aiSearchResult.matchLevel === MATCH_LEVELS.CLOSE_MATCH ? (
+                <>Showing <strong className="text-brand-dark font-bold">{aiSearchResult.closeMatches.length}</strong> similar styles</>
+              ) : (
+                <>Showing <strong className="text-brand-dark font-bold">{aiSearchResult.similarProducts.length}</strong> alternative styles</>
+              )
+            ) : (
+              <>
+                Showing <strong className="text-brand-dark font-bold">{filteredAndSortedProducts.length}</strong> of{' '}
+                <strong className="text-neutral-800">{products.length}</strong> styles
+              </>
+            )}
           </div>
         </div>
 
@@ -209,7 +249,7 @@ export default function ShopPage() {
               <SearchAutocomplete
                 value={urlSearch}
                 products={products}
-                placeholder="Search by garment, textile weave, collar, or shade..."
+                placeholder="Search products or ask AI Style Search (e.g. 'green hoodie for wedding', 'black formal shirt under ₹100')..."
                 onChange={(val) => handleFilterChange('searchQuery', val)}
                 onSearch={(val) => handleFilterChange('searchQuery', val)}
                 size="md"
@@ -253,6 +293,30 @@ export default function ShopPage() {
                 </select>
               </div>
             </div>
+          </div>
+
+          {/* Quick AI Style Prompts Discovery Strip */}
+          <div className="pt-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
+            <span className="text-[11px] font-bold text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0 shadow-2xs">
+              <span>&#10022;</span> AI Style Search:
+            </span>
+            {[
+              'A dark blazer for a wedding',
+              'Black formal shirt for office',
+              'Traditional outfit for a festival',
+              'Comfortable clothes for college',
+              'A-Line casual dress under ₹1500'
+            ].map((quickPrompt) => (
+              <button
+                key={quickPrompt}
+                type="button"
+                onClick={() => handleApplyPrompt(quickPrompt)}
+                className="px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-brand-dark hover:text-white text-neutral-600 text-[11px] font-medium transition-colors shrink-0 cursor-pointer"
+                title={`Search "${quickPrompt}"`}
+              >
+                &ldquo;{quickPrompt}&rdquo;
+              </button>
+            ))}
           </div>
 
           {/* Quick Category Buttons Strip */}
@@ -319,31 +383,20 @@ export default function ShopPage() {
                   </div>
                 ))}
               </div>
+            ) : aiSearchResult ? (
+              /* Phase 22: AI Style Search Result & Smart Alternatives (Sections 22-29) */
+              <AiStyleSearchResult
+                searchResult={aiSearchResult}
+                onSelectPrompt={handleApplyPrompt}
+                onResetSearch={handleResetAllFilters}
+              />
             ) : filteredAndSortedProducts.length === 0 ? (
-              /* Empty State */
-              <div className="text-center py-16 bg-white rounded-2xl border border-neutral-200 p-8 shadow-sm">
-                <div className="w-14 h-14 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-400">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-base font-bold text-neutral-900">
-                  No clothing items match your current selection
-                </h3>
-                <p className="text-xs text-neutral-500 mt-1 max-w-md mx-auto">
-                  We couldn&apos;t find any clothing models matching your active filters. Try clearing your search keyword, adjusting the price range, or browsing all categories.
-                </p>
-                <div className="mt-5">
-                  <Button onClick={handleResetAllFilters} variant="primary" size="sm">
-                    Reset All Filters
-                  </Button>
-                </div>
-              </div>
+              /* Phase 22: Never leave customer with "No products found" (Section 32) */
+              <AiStyleSearchResult
+                searchResult={evaluateStyleSearch(products, urlCategory !== 'All' ? urlCategory : 'casual style')}
+                onSelectPrompt={handleApplyPrompt}
+                onResetSearch={handleResetAllFilters}
+              />
             ) : (
               /* Product Grid (Part 13: 2 on mobile, 3 on tablet, 4 on large desktop) */
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">

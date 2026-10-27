@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
@@ -12,6 +12,9 @@ import { recordRecentlyViewed } from '../../services/recentlyViewedService.js';
 import StarRating from '../../components/common/StarRating.jsx';
 import ProductReviewsSection from '../../components/reviews/ProductReviewsSection.jsx';
 import ProductImage from '../../components/common/ProductImage.jsx';
+import FindMySizeModal from '../../components/common/FindMySizeModal.jsx';
+import CompleteTheLookSection from '../../components/product/CompleteTheLookSection.jsx';
+import { MASTER_COLORS } from '../../data/customizationOptions.js';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -23,6 +26,7 @@ export default function ProductDetailsPage() {
   const [allProducts, setAllProducts] = useState(MOCK_PRODUCTS);
   const [loading, setLoading] = useState(true);
   const [cartNotice, setCartNotice] = useState('');
+  const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
 
   // Selected Options
   const [selectedFabric, setSelectedFabric] = useState(null);
@@ -30,6 +34,8 @@ export default function ProductDetailsPage() {
   const [selectedSize, setSelectedSize] = useState('M');
   const [liveRating, setLiveRating] = useState(null);
   const [liveReviewsCount, setLiveReviewsCount] = useState(null);
+  const [activeAngleIndex, setActiveAngleIndex] = useState(0);
+  const [userPickedColorImage, setUserPickedColorImage] = useState(null);
 
   // Load single product and catalog
   useEffect(() => {
@@ -46,6 +52,8 @@ export default function ProductDetailsPage() {
             setSelectedFabric(p.availableFabrics?.[0]?.name || 'Standard Milled Textile');
             setSelectedColor(p.availableColors?.[0]?.name || 'Natural');
             setSelectedSize(p.availableSizes?.[0] || 'M');
+            setActiveAngleIndex(0);
+            setUserPickedColorImage(null);
             recordRecentlyViewed(p);
           } else {
             // Fallback to first mock product if invalid id
@@ -53,6 +61,8 @@ export default function ProductDetailsPage() {
             setSelectedFabric(MOCK_PRODUCTS[0].availableFabrics[0]?.name);
             setSelectedColor(MOCK_PRODUCTS[0].availableColors[0]?.name);
             setSelectedSize(MOCK_PRODUCTS[0].availableSizes[0]);
+            setActiveAngleIndex(0);
+            setUserPickedColorImage(null);
           }
         }
 
@@ -73,6 +83,16 @@ export default function ProductDetailsPage() {
       isMounted = false;
     };
   }, [id]);
+
+  // Selected Color Object (Must be unconditionally declared at top level to obey Rules of Hooks)
+  const selectedColorObj = useMemo(() => {
+    if (!product) return MASTER_COLORS[0];
+    const inProd = (product?.availableColors || []).find((c) => c.name === selectedColor);
+    if (inProd) return inProd;
+    const inMaster = MASTER_COLORS.find((c) => c.name.toLowerCase() === (selectedColor || '').toLowerCase());
+    if (inMaster) return inMaster;
+    return (product?.availableColors || [])[0] || MASTER_COLORS[0];
+  }, [product, selectedColor]);
 
   if (loading) {
     return (
@@ -115,8 +135,6 @@ export default function ProductDetailsPage() {
   const relatedProducts = allProducts
     .filter((p) => String(p.id) !== String(product.id))
     .slice(0, 3);
-
-  const selectedColorObj = (product.availableColors || []).find((c) => c.name === selectedColor) || null;
 
   const handleAddToCart = () => {
     const resolvedImg = product.image || (product.images && product.images[0]) || product.thumbnail || getProductImage(product);
@@ -229,10 +247,22 @@ export default function ProductDetailsPage() {
               {/* Real Garment Image with Dynamic Tint */}
               <div className="absolute inset-0 z-0 flex items-center justify-center p-2">
                 <ProductImage
-                  src={product.image || product.images?.[0] || product.thumbnail || getProductImage(product)}
+                  productId={product?.id}
+                  src={
+                    userPickedColorImage ||
+                    (product.colorImages && selectedColor && !product.colorImages[selectedColor]?.includes('/images/products/') && product.colorImages[selectedColor]) ||
+                    (product.images && product.images[activeAngleIndex]) ||
+                    getProductImage(product) ||
+                    product.image ||
+                    product.thumbnail
+                  }
                   alt={product.name}
                   category={product.category}
-                  tintColor={selectedColorObj?.hex || null}
+                  tintColor={
+                    userPickedColorImage || (product.colorImages && selectedColor && !product.colorImages[selectedColor]?.includes('/images/products/') && product.colorImages[selectedColor])
+                      ? null
+                      : selectedColorObj?.hex || null
+                  }
                   className="w-full h-full object-cover rounded-xl"
                 />
               </div>
@@ -247,6 +277,42 @@ export default function ProductDetailsPage() {
                 </span>
               </div>
             </div>
+
+            {/* Multi-angle & Multi-view thumbnail gallery */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {product.images.map((imgSrc, idx) => {
+                  const labels = ['Front', 'Back', 'Side', 'Detail'];
+                  const label = labels[idx] || `Angle ${idx + 1}`;
+                  const isSelected = activeAngleIndex === idx && !userPickedColorImage;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setActiveAngleIndex(idx);
+                        setUserPickedColorImage(null);
+                      }}
+                      className={`relative w-16 h-16 rounded-xl border-2 overflow-hidden flex-shrink-0 transition-all ${
+                        isSelected
+                          ? 'border-brand-accent ring-2 ring-brand-accent/20 shadow-xs'
+                          : 'border-neutral-200 hover:border-neutral-300 opacity-70 hover:opacity-100'
+                      }`}
+                      title={`${label} View`}
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={`${product.name} ${label}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-0 inset-x-0 bg-neutral-900/80 text-white text-[9px] py-0.5 text-center font-medium leading-none">
+                        {label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Garment Information & Options */}
@@ -361,7 +427,12 @@ export default function ProductDetailsPage() {
                     <button
                       key={color.name}
                       type="button"
-                      onClick={() => setSelectedColor(color.name)}
+                      onClick={() => {
+                        setSelectedColor(color.name);
+                        if (product.colorImages && product.colorImages[color.name]) {
+                          setUserPickedColorImage(product.colorImages[color.name]);
+                        }
+                      }}
                       className={`group relative p-1 rounded-full border transition-all ${
                         selectedColor === color.name
                           ? 'border-brand-accent ring-2 ring-brand-accent ring-offset-2'
@@ -386,7 +457,14 @@ export default function ProductDetailsPage() {
                   <label className="text-xs font-bold uppercase tracking-wider text-brand-dark">
                     3. Select Size
                   </label>
-                  <span className="text-xs text-brand-accent font-semibold">Custom sizing available in customizer</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsSizeModalOpen(true)}
+                    className="text-xs text-brand-accent hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>📏</span>
+                    <span>Find My Size</span>
+                  </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {product.availableSizes.map((size) => (
@@ -424,12 +502,36 @@ export default function ProductDetailsPage() {
             <div className="pt-6 border-t border-neutral-200 space-y-3">
               <Button
                 to={`/customize/${product.id}`}
+                state={{
+                  selectedColor: selectedColorObj,
+                  selectedFabric: (product.availableFabrics || []).find(f => f.name === selectedFabric),
+                  selectedSize: selectedSize
+                }}
                 variant="secondary"
                 size="lg"
                 disabled={!isAvailable}
                 className="w-full text-base font-bold shadow-md"
               >
                 {isAvailable ? 'Customize This Garment &rarr;' : 'Garment Currently Unavailable'}
+              </Button>
+
+              <Button
+                to="/virtual-try-on"
+                state={{
+                  productId: product.id,
+                  product,
+                  customization: {
+                    color: selectedColor,
+                    fabric: selectedFabric,
+                    size: selectedSize
+                  }
+                }}
+                variant="outline"
+                size="lg"
+                disabled={!isAvailable}
+                className="w-full text-sm font-extrabold border-2 border-amber-500 text-amber-900 bg-amber-50/60 hover:bg-amber-500 hover:text-white transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span className="text-base">✨</span> Kolors AI Virtual Try-On
               </Button>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -454,6 +556,23 @@ export default function ProductDetailsPage() {
             </div>
           </div>
         </div>
+
+        {/* Complete the Look Section */}
+        {product && (
+          <div className="mt-12">
+            <CompleteTheLookSection currentProduct={product} allProducts={allProducts} />
+          </div>
+        )}
+
+        {/* Find My Size Modal */}
+        <FindMySizeModal
+          isOpen={isSizeModalOpen}
+          onClose={() => setIsSizeModalOpen(false)}
+          onSelectSize={(newSize) => setSelectedSize(newSize)}
+          initialSize={selectedSize}
+          gender={product?.gender || 'Men'}
+          availableSizes={product?.availableSizes || ['XS', 'S', 'M', 'L', 'XL', '2XL']}
+        />
 
         {/* Bottom Section: Related Bespoke Silhouettes */}
         {/* Product Reviews & Rating Summary - Phase 14 */}
@@ -506,6 +625,7 @@ export default function ProductDetailsPage() {
                   >
                     <div className="aspect-[4/3] bg-neutral-100 relative overflow-hidden">
                       <ProductImage
+                        productId={rel.id}
                         src={rel.image || rel.images?.[0] || rel.thumbnail || getProductImage(rel)}
                         alt={rel.name}
                         category={rel.category}

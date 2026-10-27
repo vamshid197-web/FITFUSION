@@ -694,6 +694,7 @@ export default function CheckoutPage() {
                       <div className="w-14 h-16 rounded-lg bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 relative">
                         <ProductImage
                           src={item.productImage || item.image}
+                          productId={item.productId || item.id}
                           alt={item.productName}
                           category={item.category}
                           tintColor={item.selectedColor?.hex || item.color?.hex}
@@ -709,7 +710,6 @@ export default function CheckoutPage() {
                         </div>
                         <div className="text-[11px] text-neutral-500">
                           Style: {item.collar} Collar &bull; {item.cuff} Cuff &bull; {item.buttons} Buttons
-                          {item.monogram ? ` • Monogram: "${item.monogram.text || item.monogram}"` : ''}
                         </div>
                         {item.selectedPerfume && (
                           <div className="text-[11px] text-brand-accent font-semibold flex items-center gap-1">
@@ -1450,6 +1450,7 @@ export default function CheckoutPage() {
                       <div className="w-12 h-14 rounded-lg bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 relative">
                         <ProductImage
                           src={item.productImage || item.image}
+                          productId={item.productId || item.id}
                           alt={item.productName}
                           category={item.category}
                           tintColor={item.selectedColor?.hex || item.color?.hex}

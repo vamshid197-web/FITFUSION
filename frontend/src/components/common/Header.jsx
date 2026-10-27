@@ -72,6 +72,7 @@ export default function Header() {
     { name: 'Home', path: '/home' },
     { name: 'Shop Catalog', path: '/shop' },
     { name: 'Customizer', path: '/customize/1' },
+    { name: 'Virtual Try-On', path: '/virtual-try-on' },
     { name: 'Saved Designs', path: '/saved-designs' },
     { name: 'My Orders', path: '/orders' }
   ];

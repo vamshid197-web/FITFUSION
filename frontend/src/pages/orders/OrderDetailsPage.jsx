@@ -520,6 +520,7 @@ export default function OrderDetailsPage() {
                               {/* Garment Silhouette / Image */}
                               <div className="w-16 h-20 rounded-lg bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 relative shadow-2xs">
                                 <ProductImage
+                                  productId={item.productId || item.id}
                                   src={item.productImage || item.image}
                                   alt={item.productName}
                                   category={item.category}
@@ -582,14 +583,6 @@ export default function OrderDetailsPage() {
                               <div className="text-neutral-700">
                                 <strong>Cuff:</strong> {cuffStyle} • <strong>Buttons:</strong> {buttonsStyle}
                               </div>
-                              {monogram && (
-                                <div className="pt-1 text-brand-accent font-bold text-[11px] flex items-center gap-1">
-                                  <span>✍️ Monogram:</span>
-                                  <span className="font-mono bg-brand-accentLight px-1.5 py-0.5 rounded border border-brand-accent/20">
-                                    "{monogram}"
-                                  </span>
-                                </div>
-                              )}
                             </div>
 
                             {/* Fit & Measurements */}
@@ -649,6 +642,38 @@ export default function OrderDetailsPage() {
                                     Notes: {perfumeItem.notes}
                                   </div>
                                 )}
+                              </div>
+                            )}
+
+                            {/* Studio Design Elements (Section 18 & 20) */}
+                            {Array.isArray(item.designLayers) && item.designLayers.length > 0 && (
+                              <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200/80 sm:col-span-2 space-y-2">
+                                <span className="font-bold text-neutral-500 text-[10px] uppercase tracking-wider block flex items-center justify-between">
+                                  <span>🎨 Studio Custom Designs ({item.designLayers.length})</span>
+                                  {item.designLayersSurcharge > 0 && (
+                                    <span className="text-brand-accent font-bold">+₹{Number(item.designLayersSurcharge).toLocaleString('en-IN')}</span>
+                                  )}
+                                </span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                  {item.designLayers.map((lyr, lIdx) => (
+                                    <div key={lyr.id || lIdx} className="flex items-center gap-2 p-2 rounded bg-white border border-neutral-200">
+                                      <span className="text-base">
+                                        {lyr.type === 'photo' ? '📷' : lyr.type === 'drawing' ? '✏️' : lyr.type === 'pattern' ? '🏁' : lyr.type === 'patch' ? '🛡️' : lyr.type === 'text' ? '🔤' : '🎨'}
+                                      </span>
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-bold text-neutral-800 text-[11px] truncate">
+                                          {lyr.title || lyr.type}
+                                        </div>
+                                        <div className="text-[10px] text-neutral-500 flex items-center gap-1.5 capitalize">
+                                          <span>Area: {lyr.printArea || 'front'}</span>
+                                          {lyr.printStyle && lyr.printStyle !== 'solid' && (
+                                            <span className="px-1 rounded bg-amber-100 text-amber-900 font-bold uppercase text-[9px]">{lyr.printStyle}</span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
                           </div>

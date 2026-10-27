@@ -523,6 +523,7 @@ export default function OrdersPage() {
                                 <div className="w-16 h-20 rounded-lg bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 relative">
                                   <ProductImage
                                     src={item.productImage || item.image}
+                                    productId={item.productId || item.id}
                                     alt={item.productName}
                                     category={item.category}
                                     tintColor={item.selectedColor?.hex || item.color?.hex}
@@ -547,9 +548,6 @@ export default function OrdersPage() {
                                     <p>
                                       <strong>Fit:</strong> {item.fit || 'Regular'} &bull;{' '}
                                       <strong>Size:</strong> {item.size || 'Custom Tailored'}
-                                      {monogramText && (
-                                        <span> &bull; <strong>Monogram:</strong> "{monogramText}"</span>
-                                      )}
                                     </p>
 
                                     {perfumeItem && (

@@ -44,6 +44,9 @@ function setLocalCustomizations(list) {
 
 function sanitizePayload(obj) {
   if (obj === null || typeof obj !== 'object') {
+    if (typeof obj === 'string' && obj.startsWith('data:image/') && obj.length > 500) {
+      return '[PHOTO_ASSET_REFERENCE]';
+    }
     return obj;
   }
   if (Array.isArray(obj)) {
@@ -72,14 +75,28 @@ export async function saveCustomization({
   const customizationId = 'sc_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
   const now = new Date().toISOString();
 
+  const cust = customization || {};
   const record = {
     id: customizationId,
     userId: userId || 'anonymous',
-    productId: productId || '',
-    productName: productName || 'Bespoke Garment',
-    designName: designName || (`${productName || 'Custom'} - ${customization?.fabric?.name || 'Tailored'}`),
-    customization: customization || {},
+    productId: productId || cust.productId || '',
+    productName: productName || cust.productName || 'Custom Garment',
+    productImage: cust.productImage || null,
+    fabric: cust.fabric?.name || (typeof cust.fabric === 'string' ? cust.fabric : 'Cotton'),
+    color: cust.color?.name || (typeof cust.color === 'string' ? cust.color : 'Classic'),
+    size: cust.size || 'M',
+    fit: cust.fit || 'Regular',
+    customMeasurements: cust.measurements || null,
+    designElements: cust.design || null,
+    printedGraphics: cust.designLayers || null,
+    placement: cust.designLayers?.[0]?.placement || 'Front Center',
+    printStyle: cust.designLayers?.[0]?.printStyle || 'Standard Print',
+    customizationPrice: Number(cust.customizationPrice || 0),
+    totalPrice: Number(price) || 0,
     price: Number(price) || 0,
+    createdDate: now,
+    designName: designName || (`${productName || 'Custom'} - ${cust.fabric?.name || 'Tailored'}`),
+    customization: cust,
     createdAt: now,
     updatedAt: now
   };

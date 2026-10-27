@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../../components/common/Button.jsx';
 import PageContainer from '../../components/common/PageContainer.jsx';
+import ProductImage from '../../components/common/ProductImage.jsx';
 import { MOCK_PRODUCTS } from '../../data/mockProducts.js';
 
 export default function LandingPage() {
@@ -69,19 +70,18 @@ export default function LandingPage() {
                   </span>
                 </div>
 
-                {/* Stylized Apparel Silhouette Illustration */}
-                <div className="my-auto text-center py-8">
-                  <div className="w-32 h-44 mx-auto rounded-xl bg-white/90 border border-brand-accent/20 shadow-lg flex flex-col items-center justify-center p-4 relative group">
-                    <svg className="w-16 h-16 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M9 3v2m6-2v2M9 5H7a2 2 0 00-2 2v2l2 1v9a2 2 0 002 2h6a2 2 0 002-2v-9l2-1V7a2 2 0 00-2-2h-2m-6 0a2 2 0 002 2h2a2 2 0 002-2m-6 0h6"
-                      />
-                    </svg>
-                    <div className="mt-3 text-[11px] font-bold text-brand-dark">Egyptian Giza Shirt</div>
-                    <div className="text-[9px] text-neutral-500">Cutaway Collar &bull; French Cuff</div>
+                {/* Realistic Garment Photography Card */}
+                <div className="my-auto text-center py-4">
+                  <div className="w-52 h-64 mx-auto rounded-2xl overflow-hidden bg-white shadow-xl border border-neutral-200/80 relative group">
+                    <img
+                      src="/products/shirts/classic-cotton-poplin-shirt.webp"
+                      alt="Egyptian Giza Cotton Shirt"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-3.5 pt-6 text-left">
+                      <div className="text-xs font-bold text-white leading-tight">Egyptian Giza Shirt</div>
+                      <div className="text-[10px] text-neutral-300 font-medium">Cutaway Collar &bull; French Cuff</div>
+                    </div>
                   </div>
                 </div>
 
@@ -178,27 +178,22 @@ export default function LandingPage() {
               key={product.id}
               className="bg-white rounded-xl border border-neutral-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col"
             >
-              {/* Image / Silhouette Area */}
-              <div
-                className={`aspect-[4/3] bg-gradient-to-br ${product.silhouetteColor} p-6 flex flex-col justify-between relative`}
-              >
-                <span className="self-start text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-white text-brand-dark shadow-sm">
+              {/* Realistic Product Image Area */}
+              <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100">
+                <ProductImage
+                  productId={product.id}
+                  src={product.image || product.images?.[0] || product.thumbnail}
+                  alt={product.name}
+                  category={product.category}
+                  colorImages={product.colorImages}
+                  aspectRatio="aspect-[4/3]"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-white/95 text-brand-dark shadow-xs z-10">
                   {product.category}
                 </span>
-
-                <div className="my-auto flex justify-center items-center">
-                  <div className="w-20 h-28 rounded-lg bg-white/80 border border-neutral-300 shadow-sm flex flex-col items-center justify-center p-2 group-hover:scale-105 transition-transform">
-                    <span className="text-[11px] font-bold text-neutral-800 text-center line-clamp-2">
-                      {product.name}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center text-xs font-semibold text-neutral-700">
-                  <span>From ${product.basePrice}</span>
-                  <span className="flex items-center gap-1">
-                    <span className="text-amber-500">&#9733;</span> {product.rating}
-                  </span>
+                <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-xs text-white px-2 py-0.5 rounded text-xs font-semibold z-10">
+                  <span className="text-amber-400">&#9733;</span> {product.rating}
                 </div>
               </div>
 

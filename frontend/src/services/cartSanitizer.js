@@ -119,7 +119,7 @@ export function sanitizeCartItem(rawItem) {
   // Price calculations
   let calculatedItemPrice = Number(rawItem.totalItemPrice ?? rawItem.itemPrice ?? rawItem.price);
   if (isNaN(calculatedItemPrice) || calculatedItemPrice <= 0) {
-    calculatedItemPrice = basePrice + (selectedFabric.priceAdjustment || 0) + hardwareSurcharge + monogramSurcharge + perfumePrice;
+    calculatedItemPrice = basePrice + (selectedFabric.priceAdjustment || 0) + hardwareSurcharge + monogramSurcharge + perfumePrice + Number(rawItem.designLayersSurcharge || 0);
   }
 
   const designOptions = rawItem.designOptions || rawItem.selectedDesign || {
@@ -155,6 +155,9 @@ export function sanitizeCartItem(rawItem) {
     cuff: designOptions.cuff || 'Standard',
     buttons: designOptions.buttons || 'Standard Horn',
     monogram: typeof rawItem.monogram === 'string' ? rawItem.monogram : (rawItem.monogram?.text || ''),
+    designLayers: Array.isArray(rawItem.designLayers)
+      ? rawItem.designLayers
+      : (Array.isArray(rawItem.customization?.designLayers) ? rawItem.customization.designLayers : []),
     quantity,
     itemPrice: calculatedItemPrice,
     totalItemPrice: calculatedItemPrice,

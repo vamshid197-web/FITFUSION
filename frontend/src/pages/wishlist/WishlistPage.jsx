@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/common/PageContainer.jsx';
 import Button from '../../components/common/Button.jsx';
+import ProductImage from '../../components/common/ProductImage.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
@@ -93,19 +94,19 @@ export default function WishlistPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-serif font-black text-brand-dark tracking-tight flex items-center gap-3">
-                <span>My Bespoke Wishlist</span>
+                <span>My Wishlist</span>
                 <span className="text-sm font-sans font-bold px-3 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
-                  {wishlist.length} {wishlist.length === 1 ? 'Piece' : 'Pieces'}
+                  {wishlist.length} {wishlist.length === 1 ? 'Item' : 'Items'}
                 </span>
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
-                Curate and save your coveted garments. Revisit, personalize tailoring, or add to bag at your leisure.
+                Save your favorite items here. Revisit anytime or move them directly to your cart.
               </p>
             </div>
 
             <div className="flex items-center gap-2.5">
               <Button to="/shop" variant="outline" size="sm">
-                Explore More Pieces &rarr;
+                Continue Shopping &rarr;
               </Button>
             </div>
           </div>
@@ -170,7 +171,7 @@ export default function WishlistPage() {
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button to="/shop" variant="secondary" size="md" className="w-full sm:w-auto shadow-md">
-                Browse Atelier Catalog &rarr;
+                Browse Catalog &rarr;
               </Button>
               <Button to="/customize/1" variant="outline" size="md" className="w-full sm:w-auto">
                 Open Customizer
@@ -198,13 +199,22 @@ export default function WishlistPage() {
                   className="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group relative"
                 >
                   {/* Top Visual Area */}
-                  <div
-                    className={`aspect-[4/3] bg-gradient-to-br ${
-                      item.silhouetteColor || 'from-stone-100 to-amber-50'
-                    } p-5 flex flex-col justify-between relative overflow-hidden`}
-                  >
-                    <div className="flex justify-between items-start z-10">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/95 text-neutral-800 shadow-xs border border-neutral-200/50">
+                  <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
+                    <Link to={`/product/${prodId}`} className="block w-full h-full group-hover:scale-105 transition-transform duration-500">
+                      <ProductImage
+                        src={item.productImage || item.image || item.thumbnail}
+                        productId={prodId}
+                        alt={item.productName || item.name}
+                        category={item.category}
+                        colorImages={item.colorImages}
+                        aspectRatio="aspect-[4/3]"
+                        className="w-full h-full object-cover"
+                      />
+                    </Link>
+
+                    {/* Category Badge & Remove Button */}
+                    <div className="absolute top-3 inset-x-3 flex justify-between items-start z-10 pointer-events-none">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/95 text-neutral-800 shadow-xs border border-neutral-200/50 pointer-events-auto">
                         {item.category || 'Apparel'}
                       </span>
                       <button
@@ -213,7 +223,7 @@ export default function WishlistPage() {
                         disabled={removingId === prodId}
                         aria-label={`Remove ${item.productName} from wishlist`}
                         title="Remove from Wishlist"
-                        className="w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs text-rose-500 hover:text-rose-700 hover:bg-white border border-neutral-200/80 shadow-xs flex items-center justify-center transition-all hover:scale-110 disabled:opacity-50"
+                        className="w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs text-rose-500 hover:text-rose-700 hover:bg-white border border-neutral-200/80 shadow-xs flex items-center justify-center transition-all hover:scale-110 disabled:opacity-50 pointer-events-auto"
                       >
                         <svg className="w-4 h-4 fill-rose-500" viewBox="0 0 24 24">
                           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -221,29 +231,10 @@ export default function WishlistPage() {
                       </button>
                     </div>
 
-                    {/* Central Silhouette Graphic */}
-                    <div className="my-auto text-center z-10">
-                      <Link to={`/product/${prodId}`} className="block group-hover:scale-105 transition-transform duration-300">
-                        <div className="w-20 h-28 mx-auto rounded-xl bg-white/95 border border-neutral-200 shadow-md flex flex-col items-center justify-center p-3 space-y-1.5">
-                          <svg className="w-9 h-9 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M9 3v2m6-2v2M9 5H7a2 2 0 00-2 2v2l2 1v9a2 2 0 002 2h6a2 2 0 002-2v-9l2-1V7a2 2 0 00-2-2h-2m-6 0a2 2 0 002 2h2a2 2 0 002-2m-6 0h6"
-                            />
-                          </svg>
-                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">
-                            FITFUSION
-                          </span>
-                        </div>
-                      </Link>
-                    </div>
-
                     {/* Added Date Stamp */}
-                    <div className="z-10 flex items-center justify-between text-[11px] text-neutral-500 font-medium">
+                    <div className="absolute bottom-2.5 inset-x-3 z-10 flex items-center justify-between text-[11px] text-white font-medium bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded-lg">
                       <span>Saved {formattedDate}</span>
-                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                      <span className="text-emerald-300 font-bold">
                         {item.available !== false ? '● In Stock' : '○ Made to Order'}
                       </span>
                     </div>

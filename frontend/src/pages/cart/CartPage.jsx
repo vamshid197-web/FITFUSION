@@ -170,9 +170,10 @@ export default function CartPage() {
                     <div className="w-24 h-28 sm:w-28 sm:h-32 rounded-xl bg-neutral-100 border border-neutral-200 p-1 flex flex-col justify-between shrink-0 relative overflow-hidden">
                       <ProductImage
                         src={item.productImage || item.image}
+                        productId={item.productId || item.id}
                         alt={item.productName}
                         category={item.category}
-                        tintColor={item.selectedColor?.hex || item.color?.hex}
+                        tintColor={item.selectedColor?.hex || item.color?.hex || item.customization?.color?.hex || (typeof item.color === 'string' && item.color.startsWith('#') ? item.color : null)}
                         className="w-full h-full object-cover rounded-lg"
                       />
 
@@ -219,17 +220,17 @@ export default function CartPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
                         <div className="p-2 rounded-lg bg-neutral-50 border border-neutral-100">
                           <span className="text-[10px] uppercase font-semibold text-neutral-400 block">Fabric</span>
-                          <span className="font-bold text-brand-dark truncate block">{item.selectedFabric?.name || 'Cotton'}</span>
+                          <span className="font-bold text-brand-dark truncate block">{item.selectedFabric?.name || item.fabric?.name || (typeof item.fabric === 'string' ? item.fabric : 'Cotton')}</span>
                         </div>
 
                         <div className="p-2 rounded-lg bg-neutral-50 border border-neutral-100">
                           <span className="text-[10px] uppercase font-semibold text-neutral-400 block">Color</span>
                           <span className="font-bold text-brand-dark flex items-center gap-1.5 truncate">
                             <span
-                              style={{ backgroundColor: item.selectedColor?.hex || '#171717' }}
+                              style={{ backgroundColor: item.selectedColor?.hex || item.color?.hex || item.customization?.color?.hex || '#171717' }}
                               className="w-2.5 h-2.5 rounded-full border border-neutral-300 shrink-0"
                             />
-                            <span className="truncate">{item.selectedColor?.name || 'Default'}</span>
+                            <span className="truncate">{item.selectedColor?.name || item.color?.name || (typeof item.color === 'string' ? item.color : 'Default')}</span>
                           </span>
                         </div>
 
@@ -258,9 +259,6 @@ export default function CartPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-neutral-700">
                             <div><strong>Fabric Composition:</strong> {item.selectedFabric?.composition || '100% Certified Textile'}</div>
                             <div><strong>Buttons:</strong> {item.buttons || 'Standard Horn'}</div>
-                            <div>
-                              <strong>Monogram:</strong> {item.monogram ? `"${item.monogram}" (Silk embroidered)` : 'None'}
-                            </div>
                             <div><strong>Silhouette Fit:</strong> {item.fit} Fit</div>
                             <div>
                               <strong>Fragrance:</strong> {item.selectedPerfume ? `${item.selectedPerfume.name || 'Perfume'} ${item.selectedPerfume.brand ? 'by ' + item.selectedPerfume.brand : ''} (+₹${item.selectedPerfume.price || 0})` : 'No fragrance selected (₹0)'}
@@ -279,6 +277,26 @@ export default function CartPage() {
                                       <strong className="text-neutral-700">{k}:</strong> {v} {item.measurementUnit || 'in'}
                                     </span>
                                   ) : null
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {Array.isArray(item.designLayers) && item.designLayers.length > 0 && (
+                            <div className="pt-2 border-t border-neutral-200">
+                              <span className="font-bold text-brand-dark block mb-1">
+                                Custom Studio Designs ({item.designLayers.length}):
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {item.designLayers.map((lyr, idx) => (
+                                  <span key={lyr.id || idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-cream border border-amber-200 text-[11px] font-semibold text-brand-dark">
+                                    <span>{lyr.type === 'photo' ? '📷' : lyr.type === 'drawing' ? '✏️' : lyr.type === 'pattern' ? '🏁' : lyr.type === 'patch' ? '🛡️' : lyr.type === 'text' ? '🔤' : '🎨'}</span>
+                                    <span>{lyr.title || lyr.type}</span>
+                                    <span className="text-[9px] text-neutral-400 capitalize">({lyr.printArea || 'front'})</span>
+                                    {lyr.printStyle && lyr.printStyle !== 'solid' && (
+                                      <span className="text-[9px] uppercase px-1 rounded bg-amber-500/10 text-amber-800 font-bold">{lyr.printStyle}</span>
+                                    )}
+                                  </span>
                                 ))}
                               </div>
                             </div>

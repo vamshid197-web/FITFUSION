@@ -17,11 +17,13 @@ export default function ShopFilterSidebar({
     colors = [],
     fabrics = [],
     sizes = [],
-    quickPriceBrackets = []
+    quickPriceBrackets = [],
+    genders = ['All', 'Men', 'Women', 'Unisex', 'Kids']
   } = facets;
 
   const {
     category = 'All',
+    gender = 'all',
     minPrice = '',
     maxPrice = '',
     color = null,
@@ -82,8 +84,34 @@ export default function ShopFilterSidebar({
         </div>
       </div>
 
-      {/* 1. Category Filter */}
+      {/* 0. Gender Filter */}
       <div className="space-y-2">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+          Gender / Department
+        </label>
+        <div className="grid grid-cols-4 gap-1">
+          {['all', 'Men', 'Women', 'Kids'].map((g) => {
+            const isSelected = (gender || 'all').toLowerCase() === g.toLowerCase();
+            return (
+              <button
+                key={g}
+                type="button"
+                onClick={() => onFilterChange('gender', g === 'all' ? null : g)}
+                className={`py-1.5 px-2 rounded-lg text-xs font-semibold text-center border transition-all ${
+                  isSelected
+                    ? 'bg-brand-dark text-white border-brand-dark shadow-xs'
+                    : 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50'
+                }`}
+              >
+                {g === 'all' ? 'All' : g}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 1. Category Filter */}
+      <div className="space-y-2 pt-2 border-t border-neutral-100">
         <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
           Garment Category
         </label>
